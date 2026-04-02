@@ -20,13 +20,29 @@ function hasNodeId(node: CanvasNode, nodeId: string): boolean {
   return (node.children ?? []).some((child) => hasNodeId(child, nodeId))
 }
 
+function collectNodeIds(node: CanvasNode, ids: Set<string> = new Set<string>()): Set<string> {
+  if (ids.has(node.id)) {
+    throw new Error(`Node id '${node.id}' is duplicated in inserted subtree`)
+  }
+
+  ids.add(node.id)
+
+  for (const child of node.children ?? []) {
+    collectNodeIds(child, ids)
+  }
+
+  return ids
+}
+
 export function validateInsertChildNode(parent: CanvasNode, child: CanvasNode, root: CanvasNode): void {
   if (!isCanvasNode(child)) {
     throw new Error('Inserted node must satisfy the canvas node contract')
   }
 
-  if (hasNodeId(root, child.id)) {
-    throw new Error(`Node id '${child.id}' already exists`)
+  for (const nodeId of collectNodeIds(child)) {
+    if (hasNodeId(root, nodeId)) {
+      throw new Error(`Node id '${nodeId}' already exists`)
+    }
   }
 
   const parentDefinition = getWidgetDefinition(parent.type)

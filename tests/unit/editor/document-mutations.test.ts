@@ -91,4 +91,31 @@ describe('insertChildNode', () => {
       insertChildNode(document, 'columns-1', createNode({ id: 'bad-child', type: 'heading' })),
     ).toThrow("Node 'columns-1' of type 'columns' only accepts children of type: container")
   })
+
+  it('throws when an inserted subtree contains a descendant id already present in the document', () => {
+    const document = createFixtureDocument()
+    const subtree = createNode({
+      id: 'container-1',
+      type: 'container',
+      children: [createNode({ id: 'heading-1', type: 'heading' })],
+    })
+
+    expect(() => insertChildNode(document, 'root', subtree)).toThrow("Node id 'heading-1' already exists")
+  })
+
+  it('throws when an inserted subtree contains duplicate ids internally', () => {
+    const document = createFixtureDocument()
+    const subtree = createNode({
+      id: 'container-1',
+      type: 'container',
+      children: [
+        createNode({ id: 'duplicate-id', type: 'heading' }),
+        createNode({ id: 'duplicate-id', type: 'heading' }),
+      ],
+    })
+
+    expect(() => insertChildNode(document, 'root', subtree)).toThrow(
+      "Node id 'duplicate-id' is duplicated in inserted subtree",
+    )
+  })
 })
