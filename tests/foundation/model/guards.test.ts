@@ -17,4 +17,20 @@ describe('canvas document shape', () => {
       }),
     ).toBe(true)
   })
+
+  it('accepts the default document shape', () => {
+    expect(
+      isCanvasDocument({
+        version: 1,
+        root: {
+          id: 'node-1',
+          type: 'section',
+          props: {},
+          styles: { desktop: {} },
+          children: [],
+        },
+        settings: {},
+      }),
+    ).toBe(true)
+  })
 })

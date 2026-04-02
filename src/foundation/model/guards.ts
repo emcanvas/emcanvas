@@ -21,7 +21,7 @@ function isResponsiveStyles(value: unknown): value is ResponsiveStyles {
   return true
 }
 
-function isCanvasNode(value: unknown): value is CanvasNode {
+export function isCanvasNode(value: unknown): value is CanvasNode {
   if (!isRecord(value)) {
     return false
   }
