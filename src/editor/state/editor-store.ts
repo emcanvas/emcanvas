@@ -11,13 +11,29 @@ export interface EditorState {
   canRedo: boolean
 }
 
-export function createEditorStore<T extends NonNullable<unknown>>() {
+type Listener = () => void
+
+export interface EditorStore<T extends NonNullable<unknown>> {
+  selectNode(nodeId: string): void
+  clearSelection(): void
+  markDirty(): void
+  markClean(): void
+  setBreakpoint(nextBreakpoint: EditorBreakpoint): void
+  pushHistory(snapshot: T): void
+  undoHistory(): T | null
+  redoHistory(): T | null
+  getState(): EditorState
+  subscribe(listener: Listener): () => void
+}
+
+export function createEditorStore<T extends NonNullable<unknown>>(): EditorStore<T> {
   const selectionStore = createSelectionStore()
   const historyStore = createHistoryStore<T>()
   let dirty = false
   let breakpoint: EditorBreakpoint = 'desktop'
+  const listeners = new Set<Listener>()
 
-  function getState(): EditorState {
+  function createStateSnapshot(): EditorState {
     const selection = selectionStore.getState()
     const history = historyStore.getState()
 
@@ -30,31 +46,61 @@ export function createEditorStore<T extends NonNullable<unknown>>() {
     }
   }
 
+  let state = createStateSnapshot()
+
+  function notify() {
+    state = createStateSnapshot()
+    listeners.forEach((listener) => listener())
+  }
+
+  function getState(): EditorState {
+    return state
+  }
+
   return {
     selectNode(nodeId: string) {
       selectionStore.selectNode(nodeId)
+      notify()
     },
     clearSelection() {
       selectionStore.clearSelection()
+      notify()
     },
     markDirty() {
       dirty = true
+      notify()
     },
     markClean() {
       dirty = false
+      notify()
     },
     setBreakpoint(nextBreakpoint: EditorBreakpoint) {
       breakpoint = nextBreakpoint
+      notify()
     },
     pushHistory(snapshot: T) {
-      return historyStore.push(snapshot)
+      historyStore.push(snapshot)
+      notify()
     },
     undoHistory() {
-      return historyStore.undo()
+      const snapshot = historyStore.undo()
+      notify()
+
+      return snapshot
     },
     redoHistory() {
-      return historyStore.redo()
+      const snapshot = historyStore.redo()
+      notify()
+
+      return snapshot
     },
     getState,
+    subscribe(listener: Listener) {
+      listeners.add(listener)
+
+      return () => {
+        listeners.delete(listener)
+      }
+    },
   }
 }

@@ -1,16 +1,30 @@
+import { useEffect, useState, useSyncExternalStore } from 'react'
+
 import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
 import type { CanvasDocument } from '../../foundation/types/canvas'
 import { CanvasViewport } from '../canvas/canvas-viewport'
-import { createEditorStore } from '../state/editor-store'
+import { createEditorStore, type EditorStore } from '../state/editor-store'
 import { EditorSidebar } from './editor-sidebar'
 import { EditorStatusbar } from './editor-statusbar'
 import { EditorToolbar } from './editor-toolbar'
 
-const document = createDefaultCanvasDocument()
-const editorStore = createEditorStore<CanvasDocument>()
+export interface EditorShellInstance {
+  document: CanvasDocument
+  store: EditorStore<CanvasDocument>
+}
 
-export function EditorShell() {
-  const state = editorStore.getState()
+export interface EditorShellProps {
+  onEditorReady?: (instance: EditorShellInstance) => void
+}
+
+export function EditorShell({ onEditorReady }: EditorShellProps) {
+  const [document] = useState(() => createDefaultCanvasDocument())
+  const [editorStore] = useState(() => createEditorStore<CanvasDocument>())
+  const state = useSyncExternalStore(editorStore.subscribe, editorStore.getState)
+
+  useEffect(() => {
+    onEditorReady?.({ document, store: editorStore })
+  }, [document, editorStore, onEditorReady])
 
   return (
     <div>
