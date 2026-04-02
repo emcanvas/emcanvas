@@ -116,4 +116,76 @@ describe('editor save flow', () => {
 
     controller.dispose()
   })
+
+  it('keeps newer edits dirty when an older in-flight save resolves later', async () => {
+    vi.useFakeTimers()
+
+    const store = createEditorStore<CanvasDocument>()
+    let document = createDefaultCanvasDocument()
+    let resolveSave: (() => void) | null = null
+
+    const controller = createAutosaveController({
+      delayMs: 250,
+      store,
+      getDocument: () => document,
+      save: (nextDocument) =>
+        new Promise<void>((resolve) => {
+          document = nextDocument
+          resolveSave = resolve
+        }),
+    })
+
+    document = {
+      ...document,
+      settings: { slug: 'first-edit' },
+    }
+    store.markDirty()
+
+    await vi.advanceTimersByTimeAsync(250)
+    expect(store.getState().dirty).toBe(true)
+
+    document = {
+      ...document,
+      settings: { slug: 'second-edit' },
+    }
+    store.markDirty()
+
+    resolveSave?.()
+    await Promise.resolve()
+
+    expect(store.getState().dirty).toBe(true)
+
+    controller.dispose()
+  })
+
+  it('keeps the editor dirty when autosave rejects', async () => {
+    vi.useFakeTimers()
+
+    const store = createEditorStore<CanvasDocument>()
+    let document = createDefaultCanvasDocument()
+    const save = vi.fn<(
+      nextDocument: CanvasDocument,
+    ) => Promise<void>>().mockRejectedValue(new Error('save failed'))
+
+    const controller = createAutosaveController({
+      delayMs: 250,
+      store,
+      getDocument: () => document,
+      save,
+    })
+
+    document = {
+      ...document,
+      settings: { slug: 'home' },
+    }
+    store.markDirty()
+
+    await vi.advanceTimersByTimeAsync(250)
+    await Promise.resolve()
+
+    expect(save).toHaveBeenCalledWith(document)
+    expect(store.getState().dirty).toBe(true)
+
+    controller.dispose()
+  })
 })

@@ -17,9 +17,12 @@ export function createAutosaveController({
   save: (document: CanvasDocument) => Promise<void>
 }): AutosaveController {
   let timeoutId: ReturnType<typeof setTimeout> | null = null
+  let dirtyVersion = 0
 
   const unsubscribe = store.subscribe(() => {
-    if (!store.getState().dirty) {
+    const { dirty } = store.getState()
+
+    if (!dirty) {
       if (timeoutId !== null) {
         clearTimeout(timeoutId)
         timeoutId = null
@@ -28,14 +31,27 @@ export function createAutosaveController({
       return
     }
 
+    dirtyVersion += 1
+
     if (timeoutId !== null) {
       clearTimeout(timeoutId)
     }
 
-    timeoutId = setTimeout(async () => {
+    const saveVersion = dirtyVersion
+
+    timeoutId = setTimeout(() => {
       timeoutId = null
-      await save(getDocument())
-      store.markClean()
+
+      void save(getDocument()).then(
+        () => {
+          if (dirtyVersion === saveVersion) {
+            store.markClean()
+          }
+        },
+        () => {
+          // Keep the current document dirty so a later autosave can retry.
+        },
+      )
     }, delayMs)
   })
 
