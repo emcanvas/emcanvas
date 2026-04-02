@@ -1,6 +1,15 @@
+// @vitest-environment node
+
 import { describe, expect, it } from 'vitest'
 
 import { isCanvasDocument } from '../../src/foundation/model/guards'
+import {
+  CANVAS_DOCUMENT_VERSION,
+  EMCANVAS_EDITOR_VERSION,
+  EMCANVAS_ENTRY_META_KEY,
+  EMCANVAS_LAYOUT_KEY,
+} from '../../src/foundation/shared/constants'
+import { renderEntryPage } from '../../src/integration/page/render-entry-page'
 import { shouldRenderEmCanvas } from '../../src/integration/page/should-render-emcanvas'
 import { getEntryEditorActions } from '../../src/plugin/hooks/entry-editor-actions'
 import { getPageMetadata } from '../../src/plugin/hooks/page-metadata'
@@ -33,5 +42,36 @@ describe('entry takeover flow', () => {
         html: expect.stringContaining('data-emcanvas-page-fragments'),
       },
     ])
+  })
+
+  it('keeps takeover metadata and fragments disabled when the persisted layout is invalid', async () => {
+    const entry = {
+      data: {
+        [EMCANVAS_ENTRY_META_KEY]: {
+          enabled: true,
+          version: CANVAS_DOCUMENT_VERSION,
+          editorVersion: EMCANVAS_EDITOR_VERSION,
+        },
+        [EMCANVAS_LAYOUT_KEY]: {
+          version: CANVAS_DOCUMENT_VERSION,
+          root: {
+            id: 'root',
+            type: 'section',
+            props: {},
+            styles: { desktop: {} },
+            children: 'invalid',
+          },
+          settings: {},
+        },
+      },
+    }
+
+    expect(shouldRenderEmCanvas(entry.data)).toBe(false)
+    expect(getPageMetadata({ entry })).toEqual({
+      editor: 'default',
+      takeover: false,
+    })
+    expect(pageFragments({ entry })).toEqual([])
+    await expect(renderEntryPage(entry.data)).resolves.toBeNull()
   })
 })

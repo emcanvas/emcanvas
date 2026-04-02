@@ -5,6 +5,7 @@ import {
   EMCANVAS_ENTRY_META_KEY,
   EMCANVAS_LAYOUT_KEY,
 } from '../../../src/foundation/shared/constants'
+import { isCanvasDocument } from '../../../src/foundation/model/guards'
 import { getCanvasData } from '../../../src/plugin/routes/get-canvas-data'
 
 describe('getCanvasData', () => {
@@ -67,5 +68,29 @@ describe('getCanvasData', () => {
       version: CANVAS_DOCUMENT_VERSION,
       editorVersion: EMCANVAS_EDITOR_VERSION,
     })
+  })
+
+  it('falls back to a default document when persisted canvasLayout is invalid', async () => {
+    const result = await getCanvasData({
+      entry: {
+        data: {
+          [EMCANVAS_LAYOUT_KEY]: {
+            version: CANVAS_DOCUMENT_VERSION,
+            root: {
+              id: 'root',
+              type: 'section',
+              props: {},
+              styles: { desktop: {} },
+              children: 'invalid',
+            },
+            settings: {},
+          },
+        },
+      },
+    })
+
+    expect(isCanvasDocument(result.canvasLayout)).toBe(true)
+    expect(result.canvasLayout.version).toBe(CANVAS_DOCUMENT_VERSION)
+    expect(result.canvasLayout.root.children).toEqual([])
   })
 })
