@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { createDefaultCanvasDocument } from '../../src/foundation/model/document-factory'
+import { CANVAS_DOCUMENT_VERSION } from '../../src/foundation/shared/constants'
 import { renderEntryPage } from '../../src/integration/page/render-entry-page'
 import { getPreviewLink } from '../../src/plugin/routes/preview-link'
 import { saveDocument } from '../../src/editor/persistence/save-document'
@@ -15,7 +15,28 @@ describe('preview and publish flow', () => {
         title: 'Homepage',
       },
     }
-    const document = createDefaultCanvasDocument()
+    const document = {
+      version: CANVAS_DOCUMENT_VERSION,
+      root: {
+        id: 'root',
+        type: 'section',
+        props: {},
+        styles: { desktop: {} },
+        children: [
+          {
+            id: 'heading-1',
+            type: 'heading',
+            props: {
+              text: 'Published heading',
+              level: 2,
+            },
+            styles: { desktop: {} },
+            children: [],
+          },
+        ],
+      },
+      settings: {},
+    }
 
     await saveDocument({ entry, canvasLayout: document })
 
@@ -30,6 +51,7 @@ describe('preview and publish flow', () => {
     await expect(renderEntryPage(entry.data)).resolves.toContain(
       'data-emcanvas-page-fragments',
     )
+    await expect(renderEntryPage(entry.data)).resolves.toContain('Published heading')
   })
 
   it('skips emcanvas rendering when takeover is disabled', async () => {

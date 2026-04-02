@@ -14,16 +14,29 @@ export interface EditorShellInstance {
 }
 
 export interface EditorShellProps {
+  initialDocument?: CanvasDocument
+  onDocumentChange?: (document: CanvasDocument) => void
   onEditorReady?: (instance: EditorShellInstance) => void
 }
 
-export function EditorShell({ onEditorReady }: EditorShellProps) {
-  const [document, setDocument] = useState(() => createDefaultCanvasDocument())
+export function EditorShell({
+  initialDocument,
+  onDocumentChange,
+  onEditorReady,
+}: EditorShellProps) {
+  const [document, setDocument] = useState(() => initialDocument ?? createDefaultCanvasDocument())
   const [editorStore] = useState(() => createEditorStore<CanvasDocument>())
   const state = useSyncExternalStore(editorStore.subscribe, editorStore.getState)
 
+  useEffect(() => {
+    if (initialDocument) {
+      setDocument(initialDocument)
+    }
+  }, [initialDocument])
+
   function handleDocumentChange(nextDocument: CanvasDocument) {
     setDocument(nextDocument)
+    onDocumentChange?.(nextDocument)
     editorStore.markDirty()
     editorStore.pushHistory(nextDocument)
   }

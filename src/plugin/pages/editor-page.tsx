@@ -1,11 +1,7 @@
-import { useState } from 'react'
-import { EditorApp } from '../../foundation/editor/app'
-import { createEditorSession } from '../../foundation/editor/state/editor-session'
+import { CanvasEditorPage, type CanvasEditorPageProps } from '../../admin/pages/CanvasEditorPage'
 
-export function EditorPage() {
-  const [session] = useState(() => createEditorSession('EmCanvas'))
-
-  return <EditorApp session={session} />
+export function EditorPage(props: CanvasEditorPageProps) {
+  return <CanvasEditorPage {...props} />
 }
 
 export default EditorPage

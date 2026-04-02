@@ -2,23 +2,25 @@ import { useEffect, useState } from 'react'
 import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
 import type { CanvasDocument } from '../../foundation/types/canvas'
 import type { CanvasEntry } from '../../shared/types/canvas-entry'
-import { EditorPage } from '../../plugin/pages/editor-page'
 import { PreviewActions } from '../components/PreviewActions'
 import { SaveStatus, type SaveState } from '../components/SaveStatus'
 import { TakeoverBanner } from '../components/TakeoverBanner'
 import { mapPluginApiError } from '../lib/error-mapping'
 import { pluginApi, type PluginApi } from '../lib/plugin-api'
+import { EditorShell, type EditorShellInstance } from '../../editor/shell/editor-shell'
 
 export interface CanvasEditorPageProps {
   entry: CanvasEntry
   api?: PluginApi
   previewOrigin?: string
+  onEditorReady?: (instance: EditorShellInstance) => void
 }
 
 export function CanvasEditorPage({
   entry,
   api = pluginApi,
   previewOrigin,
+  onEditorReady,
 }: CanvasEditorPageProps) {
   const [canvasLayout, setCanvasLayout] = useState<CanvasDocument>(() => createDefaultCanvasDocument())
   const [takeoverEnabled, setTakeoverEnabled] = useState(false)
@@ -73,7 +75,11 @@ export function CanvasEditorPage({
       <TakeoverBanner enabled={takeoverEnabled} />
       <SaveStatus state={saveState} message={message} />
       <PreviewActions previewUrl={previewUrl} onPublish={handlePublish} />
-      <EditorPage />
+      <EditorShell
+        initialDocument={canvasLayout}
+        onDocumentChange={setCanvasLayout}
+        onEditorReady={onEditorReady}
+      />
     </main>
   )
 }
