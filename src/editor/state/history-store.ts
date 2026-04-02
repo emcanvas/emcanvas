@@ -1,3 +1,5 @@
+import type { Command } from '../commands/command'
+
 export interface HistoryState<T> {
   past: T[]
   present: T | null
@@ -28,8 +30,31 @@ function cloneState<T>(state: HistoryState<T>): HistoryState<T> {
 
 export function createHistoryStore<T extends NonNullable<unknown>>() {
   let state = createState<T>([], null, [])
+  let pastCommands: Command[] = []
+  let futureCommands: Command[] = []
+
+  function canUndo() {
+    return pastCommands.length > 0 || state.past.length > 0
+  }
+
+  function canRedo() {
+    return futureCommands.length > 0 || state.future.length > 0
+  }
+
+  function createCombinedState(): HistoryState<T> {
+    return {
+      ...cloneState(state),
+      canUndo: canUndo(),
+      canRedo: canRedo(),
+    }
+  }
 
   return {
+    execute(command: Command) {
+      command.execute()
+      pastCommands = [...pastCommands, command]
+      futureCommands = []
+    },
     push(snapshot: T) {
       state = createState(
         state.present === null ? state.past : [...state.past, state.present],
@@ -40,6 +65,16 @@ export function createHistoryStore<T extends NonNullable<unknown>>() {
       return state.present
     },
     undo() {
+      if (pastCommands.length > 0) {
+        const command = pastCommands[pastCommands.length - 1]
+
+        command?.undo()
+        pastCommands = pastCommands.slice(0, -1)
+        futureCommands = command ? [command, ...futureCommands] : futureCommands
+
+        return null
+      }
+
       if (state.past.length === 0) {
         return null
       }
@@ -52,6 +87,16 @@ export function createHistoryStore<T extends NonNullable<unknown>>() {
       return state.present
     },
     redo() {
+      if (futureCommands.length > 0) {
+        const [command, ...nextFutureCommands] = futureCommands
+
+        command?.execute()
+        futureCommands = nextFutureCommands
+        pastCommands = command ? [...pastCommands, command] : pastCommands
+
+        return null
+      }
+
       if (state.future.length === 0) {
         return null
       }
@@ -66,8 +111,10 @@ export function createHistoryStore<T extends NonNullable<unknown>>() {
 
       return state.present
     },
+    canUndo,
+    canRedo,
     getState() {
-      return cloneState(state)
+      return createCombinedState()
     },
   }
 }
