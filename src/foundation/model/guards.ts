@@ -1,5 +1,6 @@
 import { CANVAS_DOCUMENT_VERSION } from '../shared/constants'
 import type { CanvasDocument, CanvasNode, ResponsiveStyles } from '../types/canvas'
+import type { EmCanvasEntryMeta } from '../types/entry-data'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -67,5 +68,17 @@ export function isCanvasDocument(value: unknown): value is CanvasDocument {
     value.version === CANVAS_DOCUMENT_VERSION &&
     isCanvasNode(value.root) &&
     isRecord(value.settings)
+  )
+}
+
+export function isEmCanvasEntryMeta(value: unknown): value is EmCanvasEntryMeta {
+  if (!isRecord(value)) {
+    return false
+  }
+
+  return (
+    typeof value.enabled === 'boolean' &&
+    value.version === CANVAS_DOCUMENT_VERSION &&
+    typeof value.editorVersion === 'string'
   )
 }

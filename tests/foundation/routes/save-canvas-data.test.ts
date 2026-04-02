@@ -62,6 +62,32 @@ describe('saveCanvasData', () => {
       }),
     ).rejects.toThrow('Invalid canvas payload')
   })
+
+  it('rejects invalid _emcanvas metadata payloads', async () => {
+    await expect(
+      saveCanvasData({
+        entry: { data: {} },
+        payload: {
+          canvasLayout: {
+            version: CANVAS_DOCUMENT_VERSION,
+            root: {
+              id: 'root',
+              type: 'section',
+              props: {},
+              styles: { desktop: {} },
+              children: [],
+            },
+            settings: {},
+          },
+          _emcanvas: {
+            enabled: true,
+            version: '1',
+            editorVersion: EMCANVAS_EDITOR_VERSION,
+          } as unknown as never,
+        },
+      }),
+    ).rejects.toThrow('Invalid canvas payload')
+  })
 })
 
 describe('plugin manifest routes', () => {

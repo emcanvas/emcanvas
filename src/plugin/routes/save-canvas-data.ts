@@ -1,4 +1,4 @@
-import { isCanvasDocument } from '../../foundation/model/guards'
+import { isCanvasDocument, isEmCanvasEntryMeta } from '../../foundation/model/guards'
 import {
   EMCANVAS_ENTRY_META_KEY,
   EMCANVAS_LAYOUT_KEY,
@@ -15,6 +15,10 @@ export async function saveCanvasData(ctx: {
   const { canvasLayout, _emcanvas } = ctx.payload
 
   if (!isCanvasDocument(canvasLayout)) {
+    throw new Error('Invalid canvas payload')
+  }
+
+  if (!isEmCanvasEntryMeta(_emcanvas)) {
     throw new Error('Invalid canvas payload')
   }
 

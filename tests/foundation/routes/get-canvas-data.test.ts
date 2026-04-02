@@ -48,4 +48,24 @@ describe('getCanvasData', () => {
 
     expect(result).toEqual({ canvasLayout, _emcanvas })
   })
+
+  it('falls back to default metadata when persisted _emcanvas is invalid', async () => {
+    const result = await getCanvasData({
+      entry: {
+        data: {
+          [EMCANVAS_ENTRY_META_KEY]: {
+            enabled: 'yes',
+            version: CANVAS_DOCUMENT_VERSION,
+            editorVersion: EMCANVAS_EDITOR_VERSION,
+          },
+        },
+      },
+    })
+
+    expect(result._emcanvas).toEqual({
+      enabled: false,
+      version: CANVAS_DOCUMENT_VERSION,
+      editorVersion: EMCANVAS_EDITOR_VERSION,
+    })
+  })
 })
