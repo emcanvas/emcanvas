@@ -1,10 +1,8 @@
+import { EditorApp } from '../../foundation/editor/app'
+import { createEditorSession } from '../../foundation/editor/state/editor-session'
+
 export function DashboardPage() {
-  return (
-    <main>
-      <h1>EmCanvas</h1>
-      <p>Visual editor plugin dashboard.</p>
-    </main>
-  )
+  return <EditorApp session={createEditorSession('EmCanvas')} />
 }
 
 export default DashboardPage
