@@ -15,7 +15,11 @@ export function SaveStatus({ state, message }: SaveStatusProps) {
           ? message ?? 'Unable to publish changes'
           : 'Ready to publish'
 
-  return <p aria-live="polite">{label}</p>
+  return (
+    <p role="status" aria-label="Publish status" aria-live="polite">
+      {label}
+    </p>
+  )
 }
 
 export default SaveStatus

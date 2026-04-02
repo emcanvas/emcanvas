@@ -5,7 +5,7 @@ export interface PreviewActionsProps {
 
 export function PreviewActions({ previewUrl, onPublish }: PreviewActionsProps) {
   return (
-    <div>
+    <div role="group" aria-label="Preview and publish actions">
       <a href={previewUrl}>Open preview</a>
       <button type="button" onClick={() => void onPublish()}>
         Publish

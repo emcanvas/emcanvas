@@ -8,9 +8,9 @@ export interface CanvasViewportProps {
 
 export function CanvasViewport({ document }: CanvasViewportProps) {
   return (
-    <main aria-label="Canvas viewport">
+    <section aria-label="Canvas viewport">
       <BreadcrumbBar rootNode={document.root} />
       <CanvasSurface document={document} />
-    </main>
+    </section>
   )
 }

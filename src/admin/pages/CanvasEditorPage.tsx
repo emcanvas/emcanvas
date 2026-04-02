@@ -71,15 +71,18 @@ export function CanvasEditorPage({
   const previewUrl = api.getPreviewLink({ entry, origin: previewOrigin })
 
   return (
-    <main>
+    <main aria-labelledby="emcanvas-editor-title">
+      <h1 id="emcanvas-editor-title">EmCanvas editor</h1>
       <TakeoverBanner enabled={takeoverEnabled} />
       <SaveStatus state={saveState} message={message} />
       <PreviewActions previewUrl={previewUrl} onPublish={handlePublish} />
-      <EditorShell
-        initialDocument={canvasLayout}
-        onDocumentChange={setCanvasLayout}
-        onEditorReady={onEditorReady}
-      />
+      <section aria-label="Canvas editor workspace">
+        <EditorShell
+          initialDocument={canvasLayout}
+          onDocumentChange={setCanvasLayout}
+          onEditorReady={onEditorReady}
+        />
+      </section>
     </main>
   )
 }

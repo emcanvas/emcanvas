@@ -1,6 +1,7 @@
 import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
-import { isCanvasDocument } from '../../foundation/model/guards'
 import { saveCanvasData } from '../routes/save-canvas-data'
+import { validateCanvasDocument } from '../../shared/validation/canvas-document'
+import { validateTakeoverState } from '../../shared/validation/takeover-state'
 
 export interface EntryEditorAction {
   id: string
@@ -19,6 +20,7 @@ function getEditorHref(data: Record<string, unknown>) {
 export function getEntryEditorActions(ctx: {
   entry: { data: Record<string, unknown> }
 }): EntryEditorAction[] {
+  const takeoverState = validateTakeoverState(ctx.entry.data)
   const actions: EntryEditorAction[] = [
     {
       id: 'open-emcanvas-editor',
@@ -27,7 +29,7 @@ export function getEntryEditorActions(ctx: {
     },
   ]
 
-  if (!ctx.entry.data._emcanvas || ctx.entry.data._emcanvas.enabled !== true) {
+  if (!takeoverState.enabled) {
     actions.unshift({
       id: 'enable-emcanvas',
       label: 'Enable EmCanvas takeover',
@@ -35,9 +37,9 @@ export function getEntryEditorActions(ctx: {
         saveCanvasData({
           entry: ctx.entry,
           payload: {
-            canvasLayout: isCanvasDocument(ctx.entry.data.canvasLayout)
-              ? ctx.entry.data.canvasLayout
-              : createDefaultCanvasDocument(),
+            canvasLayout:
+              validateCanvasDocument(ctx.entry.data.canvasLayout).document ??
+              createDefaultCanvasDocument(),
             _emcanvas: {
               enabled: true,
               version: 1,

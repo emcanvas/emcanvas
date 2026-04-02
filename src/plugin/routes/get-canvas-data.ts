@@ -1,28 +1,27 @@
 import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
-import { isCanvasDocument, isEmCanvasEntryMeta } from '../../foundation/model/guards'
+import { validateCanvasDocument } from '../../shared/validation/canvas-document'
 import {
-  CANVAS_DOCUMENT_VERSION,
-  EMCANVAS_EDITOR_VERSION,
+  getDefaultTakeoverMeta,
+  validateTakeoverState,
+} from '../../shared/validation/takeover-state'
+import {
   EMCANVAS_ENTRY_META_KEY,
   EMCANVAS_LAYOUT_KEY,
 } from '../../foundation/shared/constants'
+import type { EmCanvasEntryMeta } from '../../foundation/types/entry-data'
 
 export async function getCanvasData(ctx: {
   entry: { data: Record<string, unknown> }
 }) {
   const data = ctx.entry.data
-  const persistedMeta = data[EMCANVAS_ENTRY_META_KEY]
+  const layoutValidation = validateCanvasDocument(data[EMCANVAS_LAYOUT_KEY])
+  const takeoverState = validateTakeoverState(data)
 
   return {
-    canvasLayout: isCanvasDocument(data[EMCANVAS_LAYOUT_KEY])
-      ? data[EMCANVAS_LAYOUT_KEY]
-      : createDefaultCanvasDocument(),
-    _emcanvas: isEmCanvasEntryMeta(persistedMeta)
-      ? persistedMeta
-      : {
-      enabled: false,
-      version: CANVAS_DOCUMENT_VERSION,
-      editorVersion: EMCANVAS_EDITOR_VERSION,
-      },
+    canvasLayout: layoutValidation.document ?? createDefaultCanvasDocument(),
+    _emcanvas:
+      takeoverState.enabled === true
+        ? (data[EMCANVAS_ENTRY_META_KEY] as EmCanvasEntryMeta)
+        : getDefaultTakeoverMeta(),
   }
 }
