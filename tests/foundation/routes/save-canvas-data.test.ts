@@ -21,7 +21,7 @@ describe('saveCanvasData', () => {
       },
       settings: {},
     }
-    const meta = {
+    const _emcanvas = {
       enabled: true,
       version: CANVAS_DOCUMENT_VERSION,
       editorVersion: EMCANVAS_EDITOR_VERSION,
@@ -35,14 +35,14 @@ describe('saveCanvasData', () => {
 
     const result = await saveCanvasData({
       entry,
-      payload: { canvasLayout, meta },
+      payload: { canvasLayout, _emcanvas },
     })
 
     expect(result).toEqual({
       slug: 'home',
       title: 'Homepage',
       [EMCANVAS_LAYOUT_KEY]: canvasLayout,
-      [EMCANVAS_ENTRY_META_KEY]: meta,
+      [EMCANVAS_ENTRY_META_KEY]: _emcanvas,
     })
     expect(entry.data).toEqual(result)
   })
@@ -53,7 +53,7 @@ describe('saveCanvasData', () => {
         entry: { data: {} },
         payload: {
           canvasLayout: { version: 999 },
-          meta: {
+          _emcanvas: {
             enabled: true,
             version: CANVAS_DOCUMENT_VERSION,
             editorVersion: EMCANVAS_EDITOR_VERSION,

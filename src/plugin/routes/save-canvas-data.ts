@@ -9,10 +9,10 @@ export async function saveCanvasData(ctx: {
   entry: { data: Record<string, unknown> }
   payload: {
     canvasLayout: unknown
-    meta: EmCanvasEntryMeta
+    _emcanvas: EmCanvasEntryMeta
   }
 }) {
-  const { canvasLayout, meta } = ctx.payload
+  const { canvasLayout, _emcanvas } = ctx.payload
 
   if (!isCanvasDocument(canvasLayout)) {
     throw new Error('Invalid canvas payload')
@@ -21,7 +21,7 @@ export async function saveCanvasData(ctx: {
   const nextData = {
     ...ctx.entry.data,
     [EMCANVAS_LAYOUT_KEY]: canvasLayout,
-    [EMCANVAS_ENTRY_META_KEY]: meta,
+    [EMCANVAS_ENTRY_META_KEY]: _emcanvas,
   }
 
   ctx.entry.data = nextData

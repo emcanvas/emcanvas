@@ -14,7 +14,7 @@ export async function getCanvasData(ctx: {
 
   return {
     canvasLayout: data[EMCANVAS_LAYOUT_KEY] ?? createDefaultCanvasDocument(),
-    meta: (data[EMCANVAS_ENTRY_META_KEY] as EmCanvasEntryMeta | undefined) ?? {
+    _emcanvas: (data[EMCANVAS_ENTRY_META_KEY] as EmCanvasEntryMeta | undefined) ?? {
       enabled: false,
       version: CANVAS_DOCUMENT_VERSION,
       editorVersion: EMCANVAS_EDITOR_VERSION,

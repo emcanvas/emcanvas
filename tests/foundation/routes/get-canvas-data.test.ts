@@ -12,7 +12,7 @@ describe('getCanvasData', () => {
     const result = await getCanvasData({ entry: { data: {} } })
 
     expect(result.canvasLayout.version).toBe(CANVAS_DOCUMENT_VERSION)
-    expect(result.meta).toEqual({
+    expect(result._emcanvas).toEqual({
       enabled: false,
       version: CANVAS_DOCUMENT_VERSION,
       editorVersion: EMCANVAS_EDITOR_VERSION,
@@ -31,7 +31,7 @@ describe('getCanvasData', () => {
       },
       settings: {},
     }
-    const meta = {
+    const _emcanvas = {
       enabled: true,
       version: CANVAS_DOCUMENT_VERSION,
       editorVersion: EMCANVAS_EDITOR_VERSION,
@@ -41,11 +41,11 @@ describe('getCanvasData', () => {
       entry: {
         data: {
           [EMCANVAS_LAYOUT_KEY]: canvasLayout,
-          [EMCANVAS_ENTRY_META_KEY]: meta,
+          [EMCANVAS_ENTRY_META_KEY]: _emcanvas,
         },
       },
     })
 
-    expect(result).toEqual({ canvasLayout, meta })
+    expect(result).toEqual({ canvasLayout, _emcanvas })
   })
 })
