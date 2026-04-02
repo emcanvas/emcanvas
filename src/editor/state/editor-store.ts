@@ -1,4 +1,4 @@
-import { createHistoryStore } from './history-store'
+import { createSnapshotHistoryStore } from './snapshot-history-store'
 import { createSelectionStore } from './selection-store'
 
 export type EditorBreakpoint = 'desktop' | 'tablet' | 'mobile'
@@ -28,7 +28,7 @@ export interface EditorStore<T extends NonNullable<unknown>> {
 
 export function createEditorStore<T extends NonNullable<unknown>>(): EditorStore<T> {
   const selectionStore = createSelectionStore()
-  const historyStore = createHistoryStore<T>()
+  const historyStore = createSnapshotHistoryStore<T>()
   let dirty = false
   let breakpoint: EditorBreakpoint = 'desktop'
   const listeners = new Set<Listener>()

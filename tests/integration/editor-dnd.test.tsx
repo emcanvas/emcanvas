@@ -1,8 +1,9 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { DropZoneLayer } from '../../src/editor/canvas/drop-zone-layer'
+import { createHistoryStore } from '../../src/editor/state/history-store'
 import type { CanvasDocument } from '../../src/foundation/types/canvas'
 
 afterEach(() => {
@@ -59,27 +60,42 @@ function createDataTransfer(payload: unknown) {
 
 function DropZoneHarness() {
   const [document, setDocument] = useState(() => createFixtureDocument())
+  const documentRef = useRef(document)
+  const [history] = useState(() => createHistoryStore())
+
+  useEffect(() => {
+    documentRef.current = document
+  }, [document])
 
   return (
     <>
       <DropZoneLayer
-        document={document}
+        getDocument={() => documentRef.current}
         targetParentId="root"
         label="Root drop zone"
-        onDocumentChange={setDocument}
+        setDocument={setDocument}
+        onCommand={(command) => history.execute(command)}
       />
       <DropZoneLayer
-        document={document}
+        getDocument={() => documentRef.current}
         targetParentId="columns-1"
         label="Columns drop zone"
-        onDocumentChange={setDocument}
+        setDocument={setDocument}
+        onCommand={(command) => history.execute(command)}
       />
       <DropZoneLayer
-        document={document}
+        getDocument={() => documentRef.current}
         targetParentId="container-1"
         label="Container drop zone"
-        onDocumentChange={setDocument}
+        setDocument={setDocument}
+        onCommand={(command) => history.execute(command)}
       />
+      <button type="button" onClick={() => history.undo()}>
+        Undo
+      </button>
+      <button type="button" onClick={() => history.redo()}>
+        Redo
+      </button>
       <output data-testid="root-children">
         {document.root.children?.map((node) => node.type).join(',')}
       </output>
@@ -100,6 +116,12 @@ describe('DropZoneLayer', () => {
       dataTransfer: createDataTransfer({ kind: 'create', nodeType: 'text' }),
     })
 
+    expect(screen.getByTestId('root-children').textContent).toBe('columns,heading,container,text')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }))
+    expect(screen.getByTestId('root-children').textContent).toBe('columns,heading,container')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Redo' }))
     expect(screen.getByTestId('root-children').textContent).toBe('columns,heading,container,text')
   })
 
@@ -122,5 +144,9 @@ describe('DropZoneLayer', () => {
 
     expect(screen.getByTestId('root-children').textContent).toBe('columns,container')
     expect(screen.getByTestId('container-children').textContent).toBe('heading-1')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Undo' }))
+    expect(screen.getByTestId('root-children').textContent).toBe('columns,heading,container')
+    expect(screen.getByTestId('container-children').textContent).toBe('')
   })
 })

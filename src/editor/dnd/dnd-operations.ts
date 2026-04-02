@@ -2,20 +2,8 @@ import { createNodeId } from '../../foundation/shared/ids'
 import type { CanvasDocument, CanvasNode } from '../../foundation/types/canvas'
 import { widgetRegistry } from '../registry/widget-registry'
 import { findNodePathById, getNodeAtPath, replaceNodeAtPath } from '../shared/tree-path'
+import { insertChildNode } from '../model/document-mutations'
 import { validateInsertChildNode } from '../model/document-validation'
-
-function cloneNode(node: CanvasNode): CanvasNode {
-  return {
-    ...node,
-    props: { ...node.props },
-    styles: {
-      desktop: { ...node.styles.desktop },
-      ...(node.styles.tablet ? { tablet: { ...node.styles.tablet } } : {}),
-      ...(node.styles.mobile ? { mobile: { ...node.styles.mobile } } : {}),
-    },
-    children: (node.children ?? []).map(cloneNode),
-  }
-}
 
 function removeNodeAtPath(root: CanvasNode, path: number[]): CanvasNode {
   if (path.length === 0) {
@@ -52,28 +40,7 @@ export function createNodeFromWidgetType(nodeType: string): CanvasNode {
 }
 
 export function createNode(document: CanvasDocument, parentId: string, nodeType: string): CanvasDocument {
-  const parentPath = findNodePathById(document.root, parentId)
-
-  if (!parentPath) {
-    throw new Error(`Cannot find node '${parentId}'`)
-  }
-
-  const parentNode = getNodeAtPath(document.root, parentPath)
-
-  if (!parentNode) {
-    throw new Error(`Cannot find node '${parentId}'`)
-  }
-
-  const node = createNodeFromWidgetType(nodeType)
-  validateInsertChildNode(parentNode, node, document.root)
-
-  return {
-    ...document,
-    root: replaceNodeAtPath(document.root, parentPath, (currentNode) => ({
-      ...currentNode,
-      children: [...(currentNode.children ?? []), node],
-    })),
-  }
+  return insertChildNode(document, parentId, createNodeFromWidgetType(nodeType))
 }
 
 export function deleteNode(document: CanvasDocument, nodeId: string): CanvasDocument {
@@ -133,14 +100,7 @@ export function moveNode(document: CanvasDocument, nodeId: string, targetParentI
     throw new Error(`Cannot find node '${targetParentId}'`)
   }
 
-  const movedNode = cloneNode(node)
-  validateInsertChildNode(nextTargetParent, movedNode, documentWithoutNode.root)
+  validateInsertChildNode(nextTargetParent, node, documentWithoutNode.root)
 
-  return {
-    ...documentWithoutNode,
-    root: replaceNodeAtPath(documentWithoutNode.root, nextTargetParentPath, (currentNode) => ({
-      ...currentNode,
-      children: [...(currentNode.children ?? []), movedNode],
-    })),
-  }
+  return insertChildNode(documentWithoutNode, targetParentId, node)
 }

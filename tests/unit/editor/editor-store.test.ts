@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { createEditorStore } from '../../../src/editor/state/editor-store'
 import { createHistoryStore } from '../../../src/editor/state/history-store'
+import { createSnapshotHistoryStore } from '../../../src/editor/state/snapshot-history-store'
 import { createSelectionStore } from '../../../src/editor/state/selection-store'
 
 describe('selection store', () => {
@@ -30,8 +31,53 @@ describe('selection store', () => {
 })
 
 describe('history store', () => {
+  it('tracks command undo and redo state', () => {
+    const store = createHistoryStore()
+    const calls: string[] = []
+
+    const command = {
+      execute() {
+        calls.push('execute')
+      },
+      undo() {
+        calls.push('undo')
+      },
+    }
+
+    expect(store.getState()).toMatchObject({
+      canUndo: false,
+      canRedo: false,
+    })
+
+    store.execute(command)
+
+    expect(calls).toEqual(['execute'])
+    expect(store.getState()).toMatchObject({
+      canUndo: true,
+      canRedo: false,
+    })
+
+    store.undo()
+
+    expect(calls).toEqual(['execute', 'undo'])
+    expect(store.getState()).toMatchObject({
+      canUndo: false,
+      canRedo: true,
+    })
+
+    store.redo()
+
+    expect(calls).toEqual(['execute', 'undo', 'execute'])
+    expect(store.getState()).toMatchObject({
+      canUndo: true,
+      canRedo: false,
+    })
+  })
+})
+
+describe('snapshot history store', () => {
   it('tracks present state and supports undo/redo', () => {
-    const store = createHistoryStore<string>()
+    const store = createSnapshotHistoryStore<string>()
 
     store.push('doc-1')
     store.push('doc-2')
@@ -58,7 +104,7 @@ describe('history store', () => {
   })
 
   it('drops redo history when a new state is pushed after undo', () => {
-    const store = createHistoryStore<string>()
+    const store = createSnapshotHistoryStore<string>()
 
     store.push('doc-1')
     store.push('doc-2')
@@ -75,7 +121,7 @@ describe('history store', () => {
   })
 
   it('returns a snapshot that cannot mutate internal state', () => {
-    const store = createHistoryStore<string>()
+    const store = createSnapshotHistoryStore<string>()
 
     store.push('doc-1')
     store.push('doc-2')
@@ -99,7 +145,7 @@ describe('history store', () => {
 
   it('rejects nullable snapshot types at compile time', () => {
     // @ts-expect-error history snapshots must be non-null
-    createHistoryStore<string | null>()
+    createSnapshotHistoryStore<string | null>()
 
     expect(true).toBe(true)
   })
