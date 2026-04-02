@@ -1,3 +1,6 @@
+import { getCanvasData } from './routes/get-canvas-data'
+import { saveCanvasData } from './routes/save-canvas-data'
+
 const plugin = {
   id: 'emcanvas',
   name: 'EmCanvas',
@@ -7,7 +10,10 @@ const plugin = {
     { path: '/', label: 'EmCanvas' },
     { path: '/editor', label: 'Editor' },
   ],
-  routes: {},
+  routes: {
+    getCanvasData,
+    saveCanvasData,
+  },
 }
 
 export default plugin
