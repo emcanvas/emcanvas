@@ -40,4 +40,22 @@ describe('serializeResponsiveStyles', () => {
       '@media (max-width: 767px){[data-emcanvas-node="content"]{margin:0 auto;}}',
     ])
   })
+
+  it('sanitizes selector input and declaration content used in media rules', () => {
+    const serialized = serializeResponsiveStyles('hero"]{color:red}body{display:block}/*', {
+      desktop: {},
+      mobile: {
+        color: 'red;}</style><script>alert(1)</script>',
+        'fontSize;background:url(javascript:alert(1))': '16px',
+      },
+    })
+
+    expect(serialized.inlineStyle).toBe('')
+    expect(serialized.mediaRules).toHaveLength(1)
+    expect(serialized.mediaRules[0]).toContain('[data-emcanvas-node="hero___color_red_body_display_block___"]')
+    expect(serialized.mediaRules[0]).toContain('{color:red')
+    expect(serialized.mediaRules[0]).not.toContain('</style>')
+    expect(serialized.mediaRules[0]).not.toContain('<script>')
+    expect(serialized.mediaRules[0]).not.toContain('font-size;background:url')
+  })
 })

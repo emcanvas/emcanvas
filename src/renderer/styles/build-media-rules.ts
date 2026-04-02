@@ -6,6 +6,10 @@ const MEDIA_QUERIES = {
   mobile: '(max-width: 767px)',
 } as const
 
+function sanitizeCssSelectorValue(value: string): string {
+  return value.replace(/[^a-zA-Z0-9_-]/g, '_')
+}
+
 export function buildMediaRules(nodeId: string, styles: ResponsiveStyles): string[] {
   return Object.entries(MEDIA_QUERIES).flatMap(([breakpoint, mediaQuery]) => {
     const declarations = buildInlineStyle(styles[breakpoint as keyof typeof MEDIA_QUERIES] ?? {})
@@ -14,6 +18,6 @@ export function buildMediaRules(nodeId: string, styles: ResponsiveStyles): strin
       return []
     }
 
-    return [`@media ${mediaQuery}{[data-emcanvas-node="${nodeId}"]{${declarations};}}`]
+    return [`@media ${mediaQuery}{[data-emcanvas-node="${sanitizeCssSelectorValue(nodeId)}"]{${declarations};}}`]
   })
 }

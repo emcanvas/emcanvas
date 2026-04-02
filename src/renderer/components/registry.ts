@@ -38,5 +38,11 @@ const renderers: Record<string, CanvasNodeRenderer> = {
 }
 
 export function getComponentRenderer(type: string): CanvasNodeRenderer {
-  return renderers[type] ?? renderContainerNode
+  const renderer = renderers[type]
+
+  if (!renderer) {
+    throw new Error(`Unsupported canvas node type: ${type}`)
+  }
+
+  return renderer
 }
