@@ -1,0 +1,64 @@
+---
+import { getComponentRenderer } from '../components/registry'
+import { serializeResponsiveStyles } from '../styles/serialize-responsive-styles'
+import type { NormalizedCanvasNode } from '../types/renderer'
+
+interface Props {
+  node: NormalizedCanvasNode
+}
+
+const { node } = Astro.props
+const model = getComponentRenderer(node.type)(node)
+const { inlineStyle, mediaRules } = serializeResponsiveStyles(node.id, node.styles)
+const style = inlineStyle || undefined
+const mediaCss = mediaRules.join('')
+const HeadingTag = `h${model.kind === 'heading' ? model.level : 2}` as keyof HTMLElementTagNameMap
+---
+
+{model.kind === 'section' && (
+  <section data-emcanvas-node={node.id} style={style}>
+    {node.children.map((child) => <Astro.self node={child} />)}
+  </section>
+)}
+
+{model.kind === 'columns' && (
+  <div data-emcanvas-node={node.id} style={style}>
+    {node.children.map((child) => <Astro.self node={child} />)}
+  </div>
+)}
+
+{model.kind === 'container' && (
+  <div data-emcanvas-node={node.id} style={style}>
+    {node.children.map((child) => <Astro.self node={child} />)}
+  </div>
+)}
+
+{model.kind === 'heading' && (
+  <HeadingTag data-emcanvas-node={node.id} style={style}>
+    {model.text}
+  </HeadingTag>
+)}
+
+{model.kind === 'text' && (
+  <p data-emcanvas-node={node.id} style={style}>
+    {model.text}
+  </p>
+)}
+
+{model.kind === 'button' && (
+  <a data-emcanvas-node={node.id} href={model.href} style={style}>
+    {model.label}
+  </a>
+)}
+
+{model.kind === 'spacer' && <div data-emcanvas-node={node.id} aria-hidden="true" style={style}></div>}
+
+{model.kind === 'divider' && <hr data-emcanvas-node={node.id} style={style} />}
+
+{model.kind === 'image' && (
+  <img data-emcanvas-node={node.id} src={model.src} alt={model.alt} style={style} />
+)}
+
+{model.kind === 'video' && <video data-emcanvas-node={node.id} src={model.src} controls style={style}></video>}
+
+{mediaCss && <style set:html={mediaCss}></style>}

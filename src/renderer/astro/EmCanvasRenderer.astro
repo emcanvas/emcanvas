@@ -1,0 +1,14 @@
+---
+import CanvasNodeRenderer from './CanvasNodeRenderer.astro'
+import type { NormalizedCanvasDocument } from '../types/renderer'
+
+interface Props {
+  document: NormalizedCanvasDocument
+}
+
+const { document } = Astro.props
+---
+
+<div data-emcanvas-root>
+  <CanvasNodeRenderer node={document.root} />
+</div>
