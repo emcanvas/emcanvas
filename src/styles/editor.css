@@ -1,0 +1,5 @@
+.emcanvas-editor-shell {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+}

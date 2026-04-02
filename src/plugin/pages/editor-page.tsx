@@ -1,0 +1,8 @@
+import { EditorApp } from '../../foundation/editor/app'
+import { createEditorSession } from '../../foundation/editor/state/editor-session'
+
+export function EditorPage() {
+  return <EditorApp session={createEditorSession('EmCanvas')} />
+}
+
+export default EditorPage
