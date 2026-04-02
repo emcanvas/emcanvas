@@ -106,6 +106,13 @@ describe('history store', () => {
 })
 
 describe('editor store', () => {
+  it('rejects nullable snapshot types at compile time', () => {
+    // @ts-expect-error editor snapshots must be non-null
+    createEditorStore<string | null>()
+
+    expect(true).toBe(true)
+  })
+
   it('tracks selected node, dirty state, breakpoint, and history flags', () => {
     const store = createEditorStore<string>()
 

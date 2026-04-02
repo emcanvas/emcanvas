@@ -11,7 +11,7 @@ export interface EditorState {
   canRedo: boolean
 }
 
-export function createEditorStore<T>() {
+export function createEditorStore<T extends NonNullable<unknown>>() {
   const selectionStore = createSelectionStore()
   const historyStore = createHistoryStore<T>()
   let dirty = false
