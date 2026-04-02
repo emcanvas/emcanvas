@@ -23,6 +23,18 @@ const widgetDefinitions: WidgetDefinition[] = [
   videoWidget,
 ]
 
-export const widgetRegistry = new Map(
-  widgetDefinitions.map((definition) => [definition.type, definition]),
-)
+export function createWidgetRegistry(definitions: WidgetDefinition[]) {
+  const registry = new Map<string, WidgetDefinition>()
+
+  for (const definition of definitions) {
+    if (registry.has(definition.type)) {
+      throw new Error(`Duplicate widget type: '${definition.type}'`)
+    }
+
+    registry.set(definition.type, definition)
+  }
+
+  return registry
+}
+
+export const widgetRegistry = createWidgetRegistry(widgetDefinitions)
