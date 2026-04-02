@@ -1,12 +1,16 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import { useState } from 'react'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 
 import type { CanvasDocument } from '../../src/foundation/types/canvas'
 import { PropertyInspector } from '../../src/editor/inspector/property-inspector'
 import { updateNodeProps } from '../../src/editor/commands/update-props-command'
 import { updateNodeStyles } from '../../src/editor/commands/update-styles-command'
 import type { EditorBreakpoint } from '../../src/editor/state/editor-store'
+
+afterEach(() => {
+  cleanup()
+})
 
 function createFixtureDocument(): CanvasDocument {
   return {
@@ -51,19 +55,22 @@ function PropertyInspectorHarness() {
   }
 
   return (
-    <PropertyInspector
-      breakpoint={breakpoint}
-      node={node}
-      onBreakpointChange={setBreakpoint}
-      onUpdateProps={(nextProps) => {
-        setDocument((currentDocument) => updateNodeProps(currentDocument, node.id, nextProps))
-      }}
-      onUpdateStyles={(nextStyles) => {
-        setDocument((currentDocument) =>
-          updateNodeStyles(currentDocument, node.id, breakpoint, nextStyles),
-        )
-      }}
-    />
+    <>
+      <PropertyInspector
+        breakpoint={breakpoint}
+        node={node}
+        onBreakpointChange={setBreakpoint}
+        onUpdateProps={(nextProps) => {
+          setDocument((currentDocument) => updateNodeProps(currentDocument, node.id, nextProps))
+        }}
+        onUpdateStyles={(nextStyles) => {
+          setDocument((currentDocument) =>
+            updateNodeStyles(currentDocument, node.id, breakpoint, nextStyles),
+          )
+        }}
+      />
+      <output data-testid="level-prop">{JSON.stringify(document.root.children?.[0]?.props.level)}</output>
+    </>
   )
 }
 
@@ -92,5 +99,15 @@ describe('PropertyInspector', () => {
 
     expect(screen.getByLabelText('Font size')).toHaveValue('32px')
     expect(screen.getByLabelText('Text')).toHaveValue('Updated heading')
+  })
+
+  it('does not persist empty strings into numeric props', () => {
+    render(<PropertyInspectorHarness />)
+
+    const levelInput = screen.getByLabelText('Level')
+
+    fireEvent.change(levelInput, { target: { value: '' } })
+
+    expect(screen.getByTestId('level-prop')).toHaveTextContent('2')
   })
 })

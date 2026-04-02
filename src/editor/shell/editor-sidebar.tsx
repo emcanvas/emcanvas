@@ -13,8 +13,8 @@ export interface EditorSidebarProps {
 }
 
 export function EditorSidebar({ document, state, onBreakpointChange, onDocumentChange }: EditorSidebarProps) {
-  const path = state.selectedNodeId ? findNodePathById(document.root, state.selectedNodeId) : []
-  const node = path ? getNodeAtPath(document.root, path) : document.root
+  const path = state.selectedNodeId === null ? null : findNodePathById(document.root, state.selectedNodeId)
+  const node = path === null ? null : getNodeAtPath(document.root, path)
 
   return (
     <aside aria-label="Property inspector">

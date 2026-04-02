@@ -17,7 +17,12 @@ export function NumberField({ label, value, min, max, onChange }: NumberFieldPro
         value={value}
         onChange={(event) => {
           const nextValue = event.target.value
-          onChange(nextValue === '' ? '' : Number(nextValue))
+
+          if (nextValue === '') {
+            return
+          }
+
+          onChange(Number(nextValue))
         }}
       />
     </label>
