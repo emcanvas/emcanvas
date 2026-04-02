@@ -41,15 +41,24 @@ describe('editor save flow', () => {
 
   it('loads the persisted canvas document from entry data', async () => {
     const canvasLayout = createDefaultCanvasDocument()
+    const meta = {
+      enabled: true,
+      version: CANVAS_DOCUMENT_VERSION,
+      editorVersion: EMCANVAS_EDITOR_VERSION,
+    }
 
     await expect(
       loadDocument({
         data: {
           slug: 'home',
           [EMCANVAS_LAYOUT_KEY]: canvasLayout,
+          [EMCANVAS_ENTRY_META_KEY]: meta,
         },
       }),
-    ).resolves.toEqual(canvasLayout)
+    ).resolves.toEqual({
+      canvasLayout,
+      _emcanvas: meta,
+    })
   })
 
   it('saves the current document back into entry data', async () => {
