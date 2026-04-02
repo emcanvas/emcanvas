@@ -1,0 +1,7 @@
+{
+  "name": "emcanvas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OpenSpec-first product definition for EmCanvas, a visual page builder for EmDash.",
+  "license": "UNLICENSED"
+}
