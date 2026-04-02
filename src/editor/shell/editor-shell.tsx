@@ -18,9 +18,15 @@ export interface EditorShellProps {
 }
 
 export function EditorShell({ onEditorReady }: EditorShellProps) {
-  const [document] = useState(() => createDefaultCanvasDocument())
+  const [document, setDocument] = useState(() => createDefaultCanvasDocument())
   const [editorStore] = useState(() => createEditorStore<CanvasDocument>())
   const state = useSyncExternalStore(editorStore.subscribe, editorStore.getState)
+
+  function handleDocumentChange(nextDocument: CanvasDocument) {
+    setDocument(nextDocument)
+    editorStore.markDirty()
+    editorStore.pushHistory(nextDocument)
+  }
 
   useEffect(() => {
     onEditorReady?.({ document, store: editorStore })
@@ -31,7 +37,12 @@ export function EditorShell({ onEditorReady }: EditorShellProps) {
       <EditorToolbar canUndo={state.canUndo} canRedo={state.canRedo} />
       <div>
         <CanvasViewport document={document} />
-        <EditorSidebar />
+        <EditorSidebar
+          document={document}
+          state={state}
+          onBreakpointChange={(breakpoint) => editorStore.setBreakpoint(breakpoint)}
+          onDocumentChange={handleDocumentChange}
+        />
       </div>
       <EditorStatusbar breakpoint={state.breakpoint} dirty={state.dirty} />
     </div>

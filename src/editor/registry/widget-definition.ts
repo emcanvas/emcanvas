@@ -2,10 +2,11 @@ import type { WidgetCategory } from './categories'
 
 export interface WidgetPropSchemaItem {
   key: string
-  type: 'string' | 'number' | 'boolean'
+  type: 'string' | 'number' | 'boolean' | 'select' | 'media'
   label?: string
   min?: number
   max?: number
+  options?: Array<{ label: string; value: string }>
 }
 
 export interface WidgetDefinition {

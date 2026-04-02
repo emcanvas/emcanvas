@@ -12,7 +12,7 @@ export const imageWidget: WidgetDefinition = {
   propSchema: [
     {
       key: 'src',
-      type: 'string',
+      type: 'media',
     },
     {
       key: 'alt',

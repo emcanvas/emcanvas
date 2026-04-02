@@ -1,8 +1,42 @@
-export function EditorSidebar() {
+import type { CanvasDocument } from '../../foundation/types/canvas'
+import { updateNodeProps } from '../commands/update-props-command'
+import { updateNodeStyles } from '../commands/update-styles-command'
+import { getNodeAtPath, findNodePathById } from '../shared/tree-path'
+import type { EditorState } from '../state/editor-store'
+import { PropertyInspector } from '../inspector/property-inspector'
+
+export interface EditorSidebarProps {
+  document: CanvasDocument
+  state: EditorState
+  onBreakpointChange: (breakpoint: EditorState['breakpoint']) => void
+  onDocumentChange: (document: CanvasDocument) => void
+}
+
+export function EditorSidebar({ document, state, onBreakpointChange, onDocumentChange }: EditorSidebarProps) {
+  const path = state.selectedNodeId ? findNodePathById(document.root, state.selectedNodeId) : []
+  const node = path ? getNodeAtPath(document.root, path) : document.root
+
   return (
     <aside aria-label="Property inspector">
-      <h2>Inspector</h2>
-      <p>Select a node to edit its content and styles.</p>
+      <PropertyInspector
+        node={node}
+        breakpoint={state.breakpoint}
+        onBreakpointChange={onBreakpointChange}
+        onUpdateProps={(nextProps) => {
+          if (!node) {
+            return
+          }
+
+          onDocumentChange(updateNodeProps(document, node.id, nextProps))
+        }}
+        onUpdateStyles={(nextStyles) => {
+          if (!node) {
+            return
+          }
+
+          onDocumentChange(updateNodeStyles(document, node.id, state.breakpoint, nextStyles))
+        }}
+      />
     </aside>
   )
 }

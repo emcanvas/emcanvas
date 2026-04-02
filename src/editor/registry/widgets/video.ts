@@ -12,11 +12,25 @@ export const videoWidget: WidgetDefinition = {
   propSchema: [
     {
       key: 'src',
-      type: 'string',
+      type: 'media',
     },
     {
       key: 'provider',
-      type: 'string',
+      type: 'select',
+      options: [
+        {
+          label: 'Upload',
+          value: 'upload',
+        },
+        {
+          label: 'YouTube',
+          value: 'youtube',
+        },
+        {
+          label: 'Vimeo',
+          value: 'vimeo',
+        },
+      ],
     },
   ],
   allowedChildren: 'none',
