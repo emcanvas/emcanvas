@@ -16,6 +16,17 @@ describe('selection store', () => {
     store.clearSelection()
     expect(store.getState().selectedNodeId).toBeNull()
   })
+
+  it('returns a snapshot that cannot mutate internal state', () => {
+    const store = createSelectionStore()
+
+    store.selectNode('root')
+
+    const snapshot = store.getState()
+    snapshot.selectedNodeId = 'other'
+
+    expect(store.getState().selectedNodeId).toBe('root')
+  })
 })
 
 describe('history store', () => {
@@ -61,6 +72,36 @@ describe('history store', () => {
       canRedo: false,
     })
     expect(store.redo()).toBeNull()
+  })
+
+  it('returns a snapshot that cannot mutate internal state', () => {
+    const store = createHistoryStore<string>()
+
+    store.push('doc-1')
+    store.push('doc-2')
+    store.undo()
+
+    const snapshot = store.getState()
+    snapshot.present = 'mutated'
+    snapshot.past.push('mutated-past')
+    snapshot.future.push('mutated-future')
+    snapshot.canUndo = true
+    snapshot.canRedo = false
+
+    expect(store.getState()).toMatchObject({
+      past: [],
+      present: 'doc-1',
+      future: ['doc-2'],
+      canUndo: false,
+      canRedo: true,
+    })
+  })
+
+  it('rejects nullable snapshot types at compile time', () => {
+    // @ts-expect-error history snapshots must be non-null
+    createHistoryStore<string | null>()
+
+    expect(true).toBe(true)
   })
 })
 

@@ -7,6 +7,12 @@ export function createSelectionStore() {
     selectedNodeId: null,
   }
 
+  function getState(): SelectionState {
+    return {
+      selectedNodeId: state.selectedNodeId,
+    }
+  }
+
   return {
     selectNode(nodeId: string) {
       state = {
@@ -18,8 +24,6 @@ export function createSelectionStore() {
         selectedNodeId: null,
       }
     },
-    getState() {
-      return state
-    },
+    getState,
   }
 }

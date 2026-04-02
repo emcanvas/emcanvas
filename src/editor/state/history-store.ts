@@ -16,7 +16,17 @@ function createState<T>(past: T[], present: T | null, future: T[]): HistoryState
   }
 }
 
-export function createHistoryStore<T>() {
+function cloneState<T>(state: HistoryState<T>): HistoryState<T> {
+  return {
+    past: [...state.past],
+    present: state.present,
+    future: [...state.future],
+    canUndo: state.canUndo,
+    canRedo: state.canRedo,
+  }
+}
+
+export function createHistoryStore<T extends NonNullable<unknown>>() {
   let state = createState<T>([], null, [])
 
   return {
@@ -57,7 +67,7 @@ export function createHistoryStore<T>() {
       return state.present
     },
     getState() {
-      return state
+      return cloneState(state)
     },
   }
 }
