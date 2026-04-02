@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isCanvasDocument } from '../../../src/foundation/model/guards'
+import { isCanvasDocument, isCanvasNode } from '../../../src/foundation/model/guards'
 
 describe('canvas document shape', () => {
   it('accepts a minimal valid document', () => {
@@ -32,5 +32,19 @@ describe('canvas document shape', () => {
         settings: {},
       }),
     ).toBe(true)
+  })
+
+  it('rejects cyclic node input instead of recursing forever', () => {
+    const node: Record<string, unknown> = {
+      id: 'root',
+      type: 'section',
+      props: {},
+      styles: { desktop: {} },
+      children: [],
+    }
+
+    node.children = [node]
+
+    expect(isCanvasNode(node)).toBe(false)
   })
 })

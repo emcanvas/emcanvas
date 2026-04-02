@@ -22,9 +22,22 @@ function isResponsiveStyles(value: unknown): value is ResponsiveStyles {
 }
 
 export function isCanvasNode(value: unknown): value is CanvasNode {
+  return isCanvasNodeInternal(value, new WeakSet<object>())
+}
+
+function isCanvasNodeInternal(
+  value: unknown,
+  visited: WeakSet<object>,
+): value is CanvasNode {
   if (!isRecord(value)) {
     return false
   }
+
+  if (visited.has(value)) {
+    return false
+  }
+
+  visited.add(value)
 
   if (typeof value.id !== 'string' || typeof value.type !== 'string') {
     return false
@@ -39,7 +52,7 @@ export function isCanvasNode(value: unknown): value is CanvasNode {
       return false
     }
 
-    return value.children.every((child) => isCanvasNode(child))
+    return value.children.every((child) => isCanvasNodeInternal(child, visited))
   }
 
   return true
