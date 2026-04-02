@@ -17,6 +17,17 @@ describe('pageFragments', () => {
               version: CANVAS_DOCUMENT_VERSION,
               editorVersion: EMCANVAS_EDITOR_VERSION,
             },
+            canvasLayout: {
+              version: CANVAS_DOCUMENT_VERSION,
+              root: {
+                id: 'root',
+                type: 'section',
+                props: {},
+                styles: { desktop: {} },
+                children: [],
+              },
+              settings: {},
+            },
           },
         },
       }),
