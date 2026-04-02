@@ -41,7 +41,7 @@ describe('getCanvasEntryState', () => {
     })
   })
 
-  it('does not expose a document when the layout payload is invalid', () => {
+  it('does not render when the layout payload is invalid', () => {
     const state = getCanvasEntryState({
       [EMCANVAS_ENTRY_META_KEY]: {
         enabled: true,
@@ -61,7 +61,7 @@ describe('getCanvasEntryState', () => {
       },
     })
 
-    expect(state.shouldRender).toBe(true)
+    expect(state.shouldRender).toBe(false)
     expect(state.document).toBeNull()
   })
 

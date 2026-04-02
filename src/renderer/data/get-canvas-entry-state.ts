@@ -8,9 +8,10 @@ import type { CanvasEntryState } from '../types/renderer'
 
 export function getCanvasEntryState(data: Record<string, any>): CanvasEntryState {
   const entryData = data as EmCanvasEntryData
+  const document = normalizeCanvasDocument(entryData[EMCANVAS_LAYOUT_KEY])
 
   return {
-    shouldRender: Boolean(entryData[EMCANVAS_ENTRY_META_KEY]?.enabled),
-    document: normalizeCanvasDocument(entryData[EMCANVAS_LAYOUT_KEY]),
+    shouldRender: Boolean(entryData[EMCANVAS_ENTRY_META_KEY]?.enabled) && document !== null,
+    document,
   }
 }
