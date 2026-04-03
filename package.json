@@ -7,8 +7,10 @@
   "type": "module",
   "main": "./src/plugin/index.ts",
   "exports": {
-    ".": "./src/plugin/index.ts",
-    "./sandbox": "./src/plugin/sandbox-entry.ts"
+    ".": "./dist/index.mjs",
+    "./sandbox": "./dist/sandbox-entry.mjs",
+    "./admin": "./dist/admin.mjs",
+    "./astro": "./dist/astro.mjs"
   },
   "files": ["src"],
   "scripts": {
