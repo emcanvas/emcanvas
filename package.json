@@ -10,7 +10,7 @@
     ".": "./src/plugin/index.ts",
     "./sandbox": "./src/plugin/sandbox-entry.ts"
   },
-  "files": ["src", "docs", "spec", "openspec"],
+  "files": ["src"],
   "scripts": {
     "test": "vitest run"
   },

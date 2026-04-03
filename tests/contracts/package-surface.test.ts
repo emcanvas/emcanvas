@@ -10,12 +10,16 @@ const packageJson = pkg as {
 
 describe('package surface', () => {
   it('exposes plugin runtime and sandbox entrypoints', () => {
-    expect(packageJson.main).toBeDefined()
-    expect(packageJson.exports?.['.']).toBeDefined()
-    expect(packageJson.exports?.['./sandbox']).toBeDefined()
-    expect(packageJson.peerDependencies?.react).toBeDefined()
-    expect(packageJson.peerDependencies?.['react-dom']).toBeDefined()
-    expect(packageJson.peerDependencies?.astro).toBeDefined()
-    expect(packageJson.files).toContain('src')
+    expect(packageJson.main).toBe('./src/plugin/index.ts')
+    expect(packageJson.exports).toEqual({
+      '.': './src/plugin/index.ts',
+      './sandbox': './src/plugin/sandbox-entry.ts',
+    })
+    expect(packageJson.files).toEqual(['src'])
+    expect(packageJson.peerDependencies).toEqual({
+      react: '^19.0.0',
+      'react-dom': '^19.0.0',
+      astro: '^4.0.0',
+    })
   })
 })
