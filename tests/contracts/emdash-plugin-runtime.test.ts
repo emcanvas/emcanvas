@@ -8,6 +8,7 @@ import { routeAdapters } from '../../src/plugin/runtime/route-adapters'
 const packageJson = pkg as {
   main?: string
   exports?: Record<string, string>
+  version?: string
 }
 
 describe('emdash runtime contract', () => {
@@ -24,7 +25,7 @@ describe('emdash runtime contract', () => {
     expect(manifest).toEqual({
       id: 'emcanvas',
       name: 'EmCanvas',
-      version: '0.1.0',
+      version: packageJson.version,
     })
 
     expect(plugin.hooks['page:fragments']).toBeTypeOf('function')
