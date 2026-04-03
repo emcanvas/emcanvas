@@ -5,8 +5,19 @@
   "description": "OpenSpec-first product definition for EmCanvas, a visual page builder for EmDash.",
   "license": "UNLICENSED",
   "type": "module",
+  "main": "./src/plugin/index.ts",
+  "exports": {
+    ".": "./src/plugin/index.ts",
+    "./sandbox": "./src/plugin/sandbox-entry.ts"
+  },
+  "files": ["src", "docs", "spec", "openspec"],
   "scripts": {
     "test": "vitest run"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "astro": "^4.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.6.3",
