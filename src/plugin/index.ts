@@ -1,9 +1,9 @@
 import descriptor from './descriptor'
 import manifest from './manifest'
 
-import { createPluginDefinition } from './runtime/create-plugin-definition'
+import { createRuntimePluginDefinition } from './runtime/create-runtime-plugin-definition'
 
-const { adminPages: _adminPages, ...plugin } = createPluginDefinition()
+const plugin = createRuntimePluginDefinition()
 
 export { descriptor, manifest }
 export default plugin

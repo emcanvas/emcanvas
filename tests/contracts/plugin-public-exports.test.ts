@@ -11,7 +11,6 @@ describe('plugin public exports', () => {
       default: expect.objectContaining({
         hooks: expect.any(Object),
         routes: expect.any(Object),
-        adminPages: expect.any(Object),
       }),
       descriptor: expect.objectContaining({
         entrypoint: expect.any(String),
@@ -25,6 +24,7 @@ describe('plugin public exports', () => {
       }),
     })
     expect(Object.keys(root).sort()).toEqual(['default', 'descriptor', 'manifest'])
+    expect(root.default).not.toHaveProperty('adminPages')
 
     expect(sandbox).toMatchObject({
       default: expect.objectContaining({

@@ -33,7 +33,6 @@ describe('emdash runtime contract', () => {
     expect(plugin.routes['save-canvas-data']).toBe(routeAdapters.saveDocument)
     expect(plugin.routes['preview-link']).toBe(routeAdapters.getPreviewLink)
 
-    expect(plugin.adminPages.editor).toBeTypeOf('function')
-    expect(plugin.adminPages.dashboard).toBeTypeOf('function')
+    expect(plugin).not.toHaveProperty('adminPages')
   })
 })
