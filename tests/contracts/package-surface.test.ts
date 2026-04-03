@@ -9,13 +9,15 @@ const packageJson = pkg as {
 }
 
 describe('package surface', () => {
-  it('exposes plugin runtime and sandbox entrypoints', () => {
-    expect(packageJson.main).toBe('./src/plugin/index.ts')
+  it('exposes the consumable runtime entrypoints', () => {
+    expect(packageJson.main).toBe('./dist/index.mjs')
     expect(packageJson.exports).toEqual({
-      '.': './src/plugin/index.ts',
-      './sandbox': './src/plugin/sandbox-entry.ts',
+      '.': './dist/index.mjs',
+      './sandbox': './dist/sandbox-entry.mjs',
+      './admin': './dist/admin.mjs',
+      './astro': './dist/astro.mjs',
     })
-    expect(packageJson.files).toEqual(['src'])
+    expect(packageJson.files).toEqual(['dist'])
     expect(packageJson.peerDependencies).toEqual({
       react: '^19.0.0',
       'react-dom': '^19.0.0',
