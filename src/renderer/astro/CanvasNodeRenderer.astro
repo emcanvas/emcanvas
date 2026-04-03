@@ -12,31 +12,19 @@ const model = getComponentRenderer(node.type)(node)
 const { inlineStyle, mediaRules } = serializeResponsiveStyles(node.id, node.styles)
 const style = inlineStyle || undefined
 const mediaCss = mediaRules.join('')
-const HeadingTag = `h${model.kind === 'heading' ? model.level : 2}` as keyof HTMLElementTagNameMap
+const Tag = model.tag as keyof HTMLElementTagNameMap
 ---
 
-{model.kind === 'section' && (
-  <section data-emcanvas-node={node.id} style={style}>
+{model.category === 'wrapper' && (
+  <Tag data-emcanvas-node={node.id} style={style}>
     {node.children.map((child) => <Astro.self node={child} />)}
-  </section>
-)}
-
-{model.kind === 'columns' && (
-  <div data-emcanvas-node={node.id} style={style}>
-    {node.children.map((child) => <Astro.self node={child} />)}
-  </div>
-)}
-
-{model.kind === 'container' && (
-  <div data-emcanvas-node={node.id} style={style}>
-    {node.children.map((child) => <Astro.self node={child} />)}
-  </div>
+  </Tag>
 )}
 
 {model.kind === 'heading' && (
-  <HeadingTag data-emcanvas-node={node.id} style={style}>
+  <Tag data-emcanvas-node={node.id} style={style}>
     {model.text}
-  </HeadingTag>
+  </Tag>
 )}
 
 {model.kind === 'text' && (

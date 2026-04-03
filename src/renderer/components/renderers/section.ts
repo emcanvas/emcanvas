@@ -1,3 +1,3 @@
-import type { CanvasNodeRenderer } from '../registry'
+import type { CanvasNodeRenderer } from '../../types/renderer'
 
-export const renderSectionNode: CanvasNodeRenderer = () => ({ kind: 'section' })
+export const renderSectionNode: CanvasNodeRenderer = () => ({ category: 'wrapper', kind: 'section', tag: 'section' })
