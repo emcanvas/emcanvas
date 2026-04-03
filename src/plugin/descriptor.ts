@@ -1,8 +1,5 @@
-import manifest from './manifest'
+import { createPluginDescriptor } from './runtime/create-plugin-descriptor'
 
-const descriptor = {
-  ...manifest,
-  sandboxEntry: './sandbox-entry.ts',
-}
+const descriptor = createPluginDescriptor()
 
 export default descriptor
