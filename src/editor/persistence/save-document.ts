@@ -1,5 +1,5 @@
 import type { CanvasDocument } from '../../foundation/types/canvas'
-import { saveCanvasData } from '../../plugin/routes/save-canvas-data'
+import { routeAdapters } from '../../plugin/runtime/route-adapters'
 import type { CanvasEntry } from '../../shared/types/canvas-entry'
 import { buildEntryPayload } from './entry-payload'
 
@@ -10,7 +10,7 @@ export async function saveDocument({
   entry: CanvasEntry
   canvasLayout: CanvasDocument
 }) {
-  return saveCanvasData({
+  return routeAdapters.saveDocument({
     entry,
     payload: buildEntryPayload(entry.data, canvasLayout),
   })
