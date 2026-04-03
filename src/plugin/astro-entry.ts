@@ -1,1 +1,3 @@
-export const blockComponents = {}
+const blockComponents = {}
+
+export { blockComponents }
