@@ -12,10 +12,12 @@ const packageJson = pkg as {
 
 describe('emdash runtime contract', () => {
   it('keeps the local host runtime surface coherent', () => {
-    expect(packageJson.main).toBe(descriptor.entrypoint)
+    expect(packageJson.main).toBe('./dist/index.mjs')
     expect(packageJson.exports).toEqual({
-      '.': descriptor.entrypoint,
-      './sandbox': descriptor.sandbox,
+      '.': './dist/index.mjs',
+      './sandbox': './dist/sandbox-entry.mjs',
+      './admin': './dist/admin.mjs',
+      './astro': './dist/astro.mjs',
     })
 
     expect(exportedDescriptor).toEqual(descriptor)
