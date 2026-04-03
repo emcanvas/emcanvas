@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import plugin from '../../src/plugin'
+import plugin, { manifest } from '../../src/plugin'
 
 describe('plugin definition', () => {
   it('exposes host-compatible hooks, routes, and admin pages', () => {
@@ -11,5 +11,13 @@ describe('plugin definition', () => {
     expect(plugin.routes['save-canvas-data']).toBeDefined()
     expect(plugin.adminPages.editor).toBeDefined()
     expect(plugin.adminPages.dashboard).toBeDefined()
+  })
+
+  it('keeps the package manifest export as public plugin metadata', () => {
+    expect(manifest).toEqual({
+      id: 'emcanvas',
+      name: 'EmCanvas',
+      version: '0.1.0',
+    })
   })
 })

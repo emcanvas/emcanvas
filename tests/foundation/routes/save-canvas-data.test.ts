@@ -6,7 +6,6 @@ import {
   EMCANVAS_LAYOUT_KEY,
 } from '../../../src/foundation/shared/constants'
 import { saveCanvasData } from '../../../src/plugin/routes/save-canvas-data'
-import plugin from '../../../src/plugin/manifest'
 
 describe('saveCanvasData', () => {
   it('merges canvas data into the existing entry data', async () => {
@@ -87,14 +86,5 @@ describe('saveCanvasData', () => {
         },
       }),
     ).rejects.toThrow('Invalid canvas payload')
-  })
-})
-
-describe('plugin manifest routes', () => {
-  it('exposes the canvas data route handlers', () => {
-    expect(plugin.routes).toMatchObject({
-      getCanvasData: expect.any(Function),
-      saveCanvasData: expect.any(Function),
-    })
   })
 })
