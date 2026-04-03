@@ -12,7 +12,7 @@
     "./admin": "./dist/admin.mjs",
     "./astro": "./dist/astro.mjs"
   },
-  "files": ["src"],
+  "files": ["dist"],
   "scripts": {
     "test": "vitest run"
   },
