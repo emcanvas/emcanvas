@@ -28,25 +28,25 @@ const Tag = model.tag as keyof HTMLElementTagNameMap
 )}
 
 {model.kind === 'text' && (
-  <p data-emcanvas-node={node.id} style={style}>
+  <Tag data-emcanvas-node={node.id} style={style}>
     {model.text}
-  </p>
+  </Tag>
 )}
 
 {model.kind === 'button' && (
-  <a data-emcanvas-node={node.id} href={model.href} style={style}>
+  <Tag data-emcanvas-node={node.id} href={model.href} style={style}>
     {model.label}
-  </a>
+  </Tag>
 )}
 
-{model.kind === 'spacer' && <div data-emcanvas-node={node.id} aria-hidden="true" style={style}></div>}
+{model.kind === 'spacer' && <Tag data-emcanvas-node={node.id} aria-hidden="true" style={style}></Tag>}
 
-{model.kind === 'divider' && <hr data-emcanvas-node={node.id} style={style} />}
+{model.kind === 'divider' && <Tag data-emcanvas-node={node.id} style={style} />}
 
 {model.kind === 'image' && (
-  <img data-emcanvas-node={node.id} src={model.src} alt={model.alt} style={style} />
+  <Tag data-emcanvas-node={node.id} src={model.src} alt={model.alt} style={style} />
 )}
 
-{model.kind === 'video' && <video data-emcanvas-node={node.id} src={model.src} controls style={style}></video>}
+{model.kind === 'video' && <Tag data-emcanvas-node={node.id} src={model.src} controls style={style}></Tag>}
 
 {mediaCss && <style set:html={mediaCss}></style>}

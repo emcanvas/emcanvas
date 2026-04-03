@@ -24,7 +24,7 @@ export type WrapperRenderModel =
   | { category: 'wrapper'; kind: 'container'; tag: 'div' }
 
 export type LeafRenderModel =
-  | { category: 'leaf'; kind: 'heading'; tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'; level: 1 | 2 | 3 | 4 | 5 | 6; text: string }
+  | { category: 'leaf'; kind: 'heading'; tag: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'; text: string }
   | { category: 'leaf'; kind: 'text'; tag: 'p'; text: string }
   | { category: 'leaf'; kind: 'button'; tag: 'a'; href: string; label: string }
   | { category: 'leaf'; kind: 'spacer'; tag: 'div' }

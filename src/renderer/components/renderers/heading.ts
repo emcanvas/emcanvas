@@ -15,6 +15,5 @@ export const renderHeadingNode: CanvasNodeRenderer = (node) => ({
   category: 'leaf',
   kind: 'heading',
   tag: `h${getHeadingLevel(node.props.level)}` as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
-  level: getHeadingLevel(node.props.level),
   text: getText(node.props),
 })
