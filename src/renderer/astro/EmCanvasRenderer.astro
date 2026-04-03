@@ -1,5 +1,6 @@
 ---
 import CanvasNodeRenderer from './CanvasNodeRenderer.astro'
+import { collectMediaRules } from '../styles/collect-media-rules'
 import type { NormalizedCanvasDocument } from '../types/renderer'
 
 interface Props {
@@ -7,8 +8,10 @@ interface Props {
 }
 
 const { document } = Astro.props
+const mediaCss = collectMediaRules(document.root)
 ---
 
 <div data-emcanvas-root>
+  {mediaCss && <style data-emcanvas-media-rules set:html={mediaCss}></style>}
   <CanvasNodeRenderer node={document.root} />
 </div>

@@ -9,9 +9,8 @@ interface Props {
 
 const { node } = Astro.props
 const model = getComponentRenderer(node.type)(node)
-const { inlineStyle, mediaRules } = serializeResponsiveStyles(node.id, node.styles)
+const { inlineStyle } = serializeResponsiveStyles(node.id, node.styles)
 const style = inlineStyle || undefined
-const mediaCss = mediaRules.join('')
 const Tag = model.tag as keyof HTMLElementTagNameMap
 ---
 
@@ -48,5 +47,3 @@ const Tag = model.tag as keyof HTMLElementTagNameMap
 )}
 
 {model.kind === 'video' && <Tag data-emcanvas-node={node.id} src={model.src} controls style={style}></Tag>}
-
-{mediaCss && <style set:html={mediaCss}></style>}

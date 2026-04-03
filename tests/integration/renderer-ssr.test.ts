@@ -105,4 +105,66 @@ describe('EmCanvasRenderer', () => {
     expect(html).toMatch(/<a[^>]*data-emcanvas-node="hero-button"[^>]*href="\/read-more"[^>]*style="background-color:#222222"[^>]*>Read more<\/a>/)
     expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="hero-columns"]{gap:8px;}}')
   })
+
+  it('emits a single style block for responsive media rules', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(EmCanvasRenderer, {
+      props: {
+        document: {
+          version: 1,
+          settings: {},
+          root: {
+            id: 'root',
+            type: 'section',
+            props: {},
+            styles: {
+              desktop: {
+                padding: '24px',
+              },
+              mobile: {
+                padding: '12px',
+              },
+            },
+            children: [
+              {
+                id: 'hero-columns',
+                type: 'columns',
+                props: {},
+                styles: {
+                  desktop: {
+                    gap: '16px',
+                  },
+                  mobile: {
+                    gap: '8px',
+                  },
+                },
+                children: [
+                  {
+                    id: 'hero-copy',
+                    type: 'container',
+                    props: {},
+                    styles: {
+                      desktop: {
+                        maxWidth: '640px',
+                      },
+                      tablet: {
+                        maxWidth: '100%',
+                      },
+                    },
+                    children: [],
+                  },
+                ],
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect((html.match(/<style/g) ?? []).length).toBe(1)
+    expect(html).toContain('<style data-emcanvas-media-rules>')
+    expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="root"]{padding:12px;}}')
+    expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="hero-columns"]{gap:8px;}}')
+    expect(html).toContain('@media (max-width: 1024px){[data-emcanvas-node="hero-copy"]{max-width:100%;}}')
+  })
 })
