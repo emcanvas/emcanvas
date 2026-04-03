@@ -1,8 +1,9 @@
-export { default as manifest } from './manifest'
-export { default as descriptor } from './descriptor'
+import descriptor from './descriptor'
+import manifest from './manifest'
 
 import { createPluginDefinition } from './runtime/create-plugin-definition'
 
 const plugin = createPluginDefinition()
 
+export { descriptor, manifest }
 export default plugin

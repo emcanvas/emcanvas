@@ -1,3 +1,5 @@
 import descriptor from './descriptor'
 
-export default descriptor
+const sandboxDescriptor = descriptor
+
+export default sandboxDescriptor
