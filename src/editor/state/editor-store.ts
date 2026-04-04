@@ -19,6 +19,7 @@ export interface EditorStore<T extends NonNullable<unknown>> {
   markDirty(): void
   markClean(): void
   setBreakpoint(nextBreakpoint: EditorBreakpoint): void
+  resetHistory(snapshot: T): void
   pushHistory(snapshot: T): void
   undoHistory(): T | null
   redoHistory(): T | null
@@ -76,6 +77,10 @@ export function createEditorStore<T extends NonNullable<unknown>>(): EditorStore
     },
     setBreakpoint(nextBreakpoint: EditorBreakpoint) {
       breakpoint = nextBreakpoint
+      notify()
+    },
+    resetHistory(snapshot: T) {
+      historyStore.reset(snapshot)
       notify()
     },
     pushHistory(snapshot: T) {

@@ -30,6 +30,11 @@ export function createSnapshotHistoryStore<T extends NonNullable<unknown>>() {
   let state = createState<T>([], null, [])
 
   return {
+    reset(snapshot: T) {
+      state = createState([], snapshot, [])
+
+      return state.present
+    },
     push(snapshot: T) {
       state = createState(
         state.present === null ? state.past : [...state.past, state.present],

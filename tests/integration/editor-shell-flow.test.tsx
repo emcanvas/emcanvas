@@ -30,6 +30,22 @@ function createFixtureDocument(): CanvasDocument {
   }
 }
 
+function createFixtureDocumentWithHeading(text: string): CanvasDocument {
+  const document = createFixtureDocument()
+  const heading = document.root.children?.[0]
+
+  if (!heading) {
+    throw new Error('Expected fixture document to include a heading node')
+  }
+
+  heading.props = {
+    ...heading.props,
+    text,
+  }
+
+  return document
+}
+
 afterEach(() => {
   cleanup()
 })
@@ -154,5 +170,50 @@ describe('editor shell flow', () => {
 
     expect(view.getByLabelText('Text')).toHaveValue('Updated heading')
     expect(view.getByLabelText('Color')).toHaveValue('#ff0000')
+  })
+
+  it('resets undo history when the initial document is replaced', () => {
+    let store: EditorStore<CanvasDocument> | undefined
+
+    const firstDocument = createFixtureDocumentWithHeading('First document')
+    const secondDocument = createFixtureDocumentWithHeading('Second document')
+
+    const view = render(
+      <EditorShell
+        initialDocument={firstDocument}
+        onEditorReady={(instance) => {
+          store = instance.store
+        }}
+      />
+    )
+
+    act(() => {
+      store?.selectNode('heading-1')
+    })
+
+    fireEvent.change(view.getByLabelText('Text'), { target: { value: 'First document edited' } })
+
+    expect(view.getByRole('button', { name: 'Undo' })).toBeEnabled()
+    expect(view.getByLabelText('Text')).toHaveValue('First document edited')
+
+    view.rerender(
+      <EditorShell
+        initialDocument={secondDocument}
+        onEditorReady={(instance) => {
+          store = instance.store
+        }}
+      />
+    )
+
+    expect(view.getByLabelText('Text')).toHaveValue('Second document')
+    expect(view.getByRole('button', { name: 'Undo' })).toBeDisabled()
+
+    fireEvent.change(view.getByLabelText('Text'), { target: { value: 'Second document edited' } })
+
+    expect(view.getByRole('button', { name: 'Undo' })).toBeEnabled()
+
+    fireEvent.click(view.getByRole('button', { name: 'Undo' }))
+
+    expect(view.getByLabelText('Text')).toHaveValue('Second document')
   })
 })

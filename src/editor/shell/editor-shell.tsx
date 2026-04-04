@@ -35,8 +35,9 @@ export function EditorShell({
   useEffect(() => {
     if (initialDocument) {
       setDocument(initialDocument)
+      editorStore.resetHistory(initialDocument)
     }
-  }, [initialDocument])
+  }, [editorStore, initialDocument])
 
   function applyDocument(nextDocument: CanvasDocument, options?: { pushHistory?: boolean; markDirty?: boolean }) {
     setDocument(nextDocument)
