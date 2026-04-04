@@ -5,7 +5,7 @@ import {
   CANVAS_DOCUMENT_VERSION,
   EMCANVAS_EDITOR_VERSION,
 } from '../../src/foundation/shared/constants'
-import { pluginApi } from '../../src/admin/lib/plugin-api'
+import { pluginApi, type PluginApi } from '../../src/admin/lib/plugin-api'
 import { routeAdapters } from '../../src/plugin/runtime/route-adapters'
 
 describe('plugin api', () => {
@@ -23,16 +23,7 @@ describe('plugin api', () => {
       },
     }
     const canvasLayout = createDefaultCanvasDocument()
-    type Entry = typeof entry
-    type SaveArgs = {
-      entry: Entry
-      canvasLayout: typeof canvasLayout
-    }
-    const api = pluginApi as unknown as {
-      loadDocument: (entry: Entry) => Promise<unknown>
-      saveDocument: (args: SaveArgs) => Promise<unknown>
-      getPreviewLink: typeof routeAdapters.getPreviewLink
-    }
+    const api: PluginApi = pluginApi
 
     await expect(api.loadDocument(entry)).resolves.toEqual(
       await routeAdapters.loadDocument({ entry }),

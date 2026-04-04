@@ -1,6 +1,6 @@
 import type { CanvasEntry } from '../../shared/types/canvas-entry'
-import { getPersistencePort, type PersistencePort } from './persistence-port'
+import type { PersistencePort } from './persistence-port'
 
-export async function loadDocument(entry: CanvasEntry, port: PersistencePort = getPersistencePort()) {
+export async function loadDocumentWithPort(entry: CanvasEntry, port: PersistencePort) {
   return port.loadDocument({ entry })
 }

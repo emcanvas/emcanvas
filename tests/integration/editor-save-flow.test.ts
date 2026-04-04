@@ -8,10 +8,9 @@ import {
   EMCANVAS_LAYOUT_KEY,
 } from '../../src/foundation/shared/constants'
 import type { CanvasDocument } from '../../src/foundation/types/canvas'
-import '../../src/admin/lib/plugin-api'
 import { buildEntryPayload } from '../../src/editor/persistence/entry-payload'
-import { loadDocument } from '../../src/editor/persistence/load-document'
-import { saveDocument } from '../../src/editor/persistence/save-document'
+import { loadDocumentWithPort } from '../../src/editor/persistence/load-document'
+import { saveDocumentWithPort } from '../../src/editor/persistence/save-document'
 import { createAutosaveController } from '../../src/editor/state/autosave-controller'
 import { createEditorStore } from '../../src/editor/state/editor-store'
 
@@ -50,20 +49,8 @@ describe('editor save flow', () => {
       }),
       getPreviewLink: vi.fn().mockReturnValue('https://example.test/preview?slug=home&source=emcanvas'),
     }
-    type Entry = typeof entry
-    type InjectedLoadDocument = (
-      entry: Entry,
-      port: TestPersistencePort,
-    ) => Promise<unknown>
-    type InjectedSaveDocument = (
-      args: { entry: Entry; canvasLayout: CanvasDocument },
-      port: TestPersistencePort,
-    ) => Promise<unknown>
 
-    const loadWithInjectedPort = loadDocument as unknown as InjectedLoadDocument
-    const saveWithInjectedPort = saveDocument as unknown as InjectedSaveDocument
-
-    await expect(loadWithInjectedPort(entry, port)).resolves.toEqual({
+    await expect(loadDocumentWithPort(entry, port)).resolves.toEqual({
       canvasLayout,
       _emcanvas: {
         enabled: true,
@@ -71,7 +58,7 @@ describe('editor save flow', () => {
         editorVersion: EMCANVAS_EDITOR_VERSION,
       },
     })
-    await expect(saveWithInjectedPort({ entry, canvasLayout }, port)).resolves.toEqual({
+    await expect(saveDocumentWithPort({ entry, canvasLayout }, port)).resolves.toEqual({
       ...entry.data,
     })
 
@@ -102,29 +89,37 @@ describe('editor save flow', () => {
     })
   })
 
-  it('loads the persisted canvas document from entry data', async () => {
+  it('loads the persisted canvas document from entry data through an explicit port', async () => {
     const canvasLayout = createDefaultCanvasDocument()
     const meta = {
       enabled: true,
       version: CANVAS_DOCUMENT_VERSION,
       editorVersion: EMCANVAS_EDITOR_VERSION,
     }
-
-    await expect(
-      loadDocument({
-        data: {
-          slug: 'home',
-          [EMCANVAS_LAYOUT_KEY]: canvasLayout,
-          [EMCANVAS_ENTRY_META_KEY]: meta,
-        },
+    const entry = {
+      data: {
+        slug: 'home',
+        [EMCANVAS_LAYOUT_KEY]: canvasLayout,
+        [EMCANVAS_ENTRY_META_KEY]: meta,
+      },
+    }
+    const port: TestPersistencePort = {
+      loadDocument: vi.fn().mockResolvedValue({
+        canvasLayout,
+        _emcanvas: meta,
       }),
-    ).resolves.toEqual({
+      saveDocument: vi.fn(),
+      getPreviewLink: vi.fn().mockReturnValue(''),
+    }
+
+    await expect(loadDocumentWithPort(entry, port)).resolves.toEqual({
       canvasLayout,
       _emcanvas: meta,
     })
+    expect(port.loadDocument).toHaveBeenCalledWith({ entry })
   })
 
-  it('saves the current document back into entry data', async () => {
+  it('saves the current document back into entry data through an explicit port', async () => {
     const entry = {
       data: {
         slug: 'home',
@@ -132,18 +127,36 @@ describe('editor save flow', () => {
       },
     }
     const canvasLayout = createDefaultCanvasDocument()
+    const result = {
+      ...entry.data,
+      canvasLayout,
+      _emcanvas: {
+        enabled: true,
+        version: CANVAS_DOCUMENT_VERSION,
+        editorVersion: EMCANVAS_EDITOR_VERSION,
+      },
+    }
+    const port: TestPersistencePort = {
+      loadDocument: vi.fn(),
+      saveDocument: vi.fn().mockResolvedValue(result),
+      getPreviewLink: vi.fn().mockReturnValue(''),
+    }
 
-    const result = await saveDocument({ entry, canvasLayout })
+    await expect(saveDocumentWithPort({ entry, canvasLayout }, port)).resolves.toEqual(result)
 
-    expect(result.slug).toBe('home')
-    expect(result.title).toBe('Homepage')
-    expect(result.canvasLayout).toEqual(canvasLayout)
-    expect(result._emcanvas).toEqual({
-      enabled: true,
-      version: CANVAS_DOCUMENT_VERSION,
-      editorVersion: EMCANVAS_EDITOR_VERSION,
+    expect(port.saveDocument).toHaveBeenCalledWith({
+      entry,
+      payload: {
+        slug: 'home',
+        title: 'Homepage',
+        canvasLayout,
+        _emcanvas: {
+          enabled: true,
+          version: CANVAS_DOCUMENT_VERSION,
+          editorVersion: EMCANVAS_EDITOR_VERSION,
+        },
+      },
     })
-    expect(entry.data).toEqual(result)
   })
 
   it('autosaves dirty editor state after the debounce interval', async () => {

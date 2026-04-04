@@ -2,11 +2,10 @@
 
 import { describe, expect, it } from 'vitest'
 
-import '../../src/admin/lib/plugin-api'
+import { pluginApi } from '../../src/admin/lib/plugin-api'
 import { CANVAS_DOCUMENT_VERSION } from '../../src/foundation/shared/constants'
 import { renderEntryPage } from '../../src/integration/page/render-entry-page'
 import { getPreviewLink } from '../../src/plugin/routes/preview-link'
-import { saveDocument } from '../../src/editor/persistence/save-document'
 
 describe('preview and publish flow', () => {
   it('creates a preview URL and renders the published emcanvas markup', async () => {
@@ -39,7 +38,7 @@ describe('preview and publish flow', () => {
       settings: {},
     }
 
-    await saveDocument({ entry, canvasLayout: document })
+    await pluginApi.saveDocument({ entry, canvasLayout: document })
 
     expect(
       getPreviewLink({
