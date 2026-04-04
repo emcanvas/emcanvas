@@ -1,5 +1,6 @@
 // @vitest-environment node
 
+import { fileURLToPath } from 'node:url'
 import type { UserConfig, UserConfigFnObject } from 'vite'
 import { describe, expect, it } from 'vitest'
 import tsconfig from '../../tsconfig.json'
@@ -25,7 +26,9 @@ describe('path alias config', () => {
     const expectedAliases = Object.fromEntries(
       Object.entries(tsconfig.compilerOptions.paths).map(([alias, [target]]) => [
         alias.replace(/\/\*$/, ''),
-        new URL(`../../${target.replace(/\/\*$/, '')}`, import.meta.url).pathname,
+        fileURLToPath(
+          new URL(`../../${target.replace(/\/\*$/, '')}`, import.meta.url),
+        ),
       ]),
     )
 
