@@ -129,4 +129,12 @@ describe('getCanvasEntryState typing', () => {
 
     expect(getTypeScriptDiagnostics(fixturePath)).toEqual([])
   })
+
+  it('does not cast the full entry data object to EmCanvasEntryData', () => {
+    const sourcePath = `${getCurrentWorkingDirectory()}/src/renderer/data/get-canvas-entry-state.ts`
+    const source = ts.sys.readFile(sourcePath)
+
+    expect(source).toBeDefined()
+    expect(source).not.toContain('as EmCanvasEntryData')
+  })
 })
