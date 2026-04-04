@@ -1,0 +1,5 @@
+export { CanvasEditorPage } from './pages/CanvasEditorPage'
+export type { CanvasEditorPageProps } from './pages/CanvasEditorPage'
+export { mapPluginApiError } from './lib/error-mapping'
+export { pluginApi } from './lib/plugin-api'
+export type { PluginApi } from './lib/plugin-api'
