@@ -10,9 +10,12 @@ describe('ci workflow', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as {
       packageManager?: string
     }
+    const workflowPnpmVersion = workflow.match(/version:\s*(\d+\.\d+\.\d+)/)?.[1]
+    const packageManagerPnpmVersion = pkg.packageManager?.match(/^pnpm@(\d+\.\d+\.\d+)$/)?.[1]
 
-    expect(pkg.packageManager).toMatch(/^pnpm@\d+\.\d+\.\d+$/)
-    expect(workflow).toMatch(/version:\s*\d+\.\d+\.\d+/)
+    expect(packageManagerPnpmVersion).toBeDefined()
+    expect(workflowPnpmVersion).toBeDefined()
+    expect(workflowPnpmVersion).toBe(packageManagerPnpmVersion)
     expect(workflow).toContain('pnpm vitest run')
     expect(workflow).toContain('tsc --noEmit')
   })
