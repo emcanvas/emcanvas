@@ -6,6 +6,7 @@ describe('precommit tooling', () => {
     expect(existsSync('.lintstagedrc.json')).toBe(true)
 
     const pkg = JSON.parse(readFileSync('package.json', 'utf8')) as {
+      scripts?: Record<string, string>
       devDependencies?: Record<string, string>
       'simple-git-hooks'?: Record<string, string>
     }
@@ -19,11 +20,16 @@ describe('precommit tooling', () => {
       'pre-commit': 'pnpm lint-staged',
     })
 
+    expect(pkg.scripts?.prepare).toBe('simple-git-hooks')
+
     const lintStaged = JSON.parse(readFileSync('.lintstagedrc.json', 'utf8')) as Record<
       string,
       string
     >
 
-    expect(lintStaged).not.toEqual({})
+    expect(lintStaged).toEqual({
+      '*.{js,jsx,ts,tsx}': 'eslint --max-warnings 0',
+      '*.{json,md}': 'prettier --check',
+    })
   })
 })
