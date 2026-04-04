@@ -4,6 +4,8 @@ import type { CanvasDocument, CanvasNode } from '../../src/foundation/types/canv
 import { CreateNodeCommand } from '../../src/editor/commands/create-node-command'
 import { DeleteNodeCommand } from '../../src/editor/commands/delete-node-command'
 import { MoveNodeCommand } from '../../src/editor/commands/move-node-command'
+import { UpdateNodePropsCommand } from '../../src/editor/commands/update-props-command'
+import { UpdateNodeStylesCommand } from '../../src/editor/commands/update-styles-command'
 import { createHistoryStore } from '../../src/editor/state/history-store'
 
 function createFixtureDocument(): CanvasDocument {
@@ -122,5 +124,49 @@ describe('history store', () => {
 
     expect(document.root.children?.map((node) => node.id)).toEqual(['container-1'])
     expect(document.root.children?.[0]?.children).toEqual([])
+  })
+
+  it('makes prop and style edits undoable through the history path', () => {
+    const history = createHistoryStore()
+    let document = createFixtureDocument()
+
+    const setDocument = (nextDocument: CanvasDocument) => {
+      document = nextDocument
+    }
+
+    history.execute(
+      new UpdateNodePropsCommand({
+        getDocument: () => document,
+        setDocument,
+        nodeId: 'heading-1',
+        nextProps: { text: 'Updated heading' },
+      }),
+    )
+
+    history.execute(
+      new UpdateNodeStylesCommand({
+        getDocument: () => document,
+        setDocument,
+        nodeId: 'heading-1',
+        breakpoint: 'desktop',
+        nextStyles: { color: '#ff0000' },
+      }),
+    )
+
+    expect(document.root.children?.[0]?.props.text).toBe('Updated heading')
+    expect(document.root.children?.[0]?.styles.desktop).toMatchObject({ color: '#ff0000' })
+
+    history.undo()
+    expect(document.root.children?.[0]?.styles.desktop).toEqual({})
+    expect(document.root.children?.[0]?.props.text).toBe('Updated heading')
+
+    history.undo()
+    expect(document.root.children?.[0]?.props.text).toBe('Welcome')
+
+    history.redo()
+    history.redo()
+
+    expect(document.root.children?.[0]?.props.text).toBe('Updated heading')
+    expect(document.root.children?.[0]?.styles.desktop).toMatchObject({ color: '#ff0000' })
   })
 })

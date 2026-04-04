@@ -1,12 +1,11 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import type { CanvasDocument } from '../../src/foundation/types/canvas'
-import { PropertyInspector } from '../../src/editor/inspector/property-inspector'
-import { updateNodeProps } from '../../src/editor/commands/update-props-command'
-import { updateNodeStyles } from '../../src/editor/commands/update-styles-command'
-import type { EditorBreakpoint } from '../../src/editor/state/editor-store'
+import { EditorSidebar } from '../../src/editor/shell/editor-sidebar'
+import { createHistoryStore } from '../../src/editor/state/history-store'
+import type { EditorBreakpoint, EditorState } from '../../src/editor/state/editor-store'
 
 afterEach(() => {
   cleanup()
@@ -48,26 +47,30 @@ function createFixtureDocument(): CanvasDocument {
 function PropertyInspectorHarness() {
   const [document, setDocument] = useState(() => createFixtureDocument())
   const [breakpoint, setBreakpoint] = useState<EditorBreakpoint>('desktop')
-  const node = document.root.children?.[0] ?? null
+  const documentRef = useRef(document)
+  const [history] = useState(() => createHistoryStore())
 
-  if (!node) {
-    throw new Error('Fixture node missing')
+  useEffect(() => {
+    documentRef.current = document
+  }, [document])
+
+  const state: EditorState = {
+    selectedNodeId: 'heading-1',
+    dirty: false,
+    breakpoint,
+    canUndo: history.canUndo(),
+    canRedo: history.canRedo(),
   }
 
   return (
     <>
-      <PropertyInspector
-        breakpoint={breakpoint}
-        node={node}
+      <EditorSidebar
+        document={document}
+        getDocument={() => documentRef.current}
+        state={state}
         onBreakpointChange={setBreakpoint}
-        onUpdateProps={(nextProps) => {
-          setDocument((currentDocument) => updateNodeProps(currentDocument, node.id, nextProps))
-        }}
-        onUpdateStyles={(nextStyles) => {
-          setDocument((currentDocument) =>
-            updateNodeStyles(currentDocument, node.id, breakpoint, nextStyles),
-          )
-        }}
+        onDocumentChange={setDocument}
+        onCommand={(command) => history.execute(command)}
       />
       <output data-testid="level-prop">{JSON.stringify(document.root.children?.[0]?.props.level)}</output>
     </>

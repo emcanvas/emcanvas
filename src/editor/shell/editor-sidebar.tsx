@@ -1,20 +1,39 @@
 import type { CanvasDocument } from '../../foundation/types/canvas'
-import { updateNodeProps } from '../commands/update-props-command'
-import { updateNodeStyles } from '../commands/update-styles-command'
+import { UpdateNodePropsCommand } from '../commands/update-props-command'
+import { UpdateNodeStylesCommand } from '../commands/update-styles-command'
+import type { Command } from '../commands/command'
 import { getNodeAtPath, findNodePathById } from '../shared/tree-path'
 import type { EditorState } from '../state/editor-store'
 import { PropertyInspector } from '../inspector/property-inspector'
 
 export interface EditorSidebarProps {
   document: CanvasDocument
+  getDocument?: () => CanvasDocument
   state: EditorState
   onBreakpointChange: (breakpoint: EditorState['breakpoint']) => void
   onDocumentChange: (document: CanvasDocument) => void
+  onCommand?: (command: Command) => void
 }
 
-export function EditorSidebar({ document, state, onBreakpointChange, onDocumentChange }: EditorSidebarProps) {
+export function EditorSidebar({
+  document,
+  getDocument = () => document,
+  state,
+  onBreakpointChange,
+  onDocumentChange,
+  onCommand,
+}: EditorSidebarProps) {
   const path = state.selectedNodeId === null ? null : findNodePathById(document.root, state.selectedNodeId)
   const node = path === null ? null : getNodeAtPath(document.root, path)
+
+  function dispatchCommand(command: Command) {
+    if (onCommand) {
+      onCommand(command)
+      return
+    }
+
+    command.execute()
+  }
 
   return (
     <aside aria-label="Property inspector">
@@ -27,14 +46,29 @@ export function EditorSidebar({ document, state, onBreakpointChange, onDocumentC
             return
           }
 
-          onDocumentChange(updateNodeProps(document, node.id, nextProps))
+          dispatchCommand(
+            new UpdateNodePropsCommand({
+              getDocument,
+              setDocument: onDocumentChange,
+              nodeId: node.id,
+              nextProps,
+            }),
+          )
         }}
         onUpdateStyles={(nextStyles) => {
           if (!node) {
             return
           }
 
-          onDocumentChange(updateNodeStyles(document, node.id, state.breakpoint, nextStyles))
+          dispatchCommand(
+            new UpdateNodeStylesCommand({
+              getDocument,
+              setDocument: onDocumentChange,
+              nodeId: node.id,
+              breakpoint: state.breakpoint,
+              nextStyles,
+            }),
+          )
         }}
       />
     </aside>
