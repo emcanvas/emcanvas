@@ -14,6 +14,12 @@ function createFixtureDocumentWithHeading(text: string): CanvasDocument {
   return document
 }
 
+function selectHeadingForEditing(store: EditorStore<CanvasDocument> | undefined) {
+  act(() => {
+    store?.selectNode('heading-1')
+  })
+}
+
 afterEach(() => {
   cleanup()
 })
@@ -29,7 +35,7 @@ describe('editor shell flow', () => {
   })
 
   it('keeps each mounted shell isolated through visible state changes', () => {
-    const stores: EditorStore<CanvasDocument>[] = []
+    const stores: Array<EditorStore<CanvasDocument> | undefined> = []
     const firstDocument = createFixtureDocumentWithHeading('First heading')
     const secondDocument = createFixtureDocumentWithHeading('Second heading')
 
@@ -54,13 +60,14 @@ describe('editor shell flow', () => {
       </>
     )
 
-    act(() => {
-      stores[0]?.selectNode('heading-1')
-      stores[1]?.selectNode('heading-1')
-    })
-
     const firstShell = within(view.getByTestId('first-shell'))
     const secondShell = within(view.getByTestId('second-shell'))
+
+    expect(firstShell.getByText('Select a node to edit its content and styles.')).toBeInTheDocument()
+    expect(secondShell.getByText('Select a node to edit its content and styles.')).toBeInTheDocument()
+
+    selectHeadingForEditing(stores[0])
+    selectHeadingForEditing(stores[1])
 
     expect(firstShell.getByLabelText('Text')).toHaveValue('First heading')
     expect(secondShell.getByLabelText('Text')).toHaveValue('Second heading')
@@ -92,10 +99,9 @@ describe('editor shell flow', () => {
     expect(shell.getByText('Breakpoint: desktop')).toBeInTheDocument()
     expect(shell.getByText('All changes saved')).toBeInTheDocument()
     expect(shell.getByRole('button', { name: 'Undo' })).toBeDisabled()
+    expect(view.getByText('Select a node to edit its content and styles.')).toBeInTheDocument()
 
-    act(() => {
-      store?.selectNode('heading-1')
-    })
+    selectHeadingForEditing(store)
 
     fireEvent.click(view.getByRole('button', { name: 'Mobile' }))
     fireEvent.change(view.getByLabelText('Text'), { target: { value: 'Updated heading' } })
@@ -118,9 +124,9 @@ describe('editor shell flow', () => {
       />
     )
 
-    act(() => {
-      store?.selectNode('heading-1')
-    })
+    expect(view.getByText('Select a node to edit its content and styles.')).toBeInTheDocument()
+
+    selectHeadingForEditing(store)
 
     fireEvent.change(view.getByLabelText('Text'), { target: { value: 'Updated heading' } })
     fireEvent.change(view.getByLabelText('Color'), { target: { value: '#ff0000' } })
@@ -159,9 +165,9 @@ describe('editor shell flow', () => {
       />
     )
 
-    act(() => {
-      store?.selectNode('heading-1')
-    })
+    expect(view.getByText('Select a node to edit its content and styles.')).toBeInTheDocument()
+
+    selectHeadingForEditing(store)
 
     fireEvent.change(view.getByLabelText('Text'), { target: { value: 'First document edited' } })
 

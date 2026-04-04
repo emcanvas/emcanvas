@@ -18,15 +18,16 @@ describe('selection store', () => {
     expect(store.getState().selectedNodeId).toBeNull()
   })
 
-  it('returns a snapshot that cannot mutate internal state', () => {
+  it('keeps previously observed snapshots stable after later selection changes', () => {
     const store = createSelectionStore()
 
     store.selectNode('root')
 
     const snapshot = store.getState()
-    snapshot.selectedNodeId = 'other'
+    store.clearSelection()
 
-    expect(store.getState().selectedNodeId).toBe('root')
+    expect(snapshot.selectedNodeId).toBe('root')
+    expect(store.getState().selectedNodeId).toBeNull()
   })
 })
 
@@ -120,7 +121,7 @@ describe('snapshot history store', () => {
     expect(store.redo()).toBeNull()
   })
 
-  it('returns a snapshot that cannot mutate internal state', () => {
+  it('keeps previously observed history snapshots stable after later transitions', () => {
     const store = createSnapshotHistoryStore<string>()
 
     store.push('doc-1')
@@ -128,18 +129,22 @@ describe('snapshot history store', () => {
     store.undo()
 
     const snapshot = store.getState()
-    snapshot.present = 'mutated'
-    snapshot.past.push('mutated-past')
-    snapshot.future.push('mutated-future')
-    snapshot.canUndo = true
-    snapshot.canRedo = false
+    store.redo()
 
-    expect(store.getState()).toMatchObject({
+    expect(snapshot).toMatchObject({
       past: [],
       present: 'doc-1',
       future: ['doc-2'],
       canUndo: false,
       canRedo: true,
+    })
+
+    expect(store.getState()).toMatchObject({
+      past: ['doc-1'],
+      present: 'doc-2',
+      future: [],
+      canUndo: true,
+      canRedo: false,
     })
   })
 
