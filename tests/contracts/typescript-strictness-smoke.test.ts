@@ -1,6 +1,4 @@
-// @ts-ignore Node types are intentionally not part of this package surface.
 import { existsSync } from 'node:fs'
-// @ts-ignore Node types are intentionally not part of this package surface.
 import { execFileSync } from 'node:child_process'
 import { describe, expect, it } from 'vitest'
 

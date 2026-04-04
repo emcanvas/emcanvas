@@ -24,13 +24,17 @@ export function EditorShell({
   onDocumentChange,
   onEditorReady,
 }: EditorShellProps) {
-  const [document, setDocument] = useState(() => initialDocument ?? createDefaultCanvasDocument())
-  const [editorStore] = useState(() => createEditorStore<CanvasDocument>())
-  const state = useSyncExternalStore(editorStore.subscribe, editorStore.getState)
+  const [editorState] = useState(() => {
+    const document = initialDocument ?? createDefaultCanvasDocument()
+    const store = createEditorStore<CanvasDocument>()
 
-  useEffect(() => {
-    editorStore.pushHistory(document)
-  }, [editorStore])
+    store.pushHistory(document)
+
+    return { document, store }
+  })
+  const [document, setDocument] = useState(editorState.document)
+  const editorStore = editorState.store
+  const state = useSyncExternalStore(editorStore.subscribe, editorStore.getState)
 
   useEffect(() => {
     if (initialDocument) {

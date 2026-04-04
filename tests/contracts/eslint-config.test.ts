@@ -1,9 +1,9 @@
-// @ts-ignore Node types are intentionally not part of this package surface.
+import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
 describe('eslint baseline', () => {
-  it('defines an eslint config and lint script', () => {
+  it('defines an eslint config and a clean lint script', () => {
     expect(existsSync('eslint.config.js')).toBe(true)
 
     const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as {
@@ -11,7 +11,7 @@ describe('eslint baseline', () => {
       devDependencies?: Record<string, string>
     }
 
-    expect(packageJson.scripts?.lint).toBe('eslint .')
+    expect(packageJson.scripts?.lint).toBe('eslint . --max-warnings 0')
 
     expect(packageJson.devDependencies).toMatchObject({
       eslint: expect.any(String),
@@ -21,5 +21,11 @@ describe('eslint baseline', () => {
       'eslint-plugin-react-hooks': expect.any(String),
       'eslint-plugin-react-refresh': expect.any(String),
     })
+
+    expect(() =>
+      execFileSync('pnpm', ['lint'], {
+        encoding: 'utf8',
+      }),
+    ).not.toThrow()
   })
 })
