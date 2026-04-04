@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url'
 export default getViteConfig({
   resolve: {
     alias: {
+      '@emcanvas/admin': fileURLToPath(new URL('./src/admin', import.meta.url)),
       '@emcanvas/foundation': fileURLToPath(
         new URL('./src/foundation', import.meta.url),
       ),

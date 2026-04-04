@@ -13,9 +13,12 @@
     "skipLibCheck": true,
     "noEmit": true,
     "paths": {
+      "@emcanvas/admin": ["./src/admin"],
       "@emcanvas/foundation/*": ["./src/foundation/*"],
+      "@emcanvas/editor": ["./src/editor"],
       "@emcanvas/editor/*": ["./src/editor/*"],
       "@emcanvas/renderer/*": ["./src/renderer/*"],
+      "@emcanvas/plugin": ["./src/plugin"],
       "@emcanvas/plugin/*": ["./src/plugin/*"]
     }
   },
