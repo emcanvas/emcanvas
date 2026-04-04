@@ -1,6 +1,6 @@
 ---
 import { getComponentRenderer } from '../components/registry'
-import { serializeResponsiveStyles } from '../styles/serialize-responsive-styles'
+import { buildInlineStyle } from '../styles/build-inline-style'
 import type { NormalizedCanvasNode } from '../types/renderer'
 
 interface Props {
@@ -9,8 +9,7 @@ interface Props {
 
 const { node } = Astro.props
 const model = getComponentRenderer(node.type)(node)
-const { inlineStyle } = serializeResponsiveStyles(node.id, node.styles)
-const style = inlineStyle || undefined
+const style = buildInlineStyle(node.styles.desktop) || undefined
 const Tag = model.tag as keyof HTMLElementTagNameMap
 ---
 
