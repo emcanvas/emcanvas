@@ -11,7 +11,20 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@emcanvas/foundation/*": ["./src/foundation/*"],
+      "@emcanvas/editor/*": ["./src/editor/*"],
+      "@emcanvas/renderer/*": ["./src/renderer/*"],
+      "@emcanvas/plugin/*": ["./src/plugin/*"]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "tests/**/*.ts", "tests/**/*.tsx", "tests/**/*.d.ts", "vite.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "tests/**/*.d.ts",
+    "vite.config.ts"
+  ]
 }
