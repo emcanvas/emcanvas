@@ -10,9 +10,9 @@ Renderizar `CanvasDocument` como HTML/CSS en el frontend de EmDash usando SSR, s
 
 ## Estrategia CSS
 
-- Estilos inline o generados por nodo para valores específicos.
-- Responsive soportado mediante media queries y/o CSS custom properties.
-- Runtime CSS mínimo inyectado solo en páginas que usan EmCanvas.
+- Estilos basados puramente en **CSS Custom Properties en línea** (ej: `style="--mobile-width: 100%; --desktop-width: 50%"`) para evitar parseos pesados en SSR.
+- Responsive soportado con una única hoja de estilos global mínima que lee estas propiedades y aplica los media queries (ej: `@media (max-width: 768px) { width: var(--mobile-width); }`).
+- Esto evita el problema de que estilos en línea tradicionales no soporten breakpoints o `:hover`, sin requerir inyectar tags `<style>` por cada componente renderizado.
 
 ## Integración con EmDash
 

@@ -29,8 +29,8 @@ Definir la experiencia de edición visual del canvas para crear y modificar layo
 - Foco en propiedades útiles para layout y presentación.
 
 ### Undo / Redo
-- Basado en command pattern o patches reversibles.
-- Debe operar sobre el árbol completo de layout.
+- Basado en patches de `immer` (siguiendo RFC 6902) o middleware temporal en Zustand.
+- Fuente de verdad inmutable para evitar problemas catastróficos de memoria al operar sobre árboles JSON grandes con deep-clones.
 
 ### Toolbar
 - Inserción de widgets.

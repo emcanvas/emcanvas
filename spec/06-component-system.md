@@ -13,7 +13,7 @@ interface WidgetDefinition {
   icon: string;
   category: "layout" | "content" | "media";
   defaultProps: Record<string, unknown>;
-  propSchema: PropSchema[];
+  propSchema: Record<string, unknown>; // Subconjunto de JSON Schema estándar en lugar de interfaces custom
   allowedChildren?: string[] | "any" | "none";
 }
 ```
@@ -36,7 +36,7 @@ interface WidgetDefinition {
 ## Reglas del sistema
 
 - Cada widget define defaults seguros.
-- Cada widget expone un schema suficiente para generar inspector.
+- Cada widget expone un **JSON Schema** como `propSchema`. Esto automatiza el 100% la UI del *Property Inspector* usando librerías pre-existentes en React, evitando construir o mantener formularios manuales.
 - Las restricciones de nesting deben estar declaradas.
 - La semántica del widget debe ser independiente de la UI del editor.
 

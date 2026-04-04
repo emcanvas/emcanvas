@@ -66,3 +66,4 @@ Guardar el layout en `entry.data` permite:
 - El árbol debe ser serializable como JSON puro.
 - Los widgets no deben depender de funciones embebidas ni clases serializadas.
 - La validez estructural depende del registro de widgets y sus reglas de children.
+- El modelo debe ser **defensivo en el Renderer (SSR)**: todo payload de `entry.data` consumido para renderizado será parseado estructuralmente (ej. **Zod**) antes de dibujarse. Ante un JSON malformado se cortará elegantemente evitando un HTTP 500 fatal.
