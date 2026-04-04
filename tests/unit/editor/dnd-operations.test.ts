@@ -119,6 +119,48 @@ describe('moveNode', () => {
     ])
   })
 
+  it('keeps sibling targeting stable after removing the source node', () => {
+    const document = createFixtureDocument()
+
+    const result = moveNode(document, 'container-1', 'container-2')
+
+    expect(result.root.children?.map((node) => node.id)).toEqual(['columns-1', 'container-2'])
+    expect(result.root.children?.[0]?.children).toEqual([])
+    expect(result.root.children?.[1]?.children).toEqual([
+      expect.objectContaining({ id: 'heading-2' }),
+      expect.objectContaining({ id: 'container-1' }),
+    ])
+  })
+
+  it('treats moving a node to its current parent as a no-op even when siblings exist', () => {
+    const document: CanvasDocument = {
+      version: 1,
+      root: {
+        id: 'root',
+        type: 'section',
+        props: {},
+        styles: { desktop: {} },
+        children: [
+          {
+            id: 'container-1',
+            type: 'container',
+            props: {},
+            styles: { desktop: {} },
+            children: [
+              createNodeFixture({ id: 'heading-1' }),
+              createNodeFixture({ id: 'heading-2' }),
+            ],
+          },
+        ],
+      },
+      settings: {},
+    }
+
+    const result = moveNode(document, 'heading-1', 'container-1')
+
+    expect(result).toEqual(document)
+  })
+
   it('rejects moving a node into one of its descendants', () => {
     const document = createFixtureDocument()
 

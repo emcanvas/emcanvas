@@ -62,6 +62,34 @@ describe('saveCanvasData', () => {
     ).rejects.toThrow('Invalid canvas payload')
   })
 
+  it('does not mutate entry data when validation fails', async () => {
+    const entry = {
+      data: {
+        slug: 'home',
+        title: 'Homepage',
+      },
+    }
+
+    await expect(
+      saveCanvasData({
+        entry,
+        payload: {
+          canvasLayout: { version: 999 },
+          _emcanvas: {
+            enabled: true,
+            version: CANVAS_DOCUMENT_VERSION,
+            editorVersion: EMCANVAS_EDITOR_VERSION,
+          },
+        },
+      }),
+    ).rejects.toThrow('Invalid canvas payload')
+
+    expect(entry.data).toEqual({
+      slug: 'home',
+      title: 'Homepage',
+    })
+  })
+
   it('rejects invalid _emcanvas metadata payloads', async () => {
     await expect(
       saveCanvasData({

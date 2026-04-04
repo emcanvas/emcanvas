@@ -23,4 +23,15 @@ describe('buildInlineStyle', () => {
       }),
     ).toBe('background-image:url(/hero.png onerror=alert(1));color:/stylescriptalert(1)/script')
   })
+
+  it('drops undefined and numeric values without breaking adjacent safe declarations', () => {
+    expect(
+      buildInlineStyle({
+        color: 'red',
+        width: undefined,
+        opacity: 0,
+        margin: '0',
+      }),
+    ).toBe('color:red;margin:0')
+  })
 })

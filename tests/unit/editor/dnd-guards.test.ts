@@ -66,6 +66,9 @@ describe('parseDndPayload', () => {
   it('returns null for malformed or unsupported payloads', () => {
     expect(parseDndPayload('')).toBeNull()
     expect(parseDndPayload('{bad json')).toBeNull()
+    expect(parseDndPayload('null')).toBeNull()
+    expect(parseDndPayload('[]')).toBeNull()
+    expect(parseDndPayload('"text"')).toBeNull()
     expect(parseDndPayload('{"kind":"create"}')).toBeNull()
     expect(parseDndPayload('{"kind":"move","nodeType":"text"}')).toBeNull()
     expect(parseDndPayload('{"kind":"other"}')).toBeNull()

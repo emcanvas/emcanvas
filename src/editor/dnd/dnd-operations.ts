@@ -23,6 +23,10 @@ function isAncestorPath(ancestor: number[], descendant: number[]) {
   return ancestor.length < descendant.length && ancestor.every((segment, index) => segment === descendant[index])
 }
 
+function arePathsEqual(left: number[], right: number[]) {
+  return left.length === right.length && left.every((segment, index) => segment === right[index])
+}
+
 export function createNodeFromWidgetType(nodeType: string): CanvasNode {
   const definition = widgetRegistry.get(nodeType)
 
@@ -70,6 +74,10 @@ export function moveNode(document: CanvasDocument, nodeId: string, targetParentI
 
   if (nodePath.length === 0) {
     throw new Error('Cannot move the root node')
+  }
+
+  if (arePathsEqual(nodePath.slice(0, -1), targetParentPath)) {
+    return document
   }
 
   if (isAncestorPath(nodePath, targetParentPath)) {
