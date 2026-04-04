@@ -1,12 +1,14 @@
 // @vitest-environment node
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import {
   CANVAS_DOCUMENT_VERSION,
   EMCANVAS_EDITOR_VERSION,
 } from '../../src/foundation/shared/constants'
+import * as shouldRenderEmCanvasModule from '../../src/integration/page/should-render-emcanvas'
 import { getEntryEditorActions } from '../../src/plugin/hooks/entry-editor-actions'
+import { getPageMetadata } from '../../src/plugin/hooks/page-metadata'
 import { getCanvasData } from '../../src/plugin/routes/get-canvas-data'
 import { validateTakeoverState } from '../../src/shared/validation/takeover-state'
 
@@ -49,5 +51,25 @@ describe('EmDash host contracts', () => {
     })
 
     expect(getEntryEditorActions({ entry }).map((action) => action.id)).toContain('enable-emcanvas')
+  })
+
+  it('evaluates takeover state once when building page metadata', () => {
+    const entry = {
+      data: {
+        slug: 'home',
+      },
+    }
+
+    const shouldRenderSpy = vi
+      .spyOn(shouldRenderEmCanvasModule, 'shouldRenderEmCanvas')
+      .mockReturnValue(true)
+
+    expect(getPageMetadata({ entry })).toEqual({
+      editor: 'emcanvas',
+      takeover: true,
+    })
+    expect(shouldRenderSpy).toHaveBeenCalledTimes(1)
+
+    shouldRenderSpy.mockRestore()
   })
 })
