@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
 import type { CanvasDocument } from '../../foundation/types/canvas'
 import type { CanvasEntry } from '../../shared/types/canvas-entry'
-import { validateCanvasDocument } from '../../shared/validation/canvas-document'
 import { PreviewActions } from '../components/PreviewActions'
 import { SaveStatus, type SaveState } from '../components/SaveStatus'
 import { TakeoverBanner } from '../components/TakeoverBanner'
@@ -38,7 +37,7 @@ export function CanvasEditorPage({
           return
         }
 
-        setCanvasLayout(validateCanvasDocument(result.canvasLayout).document ?? createDefaultCanvasDocument())
+        setCanvasLayout(result.canvasLayout as CanvasDocument)
         setTakeoverEnabled(result._emcanvas.enabled)
       })
       .catch((error: unknown) => {
