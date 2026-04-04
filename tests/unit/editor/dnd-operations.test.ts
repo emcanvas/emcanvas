@@ -1,0 +1,129 @@
+import { describe, expect, it } from 'vitest'
+
+import type { CanvasDocument, CanvasNode } from '../../../src/foundation/types/canvas'
+import { createNode, createNodeFromWidgetType, deleteNode, moveNode } from '../../../src/editor/dnd/dnd-operations'
+
+function createNodeFixture(overrides: Partial<CanvasNode> = {}): CanvasNode {
+  return {
+    id: 'node-1',
+    type: 'heading',
+    props: {},
+    styles: { desktop: {} },
+    children: [],
+    ...overrides,
+  }
+}
+
+function createFixtureDocument(): CanvasDocument {
+  return {
+    version: 1,
+    root: {
+      id: 'root',
+      type: 'section',
+      props: {},
+      styles: { desktop: {} },
+      children: [
+        {
+          id: 'columns-1',
+          type: 'columns',
+          props: { columns: 2 },
+          styles: { desktop: {} },
+          children: [
+            {
+              id: 'container-1',
+              type: 'container',
+              props: {},
+              styles: { desktop: {} },
+              children: [createNodeFixture({ id: 'heading-1', props: { text: 'Title', level: 2 } })],
+            },
+          ],
+        },
+        {
+          id: 'container-2',
+          type: 'container',
+          props: {},
+          styles: { desktop: {} },
+          children: [createNodeFixture({ id: 'heading-2', props: { text: 'Subtitle', level: 3 } })],
+        },
+      ],
+    },
+    settings: {},
+  }
+}
+
+describe('createNodeFromWidgetType', () => {
+  it('builds a new widget node from registry defaults', () => {
+    const result = createNodeFromWidgetType('heading')
+
+    expect(result).toMatchObject({
+      type: 'heading',
+      props: { text: 'Heading', level: 2 },
+      styles: { desktop: {} },
+      children: [],
+    })
+    expect(result.id).toMatch(/^heading-/)
+  })
+
+  it('throws when the widget type is unknown', () => {
+    expect(() => createNodeFromWidgetType('missing-widget')).toThrow("Unknown widget type: 'missing-widget'")
+  })
+})
+
+describe('createNode', () => {
+  it('inserts a new registry-backed node under the requested parent', () => {
+    const document = createFixtureDocument()
+
+    const result = createNode(document, 'container-2', 'text')
+
+    expect(result.root.children?.[1]?.children).toHaveLength(2)
+    expect(result.root.children?.[1]?.children?.[1]).toMatchObject({
+      type: 'text',
+      props: { text: 'Lorem ipsum' },
+      styles: { desktop: {} },
+      children: [],
+    })
+    expect(document.root.children?.[1]?.children).toHaveLength(1)
+  })
+})
+
+describe('deleteNode', () => {
+  it('removes a nested node from the document tree', () => {
+    const document = createFixtureDocument()
+
+    const result = deleteNode(document, 'heading-1')
+
+    expect(result.root.children?.[0]?.children?.[0]?.children).toEqual([])
+    expect(document.root.children?.[0]?.children?.[0]?.children).toHaveLength(1)
+  })
+
+  it('throws when deleting the root node', () => {
+    const document = createFixtureDocument()
+
+    expect(() => deleteNode(document, 'root')).toThrow('Cannot remove the root node')
+  })
+})
+
+describe('moveNode', () => {
+  it('moves a node between valid parents without mutating the original tree', () => {
+    const document = createFixtureDocument()
+
+    const result = moveNode(document, 'heading-1', 'container-2')
+
+    expect(result.root.children?.[0]?.children?.[0]?.children).toEqual([])
+    expect(result.root.children?.[1]?.children).toEqual([
+      expect.objectContaining({ id: 'heading-2' }),
+      expect.objectContaining({ id: 'heading-1' }),
+    ])
+    expect(document.root.children?.[0]?.children?.[0]?.children).toEqual([
+      expect.objectContaining({ id: 'heading-1' }),
+    ])
+  })
+
+  it('rejects moving a node into one of its descendants', () => {
+    const document = createFixtureDocument()
+
+    expect(() => moveNode(document, 'columns-1', 'container-1')).toThrow(
+      "Node 'columns-1' cannot be moved into its own descendant",
+    )
+  })
+})
