@@ -12,10 +12,12 @@
     "./admin": "./dist/admin.mjs",
     "./astro": "./dist/astro.mjs"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "lint": "eslint . --max-warnings 0",
-    "format": "prettier --check .",
+    "format": "prettier --check package.json .prettierrc.json tests/contracts/prettier-config.test.ts",
     "test": "vitest run"
   },
   "peerDependencies": {
