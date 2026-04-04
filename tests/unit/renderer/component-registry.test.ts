@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getComponentRenderer } from '../../../src/renderer/components/registry'
+import { getComponentRenderer, registerRenderer } from '../../../src/renderer/components/registry'
 
 describe('getComponentRenderer', () => {
   it('returns render models with explicit category and tag semantics', () => {
@@ -34,5 +34,11 @@ describe('getComponentRenderer', () => {
 
   it('throws for unsupported node types', () => {
     expect(() => getComponentRenderer('carousel')).toThrowError("Unsupported canvas node type: carousel")
+  })
+
+  it('allows explicit registration of additional renderers', () => {
+    registerRenderer('custom', () => ({ category: 'leaf', kind: 'custom', tag: 'div' }))
+
+    expect(getComponentRenderer('custom')).toBeTypeOf('function')
   })
 })

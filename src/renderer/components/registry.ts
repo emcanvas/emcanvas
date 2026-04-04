@@ -23,6 +23,10 @@ const renderers: Record<string, CanvasNodeRenderer> = {
   video: renderVideoNode,
 }
 
+export function registerRenderer(type: string, renderer: CanvasNodeRenderer): void {
+  renderers[type] = renderer
+}
+
 export function getComponentRenderer(type: string): CanvasNodeRenderer {
   const renderer = renderers[type]
 
