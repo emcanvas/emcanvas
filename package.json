@@ -5,6 +5,7 @@
   "description": "OpenSpec-first product definition for EmCanvas, a visual page builder for EmDash.",
   "license": "UNLICENSED",
   "type": "module",
+  "packageManager": "pnpm@10.12.4",
   "main": "./dist/index.mjs",
   "exports": {
     ".": "./dist/index.mjs",
