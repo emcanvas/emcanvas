@@ -8,8 +8,18 @@ describe('eslint baseline', () => {
 
     const packageJson = JSON.parse(readFileSync('package.json', 'utf8')) as {
       scripts?: Record<string, string>
+      devDependencies?: Record<string, string>
     }
 
     expect(packageJson.scripts?.lint).toBe('eslint .')
+
+    expect(packageJson.devDependencies).toMatchObject({
+      eslint: expect.any(String),
+      '@eslint/js': expect.any(String),
+      globals: expect.any(String),
+      'typescript-eslint': expect.any(String),
+      'eslint-plugin-react-hooks': expect.any(String),
+      'eslint-plugin-react-refresh': expect.any(String),
+    })
   })
 })
