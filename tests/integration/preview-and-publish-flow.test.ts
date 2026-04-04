@@ -3,9 +3,9 @@
 import { describe, expect, it } from 'vitest'
 
 import { pluginApi } from '../../src/admin/lib/plugin-api'
-import { CANVAS_DOCUMENT_VERSION } from '../../src/foundation/shared/constants'
 import { renderEntryPage } from '../../src/integration/page/render-entry-page'
 import { getPreviewLink } from '../../src/plugin/routes/preview-link'
+import { createFixtureDocument, createFixtureHeadingNode } from '../fixtures/document-factory'
 
 describe('preview and publish flow', () => {
   it('creates a preview URL and renders the published emcanvas markup', async () => {
@@ -15,28 +15,9 @@ describe('preview and publish flow', () => {
         title: 'Homepage',
       },
     }
-    const document = {
-      version: CANVAS_DOCUMENT_VERSION,
-      root: {
-        id: 'root',
-        type: 'section',
-        props: {},
-        styles: { desktop: {} },
-        children: [
-          {
-            id: 'heading-1',
-            type: 'heading',
-            props: {
-              text: 'Published heading',
-              level: 2,
-            },
-            styles: { desktop: {} },
-            children: [],
-          },
-        ],
-      },
-      settings: {},
-    }
+    const document = createFixtureDocument()
+
+    document.root.children = [createFixtureHeadingNode('Published heading')]
 
     await pluginApi.saveDocument({ entry, canvasLayout: document })
 

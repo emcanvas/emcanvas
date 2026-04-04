@@ -4,34 +4,18 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { EditorPage } from '../../src/plugin/pages/editor-page'
 import { CANVAS_DOCUMENT_VERSION, EMCANVAS_EDITOR_VERSION } from '../../src/foundation/shared/constants'
 import type { CanvasDocument } from '../../src/foundation/types/canvas'
+import { createFixtureDocument, createFixtureHeadingNode } from '../fixtures/document-factory'
 
 afterEach(() => {
   cleanup()
 })
 
-function createFixtureDocument(): CanvasDocument {
-  return {
-    version: CANVAS_DOCUMENT_VERSION,
-    root: {
-      id: 'root',
-      type: 'section',
-      props: {},
-      styles: { desktop: {} },
-      children: [
-        {
-          id: 'heading-1',
-          type: 'heading',
-          props: {
-            text: 'Welcome',
-            level: 2,
-          },
-          styles: { desktop: {} },
-          children: [],
-        },
-      ],
-    },
-    settings: {},
-  }
+function createEditorDocument(): CanvasDocument {
+  const document = createFixtureDocument()
+
+  document.root.children = [createFixtureHeadingNode()]
+
+  return document
 }
 
 describe('admin editor publish flow', () => {
@@ -44,7 +28,7 @@ describe('admin editor publish flow', () => {
     }
     const api = {
       loadDocument: vi.fn().mockResolvedValue({
-        canvasLayout: createFixtureDocument(),
+        canvasLayout: createEditorDocument(),
         _emcanvas: {
           enabled: false,
           version: CANVAS_DOCUMENT_VERSION,

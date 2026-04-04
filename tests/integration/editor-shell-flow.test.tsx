@@ -4,44 +4,12 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { EditorShell } from '../../src/editor/shell/editor-shell'
 import type { CanvasDocument } from '../../src/foundation/types/canvas'
 import type { EditorStore } from '../../src/editor/state/editor-store'
-
-function createFixtureDocument(): CanvasDocument {
-  return {
-    version: 1,
-    root: {
-      id: 'root',
-      type: 'section',
-      props: {},
-      styles: { desktop: {} },
-      children: [
-        {
-          id: 'heading-1',
-          type: 'heading',
-          props: {
-            text: 'Welcome',
-            level: 2,
-          },
-          styles: { desktop: {} },
-          children: [],
-        },
-      ],
-    },
-    settings: {},
-  }
-}
+import { createFixtureDocument, createFixtureHeadingNode } from '../fixtures/document-factory'
 
 function createFixtureDocumentWithHeading(text: string): CanvasDocument {
   const document = createFixtureDocument()
-  const heading = document.root.children?.[0]
 
-  if (!heading) {
-    throw new Error('Expected fixture document to include a heading node')
-  }
-
-  heading.props = {
-    ...heading.props,
-    text,
-  }
+  document.root.children = [createFixtureHeadingNode(text)]
 
   return document
 }
@@ -139,7 +107,7 @@ describe('editor shell flow', () => {
 
     const view = render(
       <EditorShell
-        initialDocument={createFixtureDocument()}
+        initialDocument={createFixtureDocumentWithHeading('Welcome')}
         onEditorReady={(instance) => {
           store = instance.store
         }}
