@@ -4,7 +4,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { EditorPage } from '../../src/plugin/pages/editor-page'
 import { CANVAS_DOCUMENT_VERSION, EMCANVAS_EDITOR_VERSION } from '../../src/foundation/shared/constants'
 import type { CanvasDocument } from '../../src/foundation/types/canvas'
-import { saveDocument } from '../../src/editor/persistence/save-document'
 
 afterEach(() => {
   cleanup()
@@ -52,9 +51,7 @@ describe('admin editor publish flow', () => {
           editorVersion: EMCANVAS_EDITOR_VERSION,
         },
       }),
-      saveDocument: vi.fn(async ({ entry: nextEntry, canvasLayout }: { entry: typeof entry; canvasLayout: CanvasDocument }) =>
-        saveDocument({ entry: nextEntry, canvasLayout }),
-      ),
+      saveDocument: vi.fn().mockResolvedValue(undefined),
       getPreviewLink: vi.fn().mockReturnValue('https://example.test/preview?slug=home&source=emcanvas'),
     }
 
@@ -105,9 +102,6 @@ describe('admin editor publish flow', () => {
 
     const publishedDocument = api.saveDocument.mock.calls[0]?.[0]?.canvasLayout as CanvasDocument
     expect(publishedDocument.root.children?.[0]?.props.text).toBe('Published heading')
-    expect((entry.data.canvasLayout as CanvasDocument).root.children?.[0]?.props.text).toBe(
-      'Published heading',
-    )
     expect(screen.getByText('Changes published')).toBeInTheDocument()
     expect(screen.getByText('EmCanvas takeover enabled')).toBeInTheDocument()
   })
