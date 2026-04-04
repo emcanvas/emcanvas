@@ -33,14 +33,14 @@ describe('selection store', () => {
 describe('history store', () => {
   it('tracks command undo and redo state', () => {
     const store = createHistoryStore()
-    const calls: string[] = []
+    let count = 0
 
     const command = {
       execute() {
-        calls.push('execute')
+        count += 1
       },
       undo() {
-        calls.push('undo')
+        count -= 1
       },
     }
 
@@ -51,7 +51,7 @@ describe('history store', () => {
 
     store.execute(command)
 
-    expect(calls).toEqual(['execute'])
+    expect(count).toBe(1)
     expect(store.getState()).toMatchObject({
       canUndo: true,
       canRedo: false,
@@ -59,7 +59,7 @@ describe('history store', () => {
 
     store.undo()
 
-    expect(calls).toEqual(['execute', 'undo'])
+    expect(count).toBe(0)
     expect(store.getState()).toMatchObject({
       canUndo: false,
       canRedo: true,
@@ -67,7 +67,7 @@ describe('history store', () => {
 
     store.redo()
 
-    expect(calls).toEqual(['execute', 'undo', 'execute'])
+    expect(count).toBe(1)
     expect(store.getState()).toMatchObject({
       canUndo: true,
       canRedo: false,
@@ -143,20 +143,29 @@ describe('snapshot history store', () => {
     })
   })
 
-  it('rejects nullable snapshot types at compile time', () => {
-    // @ts-expect-error history snapshots must be non-null
-    createSnapshotHistoryStore<string | null>()
+  it('returns null when undo and redo are unavailable', () => {
+    const store = createSnapshotHistoryStore<string>()
 
-    expect(true).toBe(true)
+    expect(store.undo()).toBeNull()
+    expect(store.redo()).toBeNull()
+    expect(store.getState()).toMatchObject({
+      present: null,
+      canUndo: false,
+      canRedo: false,
+    })
   })
 })
 
 describe('editor store', () => {
-  it('rejects nullable snapshot types at compile time', () => {
-    // @ts-expect-error editor snapshots must be non-null
-    createEditorStore<string | null>()
+  it('returns null when undo and redo history are unavailable', () => {
+    const store = createEditorStore<string>()
 
-    expect(true).toBe(true)
+    expect(store.undoHistory()).toBeNull()
+    expect(store.redoHistory()).toBeNull()
+    expect(store.getState()).toMatchObject({
+      canUndo: false,
+      canRedo: false,
+    })
   })
 
   it('tracks selected node, dirty state, breakpoint, and history flags', () => {

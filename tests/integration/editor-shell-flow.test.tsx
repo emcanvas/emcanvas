@@ -28,52 +28,60 @@ describe('editor shell flow', () => {
     expect(view.getByLabelText('Editor statusbar')).toBeInTheDocument()
   })
 
-  it('creates isolated document and store instances per mount', () => {
-    const instances: Array<{ document: CanvasDocument; store: EditorStore<CanvasDocument> }> = []
+  it('keeps each mounted shell isolated through visible state changes', () => {
+    const stores: EditorStore<CanvasDocument>[] = []
+    const firstDocument = createFixtureDocumentWithHeading('First heading')
+    const secondDocument = createFixtureDocumentWithHeading('Second heading')
 
-    render(
+    const view = render(
       <>
-        <EditorShell onEditorReady={(instance) => instances.push(instance)} />
-        <EditorShell onEditorReady={(instance) => instances.push(instance)} />
+        <section data-testid="first-shell">
+          <EditorShell
+            initialDocument={firstDocument}
+            onEditorReady={({ store }) => {
+              stores[0] = store
+            }}
+          />
+        </section>
+        <section data-testid="second-shell">
+          <EditorShell
+            initialDocument={secondDocument}
+            onEditorReady={({ store }) => {
+              stores[1] = store
+            }}
+          />
+        </section>
       </>
     )
 
-    expect(instances).toHaveLength(2)
-    expect(instances[0]?.document).not.toBe(instances[1]?.document)
-    expect(instances[0]?.store).not.toBe(instances[1]?.store)
+    act(() => {
+      stores[0]?.selectNode('heading-1')
+      stores[1]?.selectNode('heading-1')
+    })
 
-    instances[0]?.store.markDirty()
+    const firstShell = within(view.getByTestId('first-shell'))
+    const secondShell = within(view.getByTestId('second-shell'))
 
-    expect(instances[0]?.store.getState().dirty).toBe(true)
-    expect(instances[1]?.store.getState().dirty).toBe(false)
+    expect(firstShell.getByLabelText('Text')).toHaveValue('First heading')
+    expect(secondShell.getByLabelText('Text')).toHaveValue('Second heading')
 
-    const firstInstance = instances[0]
-    const secondInstance = instances[1]
+    fireEvent.change(secondShell.getByLabelText('Text'), { target: { value: 'Second heading updated' } })
 
-    if (!firstInstance || !secondInstance) {
-      throw new Error('Expected both editor instances to be ready')
-    }
-
-    const firstChildren = firstInstance.document.root.children
-
-    if (!firstChildren) {
-      throw new Error('Expected first editor root to expose children')
-    }
-
-    firstChildren.push(secondInstance.document.root)
-
-    expect(firstChildren).toHaveLength(1)
-    expect(secondInstance.document.root.children).toHaveLength(0)
+    expect(firstShell.getByLabelText('Text')).toHaveValue('First heading')
+    expect(firstShell.getByText('All changes saved')).toBeInTheDocument()
+    expect(firstShell.getByRole('button', { name: 'Undo' })).toBeDisabled()
+    expect(secondShell.getByLabelText('Text')).toHaveValue('Second heading updated')
+    expect(secondShell.getByText('Unsaved changes')).toBeInTheDocument()
+    expect(secondShell.getByRole('button', { name: 'Undo' })).toBeEnabled()
   })
 
-  it('rerenders shell state when the local editor store changes', () => {
+  it('updates visible shell state after sidebar edits', () => {
     let store: EditorStore<CanvasDocument> | undefined
-    let document: CanvasDocument | undefined
 
     const view = render(
       <EditorShell
+        initialDocument={createFixtureDocumentWithHeading('Welcome')}
         onEditorReady={(instance) => {
-          document = instance.document
           store = instance.store
         }}
       />
@@ -86,20 +94,16 @@ describe('editor shell flow', () => {
     expect(shell.getByRole('button', { name: 'Undo' })).toBeDisabled()
 
     act(() => {
-      store?.markDirty()
-      store?.setBreakpoint('mobile')
-      if (document) {
-        store?.pushHistory(document)
-        store?.pushHistory({
-          ...document,
-          settings: { ...document.settings, mode: 'preview' },
-        })
-      }
+      store?.selectNode('heading-1')
     })
+
+    fireEvent.click(view.getByRole('button', { name: 'Mobile' }))
+    fireEvent.change(view.getByLabelText('Text'), { target: { value: 'Updated heading' } })
 
     expect(shell.getByText('Breakpoint: mobile')).toBeInTheDocument()
     expect(shell.getByText('Unsaved changes')).toBeInTheDocument()
     expect(shell.getByRole('button', { name: 'Undo' })).toBeEnabled()
+    expect(view.getByLabelText('Text')).toHaveValue('Updated heading')
   })
 
   it('routes live sidebar prop and style edits through undoable history', () => {

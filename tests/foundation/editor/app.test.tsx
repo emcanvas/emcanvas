@@ -3,11 +3,14 @@ import { describe, expect, it } from 'vitest'
 import { EditorApp } from '../../../src/foundation/editor/app'
 
 describe('EditorApp', () => {
-  it('delegates to the real editor shell path', () => {
+  it('renders the visible editor shell controls and status', () => {
     render(<EditorApp />)
 
     expect(screen.getByRole('banner', { name: 'Editor toolbar' })).toBeInTheDocument()
+    expect(screen.getByText('EmCanvas')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Preview' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Canvas viewport' })).toBeInTheDocument()
     expect(screen.getByRole('contentinfo', { name: 'Editor statusbar' })).toBeInTheDocument()
-    expect(screen.queryByRole('heading', { name: 'EmCanvas' })).not.toBeInTheDocument()
+    expect(screen.getByText('All changes saved')).toBeInTheDocument()
   })
 })
