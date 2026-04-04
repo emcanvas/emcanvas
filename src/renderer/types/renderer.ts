@@ -13,11 +13,6 @@ export interface CanvasEntryState {
   document: NormalizedCanvasDocument | null
 }
 
-export interface SerializedResponsiveStyles {
-  inlineStyle: string
-  mediaRules: string[]
-}
-
 export type WrapperRenderModel =
   | { category: 'wrapper'; kind: 'section'; tag: 'section' }
   | { category: 'wrapper'; kind: 'columns'; tag: 'div' }
