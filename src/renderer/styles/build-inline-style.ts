@@ -7,14 +7,14 @@ function isSafeCssPropertyName(property: string): boolean {
 }
 
 function sanitizeCssValue(value: string): string {
-  return value.replace(/[^a-zA-Z0-9#%(),.\-\s/]/g, '_').trim()
+  return value.replace(/[{}<>;"\\]/g, '').trim()
 }
 
 export function buildInlineStyle(styles: Record<string, unknown>): string {
   return Object.entries(styles)
     .map(([property, value]) => [toCssPropertyName(property), value] as const)
     .filter(([property, value]) => typeof value === 'string' && value.length > 0 && isSafeCssPropertyName(property))
-    .map(([property, value]) => `${property}:${sanitizeCssValue(value)}`)
+    .map(([property, value]) => `${property}:${sanitizeCssValue(value as string)}`)
     .filter((declaration) => !declaration.endsWith(':'))
     .join(';')
 }
