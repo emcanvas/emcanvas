@@ -4,9 +4,10 @@ import { EditorShell } from '../../../src/foundation/editor/shell/editor-shell'
 
 describe('EditorShell', () => {
   it('renders the visual editor shell', () => {
-    render(<EditorShell title="EmCanvas" />)
+    render(<EditorShell />)
 
-    expect(screen.getByRole('heading', { name: 'EmCanvas' })).toBeInTheDocument()
+    expect(screen.getByRole('banner', { name: 'Editor toolbar' })).toBeInTheDocument()
     expect(screen.getByRole('region', { name: 'Canvas viewport' })).toBeInTheDocument()
+    expect(screen.getByRole('contentinfo', { name: 'Editor statusbar' })).toBeInTheDocument()
   })
 })
