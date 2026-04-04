@@ -1,9 +1,9 @@
 import { act, cleanup, fireEvent, render, within } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { EditorShell } from '../../src/editor/shell/editor-shell'
-import type { CanvasDocument } from '../../src/foundation/types/canvas'
-import type { EditorStore } from '../../src/editor/state/editor-store'
+import { EditorShell } from '@emcanvas/editor/shell/editor-shell'
+import type { CanvasDocument } from '@emcanvas/foundation/types/canvas'
+import type { EditorStore } from '@emcanvas/editor/state/editor-store'
 import { createFixtureDocument, createFixtureHeadingNode } from '../fixtures/document-factory'
 
 function createFixtureDocumentWithHeading(text: string): CanvasDocument {
