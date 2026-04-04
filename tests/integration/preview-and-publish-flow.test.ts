@@ -2,6 +2,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import '../../src/admin/lib/plugin-api'
 import { CANVAS_DOCUMENT_VERSION } from '../../src/foundation/shared/constants'
 import { renderEntryPage } from '../../src/integration/page/render-entry-page'
 import { getPreviewLink } from '../../src/plugin/routes/preview-link'

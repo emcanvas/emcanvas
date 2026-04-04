@@ -1,6 +1,6 @@
-import { routeAdapters } from '../../plugin/runtime/route-adapters'
 import type { CanvasEntry } from '../../shared/types/canvas-entry'
+import { getPersistencePort, type PersistencePort } from './persistence-port'
 
-export async function loadDocument(entry: CanvasEntry) {
-  return routeAdapters.loadDocument({ entry })
+export async function loadDocument(entry: CanvasEntry, port: PersistencePort = getPersistencePort()) {
+  return port.loadDocument({ entry })
 }
