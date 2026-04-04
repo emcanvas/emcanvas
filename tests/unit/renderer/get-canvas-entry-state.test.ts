@@ -1,4 +1,5 @@
-import { describe, expect, expectTypeOf, it } from 'vitest'
+import ts from 'typescript'
+import { describe, expect, it } from 'vitest'
 import {
   CANVAS_DOCUMENT_VERSION,
   EMCANVAS_EDITOR_VERSION,
@@ -7,8 +8,37 @@ import {
 } from '../../../src/foundation/shared/constants'
 import { getCanvasEntryState } from '../../../src/renderer/data/get-canvas-entry-state'
 
-type IsAny<T> = 0 extends 1 & T ? true : false
-type AssertFalse<T extends false> = T
+function getCurrentWorkingDirectory(): string {
+  return (globalThis as unknown as { process: { cwd(): string } }).process.cwd()
+}
+
+function getTypeScriptDiagnostics(entryFile: string): string[] {
+  const projectRootPath = getCurrentWorkingDirectory()
+  const tsconfigPath = `${projectRootPath}/tsconfig.json`
+  const configFile = ts.readConfigFile(tsconfigPath, ts.sys.readFile)
+
+  if (configFile.error) {
+    return [ts.flattenDiagnosticMessageText(configFile.error.messageText, '\n')]
+  }
+
+  const parsedConfig = ts.parseJsonConfigFileContent(
+    configFile.config,
+    ts.sys,
+    projectRootPath,
+  )
+  const program = ts.createProgram({
+    rootNames: [entryFile],
+    options: parsedConfig.options,
+  })
+
+  return ts.getPreEmitDiagnostics(program).map((diagnostic) => {
+    const location = diagnostic.file
+      ? `${diagnostic.file.fileName}:${diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start ?? 0).line + 1}`
+      : 'unknown'
+
+    return `${location} ${ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')}`
+  })
+}
 
 describe('getCanvasEntryState', () => {
   it('returns a renderable normalized document when emcanvas is enabled', () => {
@@ -94,14 +124,9 @@ describe('getCanvasEntryState', () => {
 })
 
 describe('getCanvasEntryState typing', () => {
-  it('accepts unknown-valued entry data without using any', () => {
-    type EntryDataValue = Parameters<typeof getCanvasEntryState>[0][string]
-    const usesAny: AssertFalse<IsAny<EntryDataValue>> = false
+  it('keeps unknown-valued entry data free of any in the focused contract fixture', () => {
+    const fixturePath = `${getCurrentWorkingDirectory()}/tests/unit/renderer/fixtures/get-canvas-entry-state-no-any.fixture.ts`
 
-    expectTypeOf(usesAny).toEqualTypeOf<false>()
-
-    const state = getCanvasEntryState({ _emcanvas: { enabled: false } } as Record<string, unknown>)
-
-    expect(state.shouldRender).toBe(false)
+    expect(getTypeScriptDiagnostics(fixturePath)).toEqual([])
   })
 })
