@@ -23,8 +23,16 @@ const renderers: Record<string, CanvasNodeRenderer> = {
   video: renderVideoNode,
 }
 
-export function registerRenderer(type: string, renderer: CanvasNodeRenderer): void {
+export function registerRenderer(type: string, renderer: CanvasNodeRenderer): () => void {
+  if (type in renderers) {
+    throw new Error(`Renderer already registered for type: ${type}`)
+  }
+
   renderers[type] = renderer
+
+  return () => {
+    delete renderers[type]
+  }
 }
 
 export function getComponentRenderer(type: string): CanvasNodeRenderer {

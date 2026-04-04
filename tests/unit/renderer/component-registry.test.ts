@@ -36,9 +36,29 @@ describe('getComponentRenderer', () => {
     expect(() => getComponentRenderer('carousel')).toThrowError("Unsupported canvas node type: carousel")
   })
 
-  it('allows explicit registration of additional renderers', () => {
-    registerRenderer('custom', () => ({ category: 'leaf', kind: 'custom', tag: 'div' }))
+  it('returns the exact explicitly registered renderer', () => {
+    const type = 'custom-test-renderer'
+    const node = {
+      id: 'custom-node',
+      type,
+      props: {},
+      styles: { desktop: {} },
+      children: [],
+    }
+    const renderer = () => ({ category: 'leaf' as const, kind: 'text' as const, tag: 'p' as const, text: 'custom' })
+    const unregister = registerRenderer(type, renderer)
 
-    expect(getComponentRenderer('custom')).toBeTypeOf('function')
+    try {
+      expect(getComponentRenderer(type)).toBe(renderer)
+      expect(getComponentRenderer(type)(node)).toEqual({ category: 'leaf', kind: 'text', tag: 'p', text: 'custom' })
+    } finally {
+      unregister()
+    }
+  })
+
+  it('rejects duplicate renderer registrations for the same type', () => {
+    expect(() =>
+      registerRenderer('section', () => ({ category: 'wrapper', kind: 'section', tag: 'section' })),
+    ).toThrowError('Renderer already registered for type: section')
   })
 })
