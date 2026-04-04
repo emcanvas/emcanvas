@@ -6,7 +6,7 @@ import { validateTakeoverState } from '../../shared/validation/takeover-state'
 import { normalizeCanvasDocument } from './normalize-canvas-document'
 import type { CanvasEntryState } from '../types/renderer'
 
-export function getCanvasEntryState(data: Record<string, any>): CanvasEntryState {
+export function getCanvasEntryState(data: Record<string, unknown>): CanvasEntryState {
   const entryData = data as EmCanvasEntryData
   const document = normalizeCanvasDocument(entryData[EMCANVAS_LAYOUT_KEY])
   const takeoverState = validateTakeoverState(data)

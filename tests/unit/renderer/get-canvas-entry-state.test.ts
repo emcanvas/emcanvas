@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
   CANVAS_DOCUMENT_VERSION,
   EMCANVAS_EDITOR_VERSION,
@@ -6,6 +6,9 @@ import {
   EMCANVAS_LAYOUT_KEY,
 } from '../../../src/foundation/shared/constants'
 import { getCanvasEntryState } from '../../../src/renderer/data/get-canvas-entry-state'
+
+type IsAny<T> = 0 extends 1 & T ? true : false
+type AssertFalse<T extends false> = T
 
 describe('getCanvasEntryState', () => {
   it('returns a renderable normalized document when emcanvas is enabled', () => {
@@ -87,5 +90,18 @@ describe('getCanvasEntryState', () => {
 
     expect(state.shouldRender).toBe(false)
     expect(state.document?.root.id).toBe('root')
+  })
+})
+
+describe('getCanvasEntryState typing', () => {
+  it('accepts unknown-valued entry data without using any', () => {
+    type EntryDataValue = Parameters<typeof getCanvasEntryState>[0][string]
+    const usesAny: AssertFalse<IsAny<EntryDataValue>> = false
+
+    expectTypeOf(usesAny).toEqualTypeOf<false>()
+
+    const state = getCanvasEntryState({ _emcanvas: { enabled: false } } as Record<string, unknown>)
+
+    expect(state.shouldRender).toBe(false)
   })
 })
