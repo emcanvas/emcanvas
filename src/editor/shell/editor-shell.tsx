@@ -1,12 +1,12 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 
-import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
-import type { CanvasDocument } from '../../foundation/types/canvas'
-import { CanvasViewport } from '../canvas/canvas-viewport'
-import { createEditorStore, type EditorStore } from '../state/editor-store'
-import { EditorSidebar } from './editor-sidebar'
-import { EditorStatusbar } from './editor-statusbar'
-import { EditorToolbar } from './editor-toolbar'
+import { createDefaultCanvasDocument } from '@emcanvas/foundation/model/document-factory'
+import type { CanvasDocument } from '@emcanvas/foundation/types/canvas'
+import { CanvasViewport } from '@emcanvas/editor/canvas/canvas-viewport'
+import { createEditorStore, type EditorStore } from '@emcanvas/editor/state/editor-store'
+import { EditorSidebar } from '@emcanvas/editor/shell/editor-sidebar'
+import { EditorStatusbar } from '@emcanvas/editor/shell/editor-statusbar'
+import { EditorToolbar } from '@emcanvas/editor/shell/editor-toolbar'
 
 export interface EditorShellInstance {
   document: CanvasDocument

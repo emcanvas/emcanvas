@@ -1,6 +1,9 @@
-import { isCanvasDocument } from '../../foundation/model/guards'
-import type { CanvasNode } from '../../foundation/types/canvas'
-import type { NormalizedCanvasDocument, NormalizedCanvasNode } from '../types/renderer'
+import { isCanvasDocument } from '@emcanvas/foundation/model/guards'
+import type { CanvasNode } from '@emcanvas/foundation/types/canvas'
+import type {
+  NormalizedCanvasDocument,
+  NormalizedCanvasNode,
+} from '@emcanvas/renderer/types/renderer'
 
 function normalizeNode(node: CanvasNode): NormalizedCanvasNode {
   return {
