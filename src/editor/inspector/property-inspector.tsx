@@ -21,31 +21,35 @@ export function PropertyInspector({
 }: PropertyInspectorProps) {
   const definition = node ? widgetRegistry.get(node.type) : null
 
+  if (!node || !definition) {
+    return (
+      <form aria-label="Property inspector form">
+        <h2>Inspector</h2>
+        <p>Select a node to edit its content and styles.</p>
+      </form>
+    )
+  }
+
   return (
     <form aria-label="Property inspector form">
       <h2>Inspector</h2>
-      {!node || !definition ? <p>Select a node to edit its content and styles.</p> : null}
-      {definition ? (
-        <>
-          <section aria-label="Property fields">
-            <h3>{definition.label}</h3>
-            {definition.propSchema.map((field) => (
-              <PropFieldRenderer
-                key={field.key}
-                field={field}
-                value={node.props[field.key]}
-                onChange={(value) => onUpdateProps({ [field.key]: value })}
-              />
-            ))}
-          </section>
-          <StyleEditor
-            styles={node.styles}
-            breakpoint={breakpoint}
-            onBreakpointChange={onBreakpointChange}
-            onChange={onUpdateStyles}
+      <section aria-label="Property fields">
+        <h3>{definition.label}</h3>
+        {definition.propSchema.map((field) => (
+          <PropFieldRenderer
+            key={field.key}
+            field={field}
+            value={node.props[field.key]}
+            onChange={(value) => onUpdateProps({ [field.key]: value })}
           />
-        </>
-      ) : null}
+        ))}
+      </section>
+      <StyleEditor
+        styles={node.styles}
+        breakpoint={breakpoint}
+        onBreakpointChange={onBreakpointChange}
+        onChange={onUpdateStyles}
+      />
     </form>
   )
 }
