@@ -29,16 +29,50 @@ export function EditorShell({
   const state = useSyncExternalStore(editorStore.subscribe, editorStore.getState)
 
   useEffect(() => {
+    editorStore.pushHistory(document)
+  }, [editorStore])
+
+  useEffect(() => {
     if (initialDocument) {
       setDocument(initialDocument)
     }
   }, [initialDocument])
 
-  function handleDocumentChange(nextDocument: CanvasDocument) {
+  function applyDocument(nextDocument: CanvasDocument, options?: { pushHistory?: boolean; markDirty?: boolean }) {
     setDocument(nextDocument)
     onDocumentChange?.(nextDocument)
-    editorStore.markDirty()
-    editorStore.pushHistory(nextDocument)
+
+    if (options?.markDirty ?? true) {
+      editorStore.markDirty()
+    }
+
+    if (options?.pushHistory ?? true) {
+      editorStore.pushHistory(nextDocument)
+    }
+  }
+
+  function handleDocumentChange(nextDocument: CanvasDocument) {
+    applyDocument(nextDocument)
+  }
+
+  function handleUndo() {
+    const nextDocument = editorStore.undoHistory()
+
+    if (!nextDocument) {
+      return
+    }
+
+    applyDocument(nextDocument, { pushHistory: false })
+  }
+
+  function handleRedo() {
+    const nextDocument = editorStore.redoHistory()
+
+    if (!nextDocument) {
+      return
+    }
+
+    applyDocument(nextDocument, { pushHistory: false })
   }
 
   useEffect(() => {
@@ -47,14 +81,16 @@ export function EditorShell({
 
   return (
     <div>
-      <EditorToolbar canUndo={state.canUndo} canRedo={state.canRedo} />
+      <EditorToolbar canUndo={state.canUndo} canRedo={state.canRedo} onUndo={handleUndo} onRedo={handleRedo} />
       <div>
         <CanvasViewport document={document} />
         <EditorSidebar
           document={document}
+          getDocument={() => document}
           state={state}
           onBreakpointChange={(breakpoint) => editorStore.setBreakpoint(breakpoint)}
           onDocumentChange={handleDocumentChange}
+          onCommand={(command) => command.execute()}
         />
       </div>
       <EditorStatusbar breakpoint={state.breakpoint} dirty={state.dirty} />

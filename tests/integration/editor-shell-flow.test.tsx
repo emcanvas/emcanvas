@@ -1,9 +1,34 @@
-import { act, cleanup, render, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, within } from '@testing-library/react'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { EditorShell } from '../../src/editor/shell/editor-shell'
 import type { CanvasDocument } from '../../src/foundation/types/canvas'
 import type { EditorStore } from '../../src/editor/state/editor-store'
+
+function createFixtureDocument(): CanvasDocument {
+  return {
+    version: 1,
+    root: {
+      id: 'root',
+      type: 'section',
+      props: {},
+      styles: { desktop: {} },
+      children: [
+        {
+          id: 'heading-1',
+          type: 'heading',
+          props: {
+            text: 'Welcome',
+            level: 2,
+          },
+          styles: { desktop: {} },
+          children: [],
+        },
+      ],
+    },
+    settings: {},
+  }
+}
 
 afterEach(() => {
   cleanup()
@@ -30,18 +55,31 @@ describe('editor shell flow', () => {
     )
 
     expect(instances).toHaveLength(2)
-    expect(instances[0].document).not.toBe(instances[1].document)
-    expect(instances[0].store).not.toBe(instances[1].store)
+    expect(instances[0]?.document).not.toBe(instances[1]?.document)
+    expect(instances[0]?.store).not.toBe(instances[1]?.store)
 
-    instances[0].store.markDirty()
+    instances[0]?.store.markDirty()
 
-    expect(instances[0].store.getState().dirty).toBe(true)
-    expect(instances[1].store.getState().dirty).toBe(false)
+    expect(instances[0]?.store.getState().dirty).toBe(true)
+    expect(instances[1]?.store.getState().dirty).toBe(false)
 
-    instances[0].document.root.children.push(instances[1].document.root)
+    const firstInstance = instances[0]
+    const secondInstance = instances[1]
 
-    expect(instances[0].document.root.children).toHaveLength(1)
-    expect(instances[1].document.root.children).toHaveLength(0)
+    if (!firstInstance || !secondInstance) {
+      throw new Error('Expected both editor instances to be ready')
+    }
+
+    const firstChildren = firstInstance.document.root.children
+
+    if (!firstChildren) {
+      throw new Error('Expected first editor root to expose children')
+    }
+
+    firstChildren.push(secondInstance.document.root)
+
+    expect(firstChildren).toHaveLength(1)
+    expect(secondInstance.document.root.children).toHaveLength(0)
   })
 
   it('rerenders shell state when the local editor store changes', () => {
@@ -78,5 +116,43 @@ describe('editor shell flow', () => {
     expect(shell.getByText('Breakpoint: mobile')).toBeInTheDocument()
     expect(shell.getByText('Unsaved changes')).toBeInTheDocument()
     expect(shell.getByRole('button', { name: 'Undo' })).toBeEnabled()
+  })
+
+  it('routes live sidebar prop and style edits through undoable history', () => {
+    let store: EditorStore<CanvasDocument> | undefined
+
+    const view = render(
+      <EditorShell
+        initialDocument={createFixtureDocument()}
+        onEditorReady={(instance) => {
+          store = instance.store
+        }}
+      />
+    )
+
+    act(() => {
+      store?.selectNode('heading-1')
+    })
+
+    fireEvent.change(view.getByLabelText('Text'), { target: { value: 'Updated heading' } })
+    fireEvent.change(view.getByLabelText('Color'), { target: { value: '#ff0000' } })
+
+    expect(view.getByLabelText('Text')).toHaveValue('Updated heading')
+    expect(view.getByLabelText('Color')).toHaveValue('#ff0000')
+
+    fireEvent.click(view.getByRole('button', { name: 'Undo' }))
+
+    expect(view.getByLabelText('Text')).toHaveValue('Updated heading')
+    expect(view.getByLabelText('Color')).toHaveValue('')
+
+    fireEvent.click(view.getByRole('button', { name: 'Undo' }))
+
+    expect(view.getByLabelText('Text')).toHaveValue('Welcome')
+
+    fireEvent.click(view.getByRole('button', { name: 'Redo' }))
+    fireEvent.click(view.getByRole('button', { name: 'Redo' }))
+
+    expect(view.getByLabelText('Text')).toHaveValue('Updated heading')
+    expect(view.getByLabelText('Color')).toHaveValue('#ff0000')
   })
 })
