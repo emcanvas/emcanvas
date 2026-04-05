@@ -228,5 +228,11 @@ describe('EmCanvasRenderer', () => {
 
     expect(source).toContain('getAstroComponent(node.type)')
     expect(source).not.toContain('getComponentRenderer(node.type)')
+    expect(source).not.toContain('switch (node.type)')
+    expect(source).not.toContain("case 'heading'")
+    expect(source).not.toContain("case 'text'")
+    expect(source).not.toContain("case 'button'")
+    expect(source).not.toContain("case 'image'")
+    expect(source).not.toContain("case 'video'")
   })
 })

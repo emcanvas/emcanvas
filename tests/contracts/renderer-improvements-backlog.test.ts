@@ -79,7 +79,7 @@ describe('renderer improvements backlog', () => {
     )
   })
 
-  it('closes the render model collapse item once the Astro template stops branching per node kind', () => {
+  it('closes the universal blind renderer item once the Astro template stops branching per node kind', () => {
     const renderModelSource = readProjectFile('src/renderer/types/renderer.ts')
     const astroTemplateSource = readProjectFile(
       'src/renderer/astro/CanvasNodeRenderer.astro',
@@ -92,5 +92,11 @@ describe('renderer improvements backlog', () => {
 
     expect(astroTemplateSource).toContain('getAstroComponent(node.type)')
     expect(astroTemplateSource).not.toContain('getComponentRenderer(node.type)')
+    expect(astroTemplateSource).not.toContain('switch (node.type)')
+    expect(astroTemplateSource).not.toContain("case 'heading'")
+    expect(astroTemplateSource).not.toContain("case 'text'")
+    expect(astroTemplateSource).not.toContain("case 'button'")
+    expect(astroTemplateSource).not.toContain("case 'image'")
+    expect(astroTemplateSource).not.toContain("case 'video'")
   })
 })
