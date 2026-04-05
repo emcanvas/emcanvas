@@ -23,6 +23,7 @@ function normalizeNode(node: CanvasNode): NormalizedCanvasNode {
   return {
     ...node,
     props: cloneJsonValue(node.props),
+    ...(node.advancedProps ? { advancedProps: cloneJsonValue(node.advancedProps) } : {}),
     styles: {
       desktop: { ...node.styles.desktop },
       ...(node.styles.tablet ? { tablet: { ...node.styles.tablet } } : {}),

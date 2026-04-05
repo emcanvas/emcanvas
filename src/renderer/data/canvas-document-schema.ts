@@ -51,6 +51,44 @@ function isJsonRecord(value: unknown): value is Record<string, unknown> {
   return isRecord(value) && isJsonValue(value, new WeakSet<object>())
 }
 
+function isCanvasNodeAdvancedProps(value: unknown): boolean {
+  if (!isRecord(value)) {
+    return false
+  }
+
+  const validKeys = new Set(['spacing', 'size', 'visibility', 'cssId', 'cssClasses'])
+
+  if (Object.keys(value).some((key) => !validKeys.has(key))) {
+    return false
+  }
+
+  if ('spacing' in value && value.spacing !== undefined && !isJsonRecord(value.spacing)) {
+    return false
+  }
+
+  if ('size' in value && value.size !== undefined && !isJsonRecord(value.size)) {
+    return false
+  }
+
+  if ('visibility' in value && value.visibility !== undefined && !isJsonRecord(value.visibility)) {
+    return false
+  }
+
+  if ('cssId' in value && value.cssId !== undefined && typeof value.cssId !== 'string') {
+    return false
+  }
+
+  if (
+    'cssClasses' in value &&
+    value.cssClasses !== undefined &&
+    (!Array.isArray(value.cssClasses) || value.cssClasses.some((entry) => typeof entry !== 'string'))
+  ) {
+    return false
+  }
+
+  return true
+}
+
 function isCanvasNode(value: unknown, visited: WeakSet<object>): value is CanvasNode {
   if (!isRecord(value)) {
     return false
@@ -66,7 +104,12 @@ function isCanvasNode(value: unknown, visited: WeakSet<object>): value is Canvas
     return false
   }
 
-  if (!isJsonRecord(value.props) || !isRecord(value.styles) || !isJsonRecord(value.styles.desktop)) {
+  if (
+    !isJsonRecord(value.props) ||
+    ('advancedProps' in value && value.advancedProps !== undefined && !isCanvasNodeAdvancedProps(value.advancedProps)) ||
+    !isRecord(value.styles) ||
+    !isJsonRecord(value.styles.desktop)
+  ) {
     return false
   }
 

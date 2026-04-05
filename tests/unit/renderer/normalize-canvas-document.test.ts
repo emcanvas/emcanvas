@@ -16,6 +16,21 @@ function createDocument(): CanvasDocument {
           title: 'Hero',
         },
       },
+      advancedProps: {
+        spacing: {
+          margin: {
+            desktop: '1rem',
+          },
+        },
+        size: {
+          width: '100%',
+        },
+        visibility: {
+          hideOnMobile: true,
+        },
+        cssId: 'hero-section',
+        cssClasses: ['custom-hero', 'layout-block'],
+      },
       styles: {
         desktop: { color: 'red' },
         tablet: { width: '80%' },
@@ -55,6 +70,21 @@ describe('normalizeCanvasDocument', () => {
             title: 'Hero',
           },
         },
+        advancedProps: {
+          spacing: {
+            margin: {
+              desktop: '1rem',
+            },
+          },
+          size: {
+            width: '100%',
+          },
+          visibility: {
+            hideOnMobile: true,
+          },
+          cssId: 'hero-section',
+          cssClasses: ['custom-hero', 'layout-block'],
+        },
         styles: {
           desktop: { color: 'red' },
           tablet: { width: '80%' },
@@ -85,5 +115,37 @@ describe('normalizeCanvasDocument', () => {
     normalizedContent.title = 'Changed'
 
     expect((document.root.props.content as { title: string }).title).toBe('Hero')
+  })
+
+  it('supports shared advanced props on a canvas node', () => {
+    const document = createDocument()
+
+    const result = normalizeCanvasDocument(document)
+
+    expect(result?.root.advancedProps).toEqual({
+      spacing: {
+        margin: {
+          desktop: '1rem',
+        },
+      },
+      size: {
+        width: '100%',
+      },
+      visibility: {
+        hideOnMobile: true,
+      },
+      cssId: 'hero-section',
+      cssClasses: ['custom-hero', 'layout-block'],
+    })
+    expect(result?.root.advancedProps).not.toBe(document.root.advancedProps)
+
+    const normalizedSpacing = result?.root.advancedProps?.spacing as {
+      margin: { desktop: string }
+    }
+    normalizedSpacing.margin.desktop = '2rem'
+
+    expect(
+      ((document.root.advancedProps?.spacing as { margin: { desktop: string } }).margin.desktop),
+    ).toBe('1rem')
   })
 })
