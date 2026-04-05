@@ -1,10 +1,12 @@
 ---
+import BaseWidgetWrapper from './BaseWidgetWrapper.astro'
 import { getAstroComponent } from '../components/registry'
 import type { NormalizedCanvasNode } from '../types/renderer'
 
 interface Props {
   node: NormalizedCanvasNode & {
     componentProps: Record<string, unknown>
+    disableBaseWrapper: boolean
   }
 }
 
@@ -12,6 +14,14 @@ const { node } = Astro.props
 const Component = getAstroComponent(node.type)
 ---
 
-<Component {...node.componentProps}>
-  {node.children.map((child) => <Astro.self node={child} />)}
-</Component>
+{node.disableBaseWrapper ? (
+  <Component {...node.componentProps}>
+    {node.children.map((child) => <Astro.self node={child} />)}
+  </Component>
+) : (
+  <BaseWidgetWrapper nodeId={node.id}>
+    <Component {...node.componentProps}>
+      {node.children.map((child) => <Astro.self node={child} />)}
+    </Component>
+  </BaseWidgetWrapper>
+)}

@@ -3,6 +3,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { experimental_AstroContainer as AstroContainer } from 'astro/container'
+import { widgetRegistry } from '../../src/editor/registry/widget-registry'
 import EmCanvasRenderer from '../../src/renderer/astro/EmCanvasRenderer.astro'
 
 const rendererBranchingPatterns = [
@@ -228,6 +229,100 @@ describe('EmCanvasRenderer', () => {
       /<video(?=[^>]*data-emcanvas-node="hero-video")(?=[^>]*src="\/uploads\/hero.mp4")(?=[^>]*controls)[^>]*><\/video>/,
     )
     expect(html).not.toContain(' provider="youtube"')
+  })
+
+  describe('base widget wrapper', () => {
+    it('wraps renderable widgets with a shared base wrapper when enabled', async () => {
+      const container = await AstroContainer.create()
+      const html = await container.renderToString(EmCanvasRenderer, {
+        props: {
+          document: {
+            version: 1,
+            settings: {},
+            root: {
+              id: 'root',
+              type: 'section',
+              props: {},
+              styles: {
+                desktop: {},
+              },
+              children: [
+                {
+                  id: 'hero-button',
+                  type: 'button',
+                  props: {
+                    label: 'Read more',
+                    href: '/read-more',
+                  },
+                  styles: {
+                    desktop: {},
+                  },
+                  children: [],
+                },
+              ],
+            },
+          },
+        },
+      })
+
+      expect(html).toMatch(
+        /<div class="emc-node emc-hero-button"[^>]*><a(?=[^>]*data-emcanvas-node="hero-button")(?=[^>]*href="\/read-more")[^>]*>Read more<\/a><\/div>/,
+      )
+    })
+
+    it('keeps widgets pure when their universal wrapper is disabled', async () => {
+      const originalDefinition = widgetRegistry.get('button')
+
+      if (!originalDefinition) {
+        throw new Error('Expected button widget definition to exist')
+      }
+
+      widgetRegistry.set('button', {
+        ...originalDefinition,
+        disableBaseWrapper: true,
+      })
+
+      try {
+        const container = await AstroContainer.create()
+        const html = await container.renderToString(EmCanvasRenderer, {
+          props: {
+            document: {
+              version: 1,
+              settings: {},
+              root: {
+                id: 'root',
+                type: 'section',
+                props: {},
+                styles: {
+                  desktop: {},
+                },
+                children: [
+                  {
+                    id: 'hero-button',
+                    type: 'button',
+                    props: {
+                      label: 'Read more',
+                      href: '/read-more',
+                    },
+                    styles: {
+                      desktop: {},
+                    },
+                    children: [],
+                  },
+                ],
+              },
+            },
+          },
+        })
+
+        expect(html).toMatch(
+          /<a(?=[^>]*data-emcanvas-node="hero-button")(?=[^>]*href="\/read-more")[^>]*>Read more<\/a>/,
+        )
+        expect(html).not.toContain('class="emc-node emc-hero-button"')
+      } finally {
+        widgetRegistry.set('button', originalDefinition)
+      }
+    })
   })
 
   it('keeps renderer-layer Astro files blind to concrete node types', () => {

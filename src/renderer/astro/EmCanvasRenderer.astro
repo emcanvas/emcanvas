@@ -1,4 +1,5 @@
 ---
+import { widgetRegistry } from '../../editor/registry/widget-registry'
 import CanvasNodeRenderer from './CanvasNodeRenderer.astro'
 import { getAstroComponentProps } from '../components/registry'
 import { collectMediaRules } from '../styles/collect-media-rules'
@@ -11,14 +12,22 @@ interface Props {
 
 type RenderableCanvasNode = NormalizedCanvasNode & {
   componentProps: Record<string, unknown>
+  disableBaseWrapper: boolean
   children: RenderableCanvasNode[]
 }
 
 function toRenderableNode(node: NormalizedCanvasNode): RenderableCanvasNode {
+  const definition = widgetRegistry.get(node.type)
+
+  if (!definition) {
+    throw new Error(`Unsupported canvas node type: ${node.type}`)
+  }
+
   const style = buildInlineStyle(node.styles.desktop) || undefined
 
   return {
     ...node,
+    disableBaseWrapper: definition.disableBaseWrapper,
     componentProps: {
       ...getAstroComponentProps(node.type, node.props),
       'data-emcanvas-node': node.id,

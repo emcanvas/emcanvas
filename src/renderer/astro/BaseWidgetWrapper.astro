@@ -1,0 +1,9 @@
+---
+interface Props {
+  nodeId: string
+}
+
+const { nodeId } = Astro.props
+---
+
+<div class={`emc-node emc-${nodeId}`}><slot /></div>
