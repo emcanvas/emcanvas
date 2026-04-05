@@ -4,6 +4,7 @@ import type { CanvasDocument, CanvasNode } from '../../../src/foundation/types/c
 import { createNode, createNodeFromWidgetType, deleteNode, moveNode } from '../../../src/editor/dnd/dnd-operations'
 import { validateInsertChildNode } from '../../../src/editor/model/document-validation'
 import { validateInsertChildNodeWithWidgetRegistry } from '../../../src/editor/model/document-validation-registry'
+import { createWidgetRegistry, widgetRegistry } from '../../../src/editor/registry/widget-registry'
 import type { WidgetDefinition } from '../../../src/editor/registry/widget-definition'
 
 function createNodeFixture(overrides: Partial<CanvasNode> = {}): CanvasNode {
@@ -214,5 +215,28 @@ describe('document validation registry dependency', () => {
 
     expect(parent).toBeDefined()
     expect(() => validateInsertChildNodeWithWidgetRegistry(parent!, child, document.root)).not.toThrow()
+  })
+})
+
+describe('alternative registry validation', () => {
+  it('supports custom registry semantics in tests without mutating the global singleton', () => {
+    const parent = createNodeFixture({ id: 'heading-parent', type: 'heading' })
+    const child = createNodeFixture({ id: 'nested-heading', type: 'heading' })
+    const customRegistry = createWidgetRegistry([
+      {
+        type: 'heading',
+        label: 'Heading',
+        category: 'content',
+        defaultProps: { text: 'Heading', level: 2 },
+        propSchema: [],
+        allowedChildren: ['heading'],
+        disableBaseWrapper: false,
+      },
+    ])
+
+    expect(() => validateInsertChildNode(parent, child, createFixtureDocument().root, widgetRegistry)).toThrow(
+      "Node 'heading-parent' of type 'heading' cannot accept children",
+    )
+    expect(() => validateInsertChildNode(parent, child, createFixtureDocument().root, customRegistry)).not.toThrow()
   })
 })

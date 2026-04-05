@@ -1,15 +1,8 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import type { CanvasDocument, CanvasNode } from '../../../src/foundation/types/canvas'
 import { insertChildNode } from '../../../src/editor/model/document-mutations'
-import { widgetRegistry } from '../../../src/editor/registry/widget-registry'
-
-afterEach(() => {
-  vi.resetModules()
-  vi.restoreAllMocks()
-  vi.doUnmock('../../../src/editor/model/document-validation')
-  vi.doUnmock('../../../src/editor/model/document-validation-registry')
-})
+import { createWidgetRegistry, widgetRegistry } from '../../../src/editor/registry/widget-registry'
 
 function createFixtureDocument(): CanvasDocument {
   return {
@@ -52,31 +45,6 @@ function createNode(overrides: Partial<CanvasNode> = {}): CanvasNode {
 }
 
 describe('insertChildNode', () => {
-  it('passes the default widget registry explicitly into validation', async () => {
-    vi.resetModules()
-
-    const validateInsertChildNode = vi.fn()
-
-    vi.doMock('../../../src/editor/model/document-validation', () => ({
-      validateInsertChildNode,
-    }))
-
-    vi.doMock('../../../src/editor/model/document-validation-registry', () => ({
-      validateInsertChildNodeWithWidgetRegistry: () => {
-        throw new Error('legacy validation wrapper should not be used')
-      },
-    }))
-
-    const { insertChildNode } = await import('../../../src/editor/model/document-mutations')
-    const document = createFixtureDocument()
-    const node = createNode({ id: 'n1' })
-
-    const result = insertChildNode(document, 'root', node, widgetRegistry)
-
-    expect(result.root.children).toHaveLength(3)
-    expect(validateInsertChildNode).toHaveBeenCalledWith(document.root, node, document.root, widgetRegistry)
-  })
-
   it('adds a child node under a valid parent', () => {
     const document = createFixtureDocument()
 
@@ -155,5 +123,53 @@ describe('insertChildNode', () => {
     expect(() => insertChildNode(document, 'root', subtree, widgetRegistry)).toThrow(
       "Node id 'duplicate-id' is duplicated in inserted subtree",
     )
+  })
+})
+
+describe('alternative registry validation', () => {
+  it('supports custom registry semantics in tests without mutating the global singleton', () => {
+    const document = createFixtureDocument()
+    const nestedHeading = createNode({ id: 'nested-heading', type: 'heading' })
+    const customRegistry = createWidgetRegistry([
+      {
+        type: 'section',
+        label: 'Section',
+        category: 'layout',
+        defaultProps: {},
+        propSchema: [],
+        allowedChildren: 'any',
+        disableBaseWrapper: false,
+      },
+      {
+        type: 'columns',
+        label: 'Columns',
+        category: 'layout',
+        defaultProps: { columns: 2 },
+        propSchema: [],
+        allowedChildren: [],
+        disableBaseWrapper: false,
+      },
+      {
+        type: 'heading',
+        label: 'Heading',
+        category: 'content',
+        defaultProps: { text: 'Heading', level: 2 },
+        propSchema: [],
+        allowedChildren: ['heading'],
+        disableBaseWrapper: false,
+      },
+    ])
+
+    expect(() => insertChildNode(document, 'heading-1', nestedHeading, widgetRegistry)).toThrow(
+      "Node 'heading-1' of type 'heading' cannot accept children",
+    )
+
+    const result = insertChildNode(document, 'heading-1', nestedHeading, customRegistry)
+
+    expect(result.root.children?.[1]).toMatchObject({
+      id: 'heading-1',
+      children: [expect.objectContaining({ id: 'nested-heading', type: 'heading' })],
+    })
+    expect(document.root.children?.[1]?.children).toEqual([])
   })
 })
