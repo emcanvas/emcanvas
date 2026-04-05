@@ -6,7 +6,8 @@ Renderizar `CanvasDocument` como HTML/CSS en el frontend de EmDash usando SSR, s
 
 ## Componente principal
 
-`<EmCanvasRenderer>` recibe `CanvasDocument` y produce markup renderizable por Astro.
+El pipeline principal (`<EmCanvasRenderer>`) pasa cada nodo a un `<CanvasNodeRenderer>` recursivo.
+Este nodo es **arquitectónicamente ciego y universal**: carga automáticamente los componentes por convencion usando Vite/AstroGlob (`const ElementComponent = componentsCollection[node.type]`) y le inyecta directamente el 100% de las propiedades semánticas (`<ElementComponent {...node.props} />`). **Cero configuración manual**: si creás `Button.astro`, está disponible. **Bajo ningún punto de vista este componente debe tener switches (ifs) ni armar HTML nativo explícito.**
 
 ## Estrategia CSS
 
