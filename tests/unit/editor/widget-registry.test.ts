@@ -67,7 +67,7 @@ describe('widgetRegistry', () => {
   it('makes base wrapper participation explicit for every widget', () => {
     for (const definition of widgetRegistry.values()) {
       expect(definition).toHaveProperty('disableBaseWrapper')
-      expectTypeOf(definition.disableBaseWrapper).toEqualTypeOf<boolean | undefined>()
+      expectTypeOf(definition.disableBaseWrapper).toEqualTypeOf<boolean>()
     }
   })
 
@@ -82,6 +82,7 @@ describe('widgetRegistry', () => {
             defaultProps: {},
             propSchema: [],
             allowedChildren: 'none',
+            disableBaseWrapper: false,
           },
           {
             type: 'duplicate',
@@ -90,6 +91,7 @@ describe('widgetRegistry', () => {
             defaultProps: {},
             propSchema: [],
             allowedChildren: 'none',
+            disableBaseWrapper: false,
           },
         ]),
       ),
