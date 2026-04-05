@@ -1,0 +1,6 @@
+---
+const { src: rawSrc, ...attributes } = Astro.props
+const src = typeof rawSrc === 'string' ? rawSrc : ''
+---
+
+<video {...attributes} src={src} controls></video>

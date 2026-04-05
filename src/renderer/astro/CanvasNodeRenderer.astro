@@ -1,48 +1,17 @@
 ---
-import { getComponentRenderer } from '../components/registry'
-import { buildInlineStyle } from '../styles/build-inline-style'
+import { getAstroComponent } from '../components/registry'
 import type { NormalizedCanvasNode } from '../types/renderer'
 
 interface Props {
-  node: NormalizedCanvasNode
+  node: NormalizedCanvasNode & {
+    componentProps: Record<string, unknown>
+  }
 }
 
 const { node } = Astro.props
-const model = getComponentRenderer(node.type)(node)
-const style = buildInlineStyle(node.styles.desktop) || undefined
-const Tag = model.tag as keyof HTMLElementTagNameMap
+const Component = getAstroComponent(node.type)
 ---
 
-{model.category === 'wrapper' && (
-  <Tag data-emcanvas-node={node.id} style={style}>
-    {node.children.map((child) => <Astro.self node={child} />)}
-  </Tag>
-)}
-
-{model.kind === 'heading' && (
-  <Tag data-emcanvas-node={node.id} style={style}>
-    {model.text}
-  </Tag>
-)}
-
-{model.kind === 'text' && (
-  <Tag data-emcanvas-node={node.id} style={style}>
-    {model.text}
-  </Tag>
-)}
-
-{model.kind === 'button' && (
-  <Tag data-emcanvas-node={node.id} href={model.href} style={style}>
-    {model.label}
-  </Tag>
-)}
-
-{model.kind === 'spacer' && <Tag data-emcanvas-node={node.id} aria-hidden="true" style={style}></Tag>}
-
-{model.kind === 'divider' && <Tag data-emcanvas-node={node.id} style={style} />}
-
-{model.kind === 'image' && (
-  <Tag data-emcanvas-node={node.id} src={model.src} alt={model.alt} style={style} />
-)}
-
-{model.kind === 'video' && <Tag data-emcanvas-node={node.id} src={model.src} controls style={style}></Tag>}
+<Component {...node.componentProps}>
+  {node.children.map((child) => <Astro.self node={child} />)}
+</Component>

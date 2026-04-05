@@ -1,17 +1,39 @@
 ---
 import CanvasNodeRenderer from './CanvasNodeRenderer.astro'
+import { getAstroComponentProps } from '../components/registry'
 import { collectMediaRules } from '../styles/collect-media-rules'
-import type { NormalizedCanvasDocument } from '../types/renderer'
+import { buildInlineStyle } from '../styles/build-inline-style'
+import type { NormalizedCanvasDocument, NormalizedCanvasNode } from '../types/renderer'
 
 interface Props {
   document: NormalizedCanvasDocument
 }
 
+type RenderableCanvasNode = NormalizedCanvasNode & {
+  componentProps: Record<string, unknown>
+  children: RenderableCanvasNode[]
+}
+
+function toRenderableNode(node: NormalizedCanvasNode): RenderableCanvasNode {
+  const style = buildInlineStyle(node.styles.desktop) || undefined
+
+  return {
+    ...node,
+    componentProps: {
+      ...getAstroComponentProps(node.type, node.props),
+      'data-emcanvas-node': node.id,
+      style,
+    },
+    children: node.children.map(toRenderableNode),
+  }
+}
+
 const { document } = Astro.props
 const mediaCss = collectMediaRules(document.root)
+const rootNode = toRenderableNode(document.root)
 ---
 
 <div data-emcanvas-root>
   {mediaCss && <style data-emcanvas-media-rules set:html={mediaCss}></style>}
-  <CanvasNodeRenderer node={document.root} />
+  <CanvasNodeRenderer node={rootNode} />
 </div>

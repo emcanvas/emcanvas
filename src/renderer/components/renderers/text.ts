@@ -4,5 +4,5 @@ export const renderTextNode: CanvasNodeRenderer = (node) => ({
   category: 'leaf',
   kind: 'text',
   tag: 'p',
-  text: typeof node.props.text === 'string' ? node.props.text : '',
+  textContent: typeof node.props.text === 'string' ? node.props.text : '',
 })

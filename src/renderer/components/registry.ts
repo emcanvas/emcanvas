@@ -1,46 +1,70 @@
-import type { CanvasNodeRenderer } from '../types/renderer'
-import { renderButtonNode } from './renderers/button'
-import { renderColumnsNode } from './renderers/columns'
-import { renderContainerNode } from './renderers/container'
-import { renderDividerNode } from './renderers/divider'
-import { renderHeadingNode } from './renderers/heading'
-import { renderImageNode } from './renderers/image'
-import { renderSectionNode } from './renderers/section'
-import { renderSpacerNode } from './renderers/spacer'
-import { renderTextNode } from './renderers/text'
-import { renderVideoNode } from './renderers/video'
+type AstroComponent = (...args: never[]) => unknown
 
-const renderers: Record<string, CanvasNodeRenderer> = {
-  section: renderSectionNode,
-  columns: renderColumnsNode,
-  container: renderContainerNode,
-  heading: renderHeadingNode,
-  text: renderTextNode,
-  button: renderButtonNode,
-  spacer: renderSpacerNode,
-  divider: renderDividerNode,
-  image: renderImageNode,
-  video: renderVideoNode,
+type ComponentProps = Record<string, unknown>
+
+type AstroComponentModule = {
+  default: AstroComponent
 }
 
-export function registerRenderer(type: string, renderer: CanvasNodeRenderer): () => void {
-  if (type in renderers) {
-    throw new Error(`Renderer already registered for type: ${type}`)
-  }
-
-  renderers[type] = renderer
-
-  return () => {
-    delete renderers[type]
-  }
+type ImportMetaWithGlob = ImportMeta & {
+  glob: <T>(pattern: string, options: { eager: true }) => Record<string, T>
 }
 
-export function getComponentRenderer(type: string): CanvasNodeRenderer {
-  const renderer = renderers[type]
+const componentModules = (import.meta as ImportMetaWithGlob).glob<AstroComponentModule>('./astro/*.astro', {
+  eager: true,
+})
 
-  if (!renderer) {
+const components: Record<string, AstroComponent | undefined> = {
+  section: componentModules['./astro/Section.astro']?.default,
+  columns: componentModules['./astro/Columns.astro']?.default,
+  container: componentModules['./astro/Container.astro']?.default,
+  heading: componentModules['./astro/Heading.astro']?.default,
+  text: componentModules['./astro/Text.astro']?.default,
+  button: componentModules['./astro/Button.astro']?.default,
+  image: componentModules['./astro/Image.astro']?.default,
+  video: componentModules['./astro/Video.astro']?.default,
+  spacer: componentModules['./astro/Spacer.astro']?.default,
+  divider: componentModules['./astro/Divider.astro']?.default,
+}
+
+const componentPropsMappers: Record<string, ((props: ComponentProps) => ComponentProps) | undefined> = {
+  heading: (props) => ({
+    text: typeof props.text === 'string' ? props.text : '',
+    level: props.level === 1 || props.level === 2 || props.level === 3 || props.level === 4
+      || props.level === 5 || props.level === 6
+      ? props.level
+      : 2,
+  }),
+  text: (props) => ({
+    text: typeof props.text === 'string' ? props.text : '',
+  }),
+  button: (props) => ({
+    href: typeof props.href === 'string' ? props.href : '#',
+    label: typeof props.label === 'string'
+      ? props.label
+      : typeof props.text === 'string'
+        ? props.text
+        : '',
+  }),
+  image: (props) => ({
+    src: typeof props.src === 'string' ? props.src : '',
+    alt: typeof props.alt === 'string' ? props.alt : '',
+  }),
+  video: (props) => ({
+    src: typeof props.src === 'string' ? props.src : '',
+  }),
+}
+
+export function getAstroComponent(type: string): AstroComponent {
+  const component = components[type]
+
+  if (!component) {
     throw new Error(`Unsupported canvas node type: ${type}`)
   }
 
-  return renderer
+  return component
+}
+
+export function getAstroComponentProps(type: string, props: ComponentProps): ComponentProps {
+  return componentPropsMappers[type]?.(props) ?? {}
 }

@@ -1,0 +1,6 @@
+---
+const { text: rawText, ...attributes } = Astro.props
+const text = typeof rawText === 'string' ? rawText : ''
+---
+
+<p {...attributes}><slot />{text}</p>

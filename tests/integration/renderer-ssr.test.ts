@@ -1,8 +1,16 @@
 // @vitest-environment node
 
+import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import EmCanvasRenderer from '../../src/renderer/astro/EmCanvasRenderer.astro'
+
+const rendererBranchingPatterns = [
+  /getComponentRenderer\(node\.type\)/,
+  /switch\s*\(\s*node\.type\s*\)/,
+  /node\.type\s*(===|==|!==|!=)/,
+  /case\s+['"](?:section|columns|container|heading|text|button|image|video|spacer|divider)['"]/,
+]
 
 describe('EmCanvasRenderer', () => {
   it('renders MVP nodes recursively in SSR output', async () => {
@@ -102,7 +110,9 @@ describe('EmCanvasRenderer', () => {
     expect(html).toContain('<div data-emcanvas-node="hero-copy"')
     expect(html).toMatch(/<h1[^>]*data-emcanvas-node="hero-title"[^>]*style="color:#111111"[^>]*>Hello SSR<\/h1>/)
     expect(html).toMatch(/<p[^>]*data-emcanvas-node="hero-text"[^>]*style="color:#444444"[^>]*>Renderer body copy<\/p>/)
-    expect(html).toMatch(/<a[^>]*data-emcanvas-node="hero-button"[^>]*href="\/read-more"[^>]*style="background-color:#222222"[^>]*>Read more<\/a>/)
+    expect(html).toMatch(
+      /<a(?=[^>]*data-emcanvas-node="hero-button")(?=[^>]*href="\/read-more")(?=[^>]*style="background-color:#222222")[^>]*>Read more<\/a>/,
+    )
     expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="hero-columns"]{gap:8px;}}')
   })
 
@@ -166,5 +176,81 @@ describe('EmCanvasRenderer', () => {
     expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="root"]{padding:12px;}}')
     expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="hero-columns"]{gap:8px;}}')
     expect(html).toContain('@media (max-width: 1024px){[data-emcanvas-node="hero-copy"]{max-width:100%;}}')
+  })
+
+  it('does not leak widget config props into SSR DOM output', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(EmCanvasRenderer, {
+      props: {
+        document: {
+          version: 1,
+          settings: {},
+          root: {
+            id: 'root',
+            type: 'section',
+            props: {},
+            styles: {
+              desktop: {},
+            },
+            children: [
+              {
+                id: 'layout-columns',
+                type: 'columns',
+                props: {
+                  columns: 3,
+                },
+                styles: {
+                  desktop: {},
+                },
+                children: [],
+              },
+              {
+                id: 'hero-video',
+                type: 'video',
+                props: {
+                  src: '/uploads/hero.mp4',
+                  provider: 'youtube',
+                },
+                styles: {
+                  desktop: {},
+                },
+                children: [],
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(html).toMatch(/<div[^>]*data-emcanvas-node="layout-columns"[^>]*><\/div>/)
+    expect(html).not.toContain(' columns="3"')
+    expect(html).toMatch(
+      /<video(?=[^>]*data-emcanvas-node="hero-video")(?=[^>]*src="\/uploads\/hero.mp4")(?=[^>]*controls)[^>]*><\/video>/,
+    )
+    expect(html).not.toContain(' provider="youtube"')
+  })
+
+  it('keeps renderer-layer Astro files blind to concrete node types', () => {
+    const rendererAstroDir = 'src/renderer/astro'
+    const astroFiles = readdirSync(rendererAstroDir)
+      .filter((fileName: string) => fileName.endsWith('.astro'))
+      .map((fileName: string) => ({
+        fileName,
+        source: readFileSync(`${rendererAstroDir}/${fileName}`, 'utf8'),
+      }))
+
+    expect(
+      astroFiles.some(({ source }: { source: string }) =>
+        source.includes('getAstroComponent(node.type)'),
+      ),
+    ).toBe(true)
+
+    for (const { fileName, source } of astroFiles) {
+      for (const pattern of rendererBranchingPatterns) {
+        expect(source, `${fileName} should stay blind to concrete node types`).not.toMatch(
+          pattern,
+        )
+      }
+    }
   })
 })
