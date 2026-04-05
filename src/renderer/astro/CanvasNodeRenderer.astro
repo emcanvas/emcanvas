@@ -7,11 +7,48 @@ interface Props {
   node: NormalizedCanvasNode
 }
 
+function getControlledComponentProps(node: NormalizedCanvasNode): Record<string, string | number> {
+  switch (node.type) {
+    case 'heading':
+      return {
+        text: typeof node.props.text === 'string' ? node.props.text : '',
+        level: node.props.level === 1 || node.props.level === 2 || node.props.level === 3 || node.props.level === 4
+          || node.props.level === 5 || node.props.level === 6
+          ? node.props.level
+          : 2,
+      }
+    case 'text':
+      return {
+        text: typeof node.props.text === 'string' ? node.props.text : '',
+      }
+    case 'button':
+      return {
+        href: typeof node.props.href === 'string' ? node.props.href : '#',
+        label: typeof node.props.label === 'string'
+          ? node.props.label
+          : typeof node.props.text === 'string'
+            ? node.props.text
+            : '',
+      }
+    case 'image':
+      return {
+        src: typeof node.props.src === 'string' ? node.props.src : '',
+        alt: typeof node.props.alt === 'string' ? node.props.alt : '',
+      }
+    case 'video':
+      return {
+        src: typeof node.props.src === 'string' ? node.props.src : '',
+      }
+    default:
+      return {}
+  }
+}
+
 const { node } = Astro.props
 const Component = getAstroComponent(node.type)
 const style = buildInlineStyle(node.styles.desktop) || undefined
 const componentProps = {
-  ...node.props,
+  ...getControlledComponentProps(node),
   'data-emcanvas-node': node.id,
   style,
 }

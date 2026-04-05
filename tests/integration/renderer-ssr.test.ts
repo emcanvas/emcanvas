@@ -171,6 +171,58 @@ describe('EmCanvasRenderer', () => {
     expect(html).toContain('@media (max-width: 1024px){[data-emcanvas-node="hero-copy"]{max-width:100%;}}')
   })
 
+  it('does not leak widget config props into SSR DOM output', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(EmCanvasRenderer, {
+      props: {
+        document: {
+          version: 1,
+          settings: {},
+          root: {
+            id: 'root',
+            type: 'section',
+            props: {},
+            styles: {
+              desktop: {},
+            },
+            children: [
+              {
+                id: 'layout-columns',
+                type: 'columns',
+                props: {
+                  columns: 3,
+                },
+                styles: {
+                  desktop: {},
+                },
+                children: [],
+              },
+              {
+                id: 'hero-video',
+                type: 'video',
+                props: {
+                  src: '/uploads/hero.mp4',
+                  provider: 'youtube',
+                },
+                styles: {
+                  desktop: {},
+                },
+                children: [],
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(html).toMatch(/<div[^>]*data-emcanvas-node="layout-columns"[^>]*><\/div>/)
+    expect(html).not.toContain(' columns="3"')
+    expect(html).toMatch(
+      /<video(?=[^>]*data-emcanvas-node="hero-video")(?=[^>]*src="\/uploads\/hero.mp4")(?=[^>]*controls)[^>]*><\/video>/,
+    )
+    expect(html).not.toContain(' provider="youtube"')
+  })
+
   it('keeps CanvasNodeRenderer driven by generic render model branches only', () => {
     const source = readFileSync('src/renderer/astro/CanvasNodeRenderer.astro', 'utf8')
 
