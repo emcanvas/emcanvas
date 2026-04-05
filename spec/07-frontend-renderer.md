@@ -7,7 +7,9 @@ Renderizar `CanvasDocument` como HTML/CSS en el frontend de EmDash usando SSR, s
 ## Componente principal
 
 El pipeline principal (`<EmCanvasRenderer>`) pasa cada nodo a un `<CanvasNodeRenderer>` recursivo.
-Este nodo es **arquitectónicamente ciego y universal**: carga automáticamente los componentes por convencion usando Vite/AstroGlob (`const ElementComponent = componentsCollection[node.type]`) y le inyecta directamente el 100% de las propiedades semánticas (`<ElementComponent {...node.props} />`). **Cero configuración manual**: si creás `Button.astro`, está disponible. **Bajo ningún punto de vista este componente debe tener switches (ifs) ni armar HTML nativo explícito.**
+Este nodo es **arquitectónicamente ciego y universal**: carga automáticamente los componentes por convención usando Vite/AstroGlob (`import.meta.glob`). Para soportar **renderers extendidos por el usuario (Third-party/Host)**, el patrón de globbing no solo busca en la carpeta interna del plugin (`@emcanvas/components/*.astro`), sino que también debe abarcar carpetas del root del proyecto anfitrión (por ejemplo, `src/components/emcanvas/**/*.astro`).
+
+Luego el renderer hace el match directo (`const ElementComponent = componentsCollection[node.type]`) y le inyecta directamente el 100% de las propiedades semánticas (`<ElementComponent {...node.props} />`). **Cero configuración manual para el renderizado**: si el usuario crea `Hero.astro` en la carpeta correcta, está disponible sin importar módulos ni diccionarios. **Bajo ningún punto de vista este componente debe tener switches (ifs) ni armar HTML nativo explícito.**
 
 ## Estrategia CSS
 

@@ -42,6 +42,37 @@ interface WidgetDefinition {
 - Las restricciones de nesting deben estar declaradas.
 - La semántica del widget debe ser directa y coincidir con las props del componente Astro final asociado.
 
-## Objetivo de extensibilidad
+## Custom/Host Components (Extensibilidad)
 
-Aunque el MVP no incluye third-party widgets, el registro debe prepararse mentalmente para extensión futura sin romper el formato del documento.
+El sistema soporta nativamente que el proyecto anfitrión defina e inyecte sus propios widgets (ej. `Hero.astro`) sin tocar el núcleo de EmCanvas. La extensibilidad funciona coordinando las dos mitades del sistema:
+
+1. **Frontend Renderer (Astro):** Como se definió en la arquitectura del Renderer, utiliza Vite `import.meta.glob()` de forma transparente. Si el JSON indica `type: 'Hero'`, y el usuario definió `src/components/emcanvas/Hero.astro`, se monta directamente sin puentes ni middlewares.
+2. **Visual Editor (React/Admin):** Para que el administrador pueda construir la UI configurando ese widget, debe existir una forma de inyectar los metadatos de configuración. El usuario pasará un array de `WidgetDefinition` vía inicialización del proyecto anfitrión:
+
+   ```typescript
+   // EmDash/Astro host config
+   export default defineConfig({
+     integrations: [
+       emcanvas({
+         customWidgets: [
+           {
+             type: 'Hero',
+             label: 'Hero Section',
+             icon: 'star',
+             category: 'content',
+             defaultProps: { title: 'Hola', bg: 'dark' },
+             propSchema: {
+               type: 'object',
+               properties: {
+                 title: { type: 'string' },
+                 bg: { type: 'string', enum: ['dark', 'light'] },
+               },
+             },
+           },
+         ],
+       }),
+     ],
+   })
+   ```
+
+Con esta inyección, el Editor React une los widgets "built-in" con los `customWidgets`, permitiéndole generar el botón de "Add Hero" y el _Property Inspector_ dinámico basado 100% en el esquema JSON declarado.
