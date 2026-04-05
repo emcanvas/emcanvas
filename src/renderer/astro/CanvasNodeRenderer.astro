@@ -1,5 +1,5 @@
 ---
-import { getComponentRenderer } from '../components/registry'
+import { getAstroComponent } from '../components/registry'
 import { buildInlineStyle } from '../styles/build-inline-style'
 import type { NormalizedCanvasNode } from '../types/renderer'
 
@@ -8,24 +8,15 @@ interface Props {
 }
 
 const { node } = Astro.props
-const model = getComponentRenderer(node.type)(node)
+const Component = getAstroComponent(node.type)
 const style = buildInlineStyle(node.styles.desktop) || undefined
-const Tag = model.tag as keyof HTMLElementTagNameMap
-const attributes = model.category === 'leaf' ? model.attributes : undefined
+const componentProps = {
+  ...node.props,
+  'data-emcanvas-node': node.id,
+  style,
+}
 ---
 
-{model.category === 'wrapper' && (
-  <Tag data-emcanvas-node={node.id} style={style}>
-    {node.children.map((child) => <Astro.self node={child} />)}
-  </Tag>
-)}
-
-{model.category === 'leaf' && model.isVoid && (
-  <Tag data-emcanvas-node={node.id} {...attributes} style={style} />
-)}
-
-{model.category === 'leaf' && !model.isVoid && (
-  <Tag data-emcanvas-node={node.id} {...attributes} style={style}>
-    {model.textContent}
-  </Tag>
-)}
+<Component {...componentProps}>
+  {node.children.map((child) => <Astro.self node={child} />)}
+</Component>

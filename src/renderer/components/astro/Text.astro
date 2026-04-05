@@ -1,5 +1,6 @@
 ---
-const text = typeof Astro.props.text === 'string' ? Astro.props.text : ''
+const { text: rawText, ...attributes } = Astro.props
+const text = typeof rawText === 'string' ? rawText : ''
 ---
 
-<p><slot />{text}</p>
+<p {...attributes}><slot />{text}</p>

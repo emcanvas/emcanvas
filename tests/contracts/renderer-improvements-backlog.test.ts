@@ -6,10 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import { describe, expect, it } from 'vitest'
 import EmCanvasRenderer from '../../src/renderer/astro/EmCanvasRenderer.astro'
-import {
-  getComponentRenderer,
-  registerRenderer,
-} from '../../src/renderer/components/registry'
+import { getAstroComponent } from '../../src/renderer/components/registry'
 import { getCanvasEntryState } from '../../src/renderer/data/get-canvas-entry-state'
 import { buildInlineStyle } from '../../src/renderer/styles/build-inline-style'
 
@@ -21,84 +18,65 @@ function readProjectFile(relativePath: string) {
 
 describe('renderer improvements backlog', () => {
   it('documents which renderer improvements are already covered in code', async () => {
-    const type = 'contract-test-renderer'
-    const unregister = registerRenderer(type, () => ({
-      category: 'leaf' as const,
-      kind: 'text' as const,
-      tag: 'p' as const,
-      text: 'custom',
-    }))
+    expect(
+      buildInlineStyle({
+        width: 'calc(100% - 20px)',
+        color: 'var(--brand-color)',
+      }),
+    ).toContain('width:calc(100% - 20px);color:var(--brand-color)')
 
-    try {
-      expect(
-        buildInlineStyle({
-          width: 'calc(100% - 20px)',
-          color: 'var(--brand-color)',
-        }),
-      ).toContain('width:calc(100% - 20px);color:var(--brand-color)')
+    expect(
+      getCanvasEntryState({ _emcanvas: { enabled: false } }).shouldRender,
+    ).toBe(false)
+    expect(
+      readProjectFile('src/renderer/data/get-canvas-entry-state.ts'),
+    ).toContain('Record<string, unknown>')
 
-      expect(
-        getCanvasEntryState({ _emcanvas: { enabled: false } }).shouldRender,
-      ).toBe(false)
-      expect(
-        readProjectFile('src/renderer/data/get-canvas-entry-state.ts'),
-      ).toContain('Record<string, unknown>')
+    expect(getAstroComponent('section')).toBeTypeOf('function')
+    expect(getAstroComponent('container')).toBeTypeOf('function')
+    expect(getAstroComponent('heading')).toBeTypeOf('function')
 
-      expect(getComponentRenderer(type)).toBeTypeOf('function')
-      expect(
-        getComponentRenderer(type)({
-          id: 'custom-node',
-          type,
-          props: {},
-          styles: { desktop: {} },
-          children: [],
-        }),
-      ).toEqual({ category: 'leaf', kind: 'text', tag: 'p', text: 'custom' })
-
-      const container = await AstroContainer.create()
-      const html = await container.renderToString(EmCanvasRenderer, {
-        props: {
-          document: {
-            version: 1,
-            settings: {},
-            root: {
-              id: 'root',
-              type: 'section',
-              props: {},
-              styles: { desktop: {}, mobile: { padding: '12px' } },
-              children: [
-                {
-                  id: 'copy',
-                  type: 'container',
-                  props: {},
-                  styles: { desktop: {}, tablet: { maxWidth: '100%' } },
-                  children: [
-                    {
-                      id: 'title',
-                      type: 'heading',
-                      props: { text: 'Hello', level: 2 },
-                      styles: { desktop: {} },
-                      children: [],
-                    },
-                  ],
-                },
-              ],
-            },
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(EmCanvasRenderer, {
+      props: {
+        document: {
+          version: 1,
+          settings: {},
+          root: {
+            id: 'root',
+            type: 'section',
+            props: {},
+            styles: { desktop: {}, mobile: { padding: '12px' } },
+            children: [
+              {
+                id: 'copy',
+                type: 'container',
+                props: {},
+                styles: { desktop: {}, tablet: { maxWidth: '100%' } },
+                children: [
+                  {
+                    id: 'title',
+                    type: 'heading',
+                    props: { text: 'Hello', level: 2 },
+                    styles: { desktop: {} },
+                    children: [],
+                  },
+                ],
+              },
+            ],
           },
         },
-      })
+      },
+    })
 
-      expect((html.match(/<style/g) ?? []).length).toBe(1)
-      expect(html).toContain('<style data-emcanvas-media-rules>')
-      expect(html).toContain(
-        '@media (max-width: 767px){[data-emcanvas-node="root"]{padding:12px;}}',
-      )
-      expect(html).toContain(
-        '@media (max-width: 1024px){[data-emcanvas-node="copy"]{max-width:100%;}}',
-      )
-    } finally {
-      unregister()
-    }
+    expect((html.match(/<style/g) ?? []).length).toBe(1)
+    expect(html).toContain('<style data-emcanvas-media-rules>')
+    expect(html).toContain(
+      '@media (max-width: 767px){[data-emcanvas-node="root"]{padding:12px;}}',
+    )
+    expect(html).toContain(
+      '@media (max-width: 1024px){[data-emcanvas-node="copy"]{max-width:100%;}}',
+    )
   })
 
   it('closes the render model collapse item once the Astro template stops branching per node kind', () => {
@@ -112,8 +90,7 @@ describe('renderer improvements backlog', () => {
     expect(renderModelSource).toContain('attributes?: Record<string, string | true>')
     expect(renderModelSource).toContain('textContent?: string')
 
-    expect(astroTemplateSource).not.toContain('model.kind ===')
-    expect(astroTemplateSource).toContain("model.category === 'leaf' && model.isVoid")
-    expect(astroTemplateSource).toContain("model.category === 'leaf' && !model.isVoid")
+    expect(astroTemplateSource).toContain('getAstroComponent(node.type)')
+    expect(astroTemplateSource).not.toContain('getComponentRenderer(node.type)')
   })
 })

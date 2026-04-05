@@ -1,12 +1,14 @@
 ---
+const { text: rawText, level, ...attributes } = Astro.props
+
 function getHeadingLevel(value: unknown): 1 | 2 | 3 | 4 | 5 | 6 {
   return value === 1 || value === 2 || value === 3 || value === 4 || value === 5 || value === 6
     ? value
     : 2
 }
 
-const text = typeof Astro.props.text === 'string' ? Astro.props.text : ''
-const Tag = `h${getHeadingLevel(Astro.props.level)}` as keyof HTMLElementTagNameMap
+const text = typeof rawText === 'string' ? rawText : ''
+const Tag = `h${getHeadingLevel(level)}` as keyof HTMLElementTagNameMap
 ---
 
-<Tag><slot />{text}</Tag>
+<Tag {...attributes}><slot />{text}</Tag>

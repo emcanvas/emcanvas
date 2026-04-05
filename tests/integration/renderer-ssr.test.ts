@@ -103,7 +103,9 @@ describe('EmCanvasRenderer', () => {
     expect(html).toContain('<div data-emcanvas-node="hero-copy"')
     expect(html).toMatch(/<h1[^>]*data-emcanvas-node="hero-title"[^>]*style="color:#111111"[^>]*>Hello SSR<\/h1>/)
     expect(html).toMatch(/<p[^>]*data-emcanvas-node="hero-text"[^>]*style="color:#444444"[^>]*>Renderer body copy<\/p>/)
-    expect(html).toMatch(/<a[^>]*data-emcanvas-node="hero-button"[^>]*href="\/read-more"[^>]*style="background-color:#222222"[^>]*>Read more<\/a>/)
+    expect(html).toMatch(
+      /<a(?=[^>]*data-emcanvas-node="hero-button")(?=[^>]*href="\/read-more")(?=[^>]*style="background-color:#222222")[^>]*>Read more<\/a>/,
+    )
     expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="hero-columns"]{gap:8px;}}')
   })
 
@@ -172,6 +174,7 @@ describe('EmCanvasRenderer', () => {
   it('keeps CanvasNodeRenderer driven by generic render model branches only', () => {
     const source = readFileSync('src/renderer/astro/CanvasNodeRenderer.astro', 'utf8')
 
-    expect(source).not.toContain('model.kind ===')
+    expect(source).toContain('getAstroComponent(node.type)')
+    expect(source).not.toContain('getComponentRenderer(node.type)')
   })
 })

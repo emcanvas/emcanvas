@@ -12,12 +12,18 @@ const componentModules = (import.meta as ImportMetaWithGlob).glob<AstroComponent
   eager: true,
 })
 
-const components = Object.fromEntries(
-  Object.entries(componentModules).map(([path, module]) => {
-    const fileName = path.slice(path.lastIndexOf('/') + 1, -'.astro'.length)
-    return [fileName, module.default]
-  }),
-) as Record<string, AstroComponent>
+const components: Record<string, AstroComponent | undefined> = {
+  section: componentModules['./astro/Section.astro']?.default,
+  columns: componentModules['./astro/Columns.astro']?.default,
+  container: componentModules['./astro/Container.astro']?.default,
+  heading: componentModules['./astro/Heading.astro']?.default,
+  text: componentModules['./astro/Text.astro']?.default,
+  button: componentModules['./astro/Button.astro']?.default,
+  image: componentModules['./astro/Image.astro']?.default,
+  video: componentModules['./astro/Video.astro']?.default,
+  spacer: componentModules['./astro/Spacer.astro']?.default,
+  divider: componentModules['./astro/Divider.astro']?.default,
+}
 
 export function getAstroComponent(type: string): AstroComponent {
   const component = components[type]
