@@ -64,7 +64,7 @@ Expected: PASS
 - Modify: `src/plugin/sandbox-entry.ts`
 - Test: `tests/contracts/plugin-public-exports.test.ts`
 
-- [ ] **Step 1: Write the failing sandbox contract regression**
+- [x] **Step 1: Write the failing sandbox contract regression**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -77,18 +77,18 @@ describe('sandbox entry surface', () => {
 })
 ```
 
-- [ ] **Step 2: Run the focused contract test**
+- [x] **Step 2: Run the focused contract test**
 
 Run: `pnpm vitest run tests/contracts/plugin-public-exports.test.ts`
 Expected: FAIL or reveal current passthrough ambiguity.
 
-- [ ] **Step 3: Make sandbox entry explicit**
+- [x] **Step 3: Make sandbox entry explicit**
 
 ```ts
 // either explicit re-export with comment/shape, or a dedicated sandbox object if justified
 ```
 
-- [ ] **Step 4: Run the focused contract test again**
+- [x] **Step 4: Run the focused contract test again**
 
 Run: `pnpm vitest run tests/contracts/plugin-public-exports.test.ts`
 Expected: PASS

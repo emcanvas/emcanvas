@@ -34,6 +34,12 @@ describe('plugin public exports', () => {
       }),
     })
     expect(Object.keys(sandbox)).toEqual(['default'])
+    expect(Object.keys(sandbox.default).sort()).toEqual([
+      'entrypoint',
+      'format',
+      'sandbox',
+    ])
+    expect(sandbox.default).not.toBe(root.descriptor)
 
     expect(admin).toMatchObject({
       pages: {
