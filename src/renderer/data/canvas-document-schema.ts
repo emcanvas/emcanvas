@@ -26,11 +26,7 @@ function isJsonValue(value: unknown, visited: WeakSet<object>): boolean {
     return true
   }
 
-  if (Array.isArray(value)) {
-    return value.every((entry) => isJsonValue(entry, visited))
-  }
-
-  if (!isRecord(value)) {
+  if (typeof value !== 'object') {
     return false
   }
 
@@ -39,6 +35,14 @@ function isJsonValue(value: unknown, visited: WeakSet<object>): boolean {
   }
 
   visited.add(value)
+
+  if (Array.isArray(value)) {
+    return value.every((entry) => isJsonValue(entry, visited))
+  }
+
+  if (!isRecord(value)) {
+    return false
+  }
 
   return Object.values(value).every((entry) => isJsonValue(entry, visited))
 }
