@@ -1,9 +1,12 @@
 ---
+import { sanitizeCssSelectorValue } from '../styles/sanitize-css-selector-value'
+
 interface Props {
   nodeId: string
 }
 
 const { nodeId } = Astro.props
+const normalizedNodeId = sanitizeCssSelectorValue(nodeId)
 ---
 
-<div class={`emc-node emc-${nodeId}`}><slot /></div>
+<div class={`emc-node emc-${normalizedNodeId}`}><slot /></div>

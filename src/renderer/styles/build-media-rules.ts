@@ -1,14 +1,11 @@
 import type { ResponsiveStyles } from '../../foundation/types/canvas'
 import { buildInlineStyle } from './build-inline-style'
+import { sanitizeCssSelectorValue } from './sanitize-css-selector-value'
 
 const MEDIA_QUERIES = {
   tablet: '(max-width: 1024px)',
   mobile: '(max-width: 767px)',
 } as const
-
-function sanitizeCssSelectorValue(value: string): string {
-  return value.replace(/[^a-zA-Z0-9_-]/g, '_')
-}
 
 export function buildMediaRules(nodeId: string, styles: ResponsiveStyles): string[] {
   return Object.entries(MEDIA_QUERIES).flatMap(([breakpoint, mediaQuery]) => {

@@ -270,6 +270,44 @@ describe('EmCanvasRenderer', () => {
       )
     })
 
+    it('sanitizes malformed widget ids before deriving the wrapper class suffix', async () => {
+      const container = await AstroContainer.create()
+      const html = await container.renderToString(EmCanvasRenderer, {
+        props: {
+          document: {
+            version: 1,
+            settings: {},
+            root: {
+              id: 'root',
+              type: 'section',
+              props: {},
+              styles: {
+                desktop: {},
+              },
+              children: [
+                {
+                  id: 'hero button"]{color:red}body{display:block}/*',
+                  type: 'button',
+                  props: {
+                    label: 'Read more',
+                    href: '/read-more',
+                  },
+                  styles: {
+                    desktop: {},
+                  },
+                  children: [],
+                },
+              ],
+            },
+          },
+        },
+      })
+
+      expect(html).toContain('class="emc-node emc-hero_button___color_red_body_display_block___"')
+      expect(html).not.toContain('class="emc-node emc-hero button')
+      expect(html).not.toContain('class="emc-node emc-hero button&#34;]{color:red}body{display:block}/*"')
+    })
+
     it('keeps widgets pure when their universal wrapper is disabled', async () => {
       const originalDefinition = widgetRegistry.get('button')
 
