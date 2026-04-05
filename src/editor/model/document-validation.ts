@@ -1,7 +1,6 @@
 import { isCanvasNode } from '../../foundation/model/guards'
 import type { CanvasNode } from '../../foundation/types/canvas'
 import type { WidgetDefinition } from '../registry/widget-definition'
-import { widgetRegistry } from '../registry/widget-registry'
 
 export type WidgetDefinitionRegistry = Pick<Map<string, WidgetDefinition>, 'get'>
 
@@ -41,7 +40,7 @@ export function validateInsertChildNode(
   parent: CanvasNode,
   child: CanvasNode,
   root: CanvasNode,
-  registry: WidgetDefinitionRegistry = widgetRegistry,
+  registry: WidgetDefinitionRegistry,
 ): void {
   if (!isCanvasNode(child)) {
     throw new Error('Inserted node must satisfy the canvas node contract')

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import type { CanvasDocument, CanvasNode } from '../../../src/foundation/types/canvas'
 import { createNode, createNodeFromWidgetType, deleteNode, moveNode } from '../../../src/editor/dnd/dnd-operations'
 import { validateInsertChildNode } from '../../../src/editor/model/document-validation'
+import { validateInsertChildNodeWithWidgetRegistry } from '../../../src/editor/model/document-validation-registry'
 import type { WidgetDefinition } from '../../../src/editor/registry/widget-definition'
 
 function createNodeFixture(overrides: Partial<CanvasNode> = {}): CanvasNode {
@@ -204,5 +205,14 @@ describe('document validation registry dependency', () => {
     ])
 
     expect(() => validateInsertChildNode(parent, child, createFixtureDocument().root, registry)).not.toThrow()
+  })
+
+  it('keeps the default widget registry in a transitional adapter outside the core validator', () => {
+    const document = createFixtureDocument()
+    const parent = document.root.children?.[1]
+    const child = createNodeFixture({ id: 'text-1', type: 'text', props: { text: 'Body' } })
+
+    expect(parent).toBeDefined()
+    expect(() => validateInsertChildNodeWithWidgetRegistry(parent!, child, document.root)).not.toThrow()
   })
 })

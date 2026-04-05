@@ -1,9 +1,9 @@
 import { createNodeId } from '../../foundation/shared/ids'
 import type { CanvasDocument, CanvasNode } from '../../foundation/types/canvas'
 import { widgetRegistry } from '../registry/widget-registry'
+import { validateInsertChildNodeWithWidgetRegistry } from '../model/document-validation-registry'
 import { findNodePathById, getNodeAtPath, replaceNodeAtPath } from '../shared/tree-path'
 import { insertChildNode } from '../model/document-mutations'
-import { validateInsertChildNode } from '../model/document-validation'
 
 function removeNodeAtPath(root: CanvasNode, path: number[]): CanvasNode {
   if (path.length === 0) {
@@ -108,7 +108,7 @@ export function moveNode(document: CanvasDocument, nodeId: string, targetParentI
     throw new Error(`Cannot find node '${targetParentId}'`)
   }
 
-  validateInsertChildNode(nextTargetParent, node, documentWithoutNode.root)
+  validateInsertChildNodeWithWidgetRegistry(nextTargetParent, node, documentWithoutNode.root)
 
   return insertChildNode(documentWithoutNode, targetParentId, node)
 }
