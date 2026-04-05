@@ -101,7 +101,7 @@ describe('renderer improvements backlog', () => {
     }
   })
 
-  it('keeps the render model collapse item open until the Astro template no longer branches per node kind', () => {
+  it('closes the render model collapse item once the Astro template stops branching per node kind', () => {
     const renderModelSource = readProjectFile('src/renderer/types/renderer.ts')
     const astroTemplateSource = readProjectFile(
       'src/renderer/astro/CanvasNodeRenderer.astro',
@@ -109,14 +109,11 @@ describe('renderer improvements backlog', () => {
 
     expect(renderModelSource).toContain("category: 'wrapper'")
     expect(renderModelSource).toContain("category: 'leaf'")
-    expect(renderModelSource).toContain('href: string')
-    expect(renderModelSource).toContain('label: string')
+    expect(renderModelSource).toContain('attributes?: Record<string, string | true>')
+    expect(renderModelSource).toContain('textContent?: string')
 
-    expect(astroTemplateSource).toContain("model.kind === 'heading'")
-    expect(astroTemplateSource).toContain("model.kind === 'button'")
-    expect(astroTemplateSource).toContain("model.kind === 'video'")
-    expect(
-      astroTemplateSource.match(/model\.kind ===/g) ?? [],
-    ).not.toHaveLength(0)
+    expect(astroTemplateSource).not.toContain('model.kind ===')
+    expect(astroTemplateSource).toContain("model.category === 'leaf' && model.isVoid")
+    expect(astroTemplateSource).toContain("model.category === 'leaf' && !model.isVoid")
   })
 })

@@ -28,7 +28,62 @@ describe('getComponentRenderer', () => {
       category: 'leaf',
       kind: 'heading',
       tag: 'h4',
-      text: 'Title',
+      textContent: 'Title',
+    })
+  })
+
+  it('returns generic leaf render semantics without per-kind template requirements', () => {
+    const buttonModel = getComponentRenderer('button')({
+      id: 'cta',
+      type: 'button',
+      props: { label: 'Read more', href: '/read-more' },
+      styles: { desktop: {} },
+      children: [],
+    })
+
+    const imageModel = getComponentRenderer('image')({
+      id: 'hero-image',
+      type: 'image',
+      props: { src: '/hero.png', alt: 'Hero' },
+      styles: { desktop: {} },
+      children: [],
+    })
+
+    const videoModel = getComponentRenderer('video')({
+      id: 'hero-video',
+      type: 'video',
+      props: { src: '/hero.mp4' },
+      styles: { desktop: {} },
+      children: [],
+    })
+
+    expect(buttonModel).toEqual({
+      category: 'leaf',
+      kind: 'button',
+      tag: 'a',
+      attributes: {
+        href: '/read-more',
+      },
+      textContent: 'Read more',
+    })
+    expect(imageModel).toEqual({
+      category: 'leaf',
+      kind: 'image',
+      tag: 'img',
+      attributes: {
+        src: '/hero.png',
+        alt: 'Hero',
+      },
+      isVoid: true,
+    })
+    expect(videoModel).toEqual({
+      category: 'leaf',
+      kind: 'video',
+      tag: 'video',
+      attributes: {
+        src: '/hero.mp4',
+        controls: true,
+      },
     })
   })
 

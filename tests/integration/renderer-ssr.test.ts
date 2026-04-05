@@ -1,5 +1,6 @@
 // @vitest-environment node
 
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import EmCanvasRenderer from '../../src/renderer/astro/EmCanvasRenderer.astro'
@@ -166,5 +167,11 @@ describe('EmCanvasRenderer', () => {
     expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="root"]{padding:12px;}}')
     expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="hero-columns"]{gap:8px;}}')
     expect(html).toContain('@media (max-width: 1024px){[data-emcanvas-node="hero-copy"]{max-width:100%;}}')
+  })
+
+  it('keeps CanvasNodeRenderer driven by generic render model branches only', () => {
+    const source = readFileSync('src/renderer/astro/CanvasNodeRenderer.astro', 'utf8')
+
+    expect(source).not.toContain('model.kind ===')
   })
 })

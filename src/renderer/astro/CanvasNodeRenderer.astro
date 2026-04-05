@@ -11,6 +11,7 @@ const { node } = Astro.props
 const model = getComponentRenderer(node.type)(node)
 const style = buildInlineStyle(node.styles.desktop) || undefined
 const Tag = model.tag as keyof HTMLElementTagNameMap
+const attributes = model.category === 'leaf' ? model.attributes : undefined
 ---
 
 {model.category === 'wrapper' && (
@@ -19,30 +20,12 @@ const Tag = model.tag as keyof HTMLElementTagNameMap
   </Tag>
 )}
 
-{model.kind === 'heading' && (
-  <Tag data-emcanvas-node={node.id} style={style}>
-    {model.text}
+{model.category === 'leaf' && model.isVoid && (
+  <Tag data-emcanvas-node={node.id} {...attributes} style={style} />
+)}
+
+{model.category === 'leaf' && !model.isVoid && (
+  <Tag data-emcanvas-node={node.id} {...attributes} style={style}>
+    {model.textContent}
   </Tag>
 )}
-
-{model.kind === 'text' && (
-  <Tag data-emcanvas-node={node.id} style={style}>
-    {model.text}
-  </Tag>
-)}
-
-{model.kind === 'button' && (
-  <Tag data-emcanvas-node={node.id} href={model.href} style={style}>
-    {model.label}
-  </Tag>
-)}
-
-{model.kind === 'spacer' && <Tag data-emcanvas-node={node.id} aria-hidden="true" style={style}></Tag>}
-
-{model.kind === 'divider' && <Tag data-emcanvas-node={node.id} style={style} />}
-
-{model.kind === 'image' && (
-  <Tag data-emcanvas-node={node.id} src={model.src} alt={model.alt} style={style} />
-)}
-
-{model.kind === 'video' && <Tag data-emcanvas-node={node.id} src={model.src} controls style={style}></Tag>}

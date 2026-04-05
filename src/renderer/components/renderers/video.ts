@@ -4,5 +4,8 @@ export const renderVideoNode: CanvasNodeRenderer = (node) => ({
   category: 'leaf',
   kind: 'video',
   tag: 'video',
-  src: typeof node.props.src === 'string' ? node.props.src : '',
+  attributes: {
+    src: typeof node.props.src === 'string' ? node.props.src : '',
+    controls: true,
+  },
 })
