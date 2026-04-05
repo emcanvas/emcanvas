@@ -1,6 +1,6 @@
 // @vitest-environment node
 
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { experimental_AstroContainer as AstroContainer } from 'astro/container'
@@ -15,6 +15,24 @@ const testDir = dirname(fileURLToPath(import.meta.url))
 function readProjectFile(relativePath: string) {
   return readFileSync(resolve(testDir, '..', '..', relativePath), 'utf8')
 }
+
+function readRendererAstroSources() {
+  const rendererAstroDir = resolve(testDir, '..', '..', 'src', 'renderer', 'astro')
+
+  return readdirSync(rendererAstroDir)
+    .filter((fileName: string) => fileName.endsWith('.astro'))
+    .map((fileName: string) => ({
+      fileName,
+      source: readFileSync(resolve(rendererAstroDir, fileName), 'utf8'),
+    }))
+}
+
+const rendererBranchingPatterns = [
+  /getComponentRenderer\(node\.type\)/,
+  /switch\s*\(\s*node\.type\s*\)/,
+  /node\.type\s*(===|==|!==|!=)/,
+  /case\s+['"](?:section|columns|container|heading|text|button|image|video|spacer|divider)['"]/,
+]
 
 describe('renderer improvements backlog', () => {
   it('documents which renderer improvements are already covered in code', async () => {
@@ -81,22 +99,25 @@ describe('renderer improvements backlog', () => {
 
   it('closes the universal blind renderer item once the Astro template stops branching per node kind', () => {
     const renderModelSource = readProjectFile('src/renderer/types/renderer.ts')
-    const astroTemplateSource = readProjectFile(
-      'src/renderer/astro/CanvasNodeRenderer.astro',
-    )
+    const rendererAstroSources = readRendererAstroSources()
 
     expect(renderModelSource).toContain("category: 'wrapper'")
     expect(renderModelSource).toContain("category: 'leaf'")
     expect(renderModelSource).toContain('attributes?: Record<string, string | true>')
     expect(renderModelSource).toContain('textContent?: string')
 
-    expect(astroTemplateSource).toContain('getAstroComponent(node.type)')
-    expect(astroTemplateSource).not.toContain('getComponentRenderer(node.type)')
-    expect(astroTemplateSource).not.toContain('switch (node.type)')
-    expect(astroTemplateSource).not.toContain("case 'heading'")
-    expect(astroTemplateSource).not.toContain("case 'text'")
-    expect(astroTemplateSource).not.toContain("case 'button'")
-    expect(astroTemplateSource).not.toContain("case 'image'")
-    expect(astroTemplateSource).not.toContain("case 'video'")
+    expect(
+      rendererAstroSources.some(({ source }: { source: string }) =>
+        source.includes('getAstroComponent(node.type)'),
+      ),
+    ).toBe(true)
+
+    for (const { fileName, source } of rendererAstroSources) {
+      for (const pattern of rendererBranchingPatterns) {
+        expect(source, `${fileName} should stay blind to concrete node types`).not.toMatch(
+          pattern,
+        )
+      }
+    }
   })
 })

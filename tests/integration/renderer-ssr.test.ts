@@ -1,9 +1,16 @@
 // @vitest-environment node
 
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import EmCanvasRenderer from '../../src/renderer/astro/EmCanvasRenderer.astro'
+
+const rendererBranchingPatterns = [
+  /getComponentRenderer\(node\.type\)/,
+  /switch\s*\(\s*node\.type\s*\)/,
+  /node\.type\s*(===|==|!==|!=)/,
+  /case\s+['"](?:section|columns|container|heading|text|button|image|video|spacer|divider)['"]/,
+]
 
 describe('EmCanvasRenderer', () => {
   it('renders MVP nodes recursively in SSR output', async () => {
@@ -223,16 +230,27 @@ describe('EmCanvasRenderer', () => {
     expect(html).not.toContain(' provider="youtube"')
   })
 
-  it('keeps CanvasNodeRenderer driven by generic render model branches only', () => {
-    const source = readFileSync('src/renderer/astro/CanvasNodeRenderer.astro', 'utf8')
+  it('keeps renderer-layer Astro files blind to concrete node types', () => {
+    const rendererAstroDir = 'src/renderer/astro'
+    const astroFiles = readdirSync(rendererAstroDir)
+      .filter((fileName: string) => fileName.endsWith('.astro'))
+      .map((fileName: string) => ({
+        fileName,
+        source: readFileSync(`${rendererAstroDir}/${fileName}`, 'utf8'),
+      }))
 
-    expect(source).toContain('getAstroComponent(node.type)')
-    expect(source).not.toContain('getComponentRenderer(node.type)')
-    expect(source).not.toContain('switch (node.type)')
-    expect(source).not.toContain("case 'heading'")
-    expect(source).not.toContain("case 'text'")
-    expect(source).not.toContain("case 'button'")
-    expect(source).not.toContain("case 'image'")
-    expect(source).not.toContain("case 'video'")
+    expect(
+      astroFiles.some(({ source }: { source: string }) =>
+        source.includes('getAstroComponent(node.type)'),
+      ),
+    ).toBe(true)
+
+    for (const { fileName, source } of astroFiles) {
+      for (const pattern of rendererBranchingPatterns) {
+        expect(source, `${fileName} should stay blind to concrete node types`).not.toMatch(
+          pattern,
+        )
+      }
+    }
   })
 })
