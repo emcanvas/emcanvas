@@ -20,7 +20,8 @@
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --check package.json .prettierrc.json tests/contracts/prettier-config.test.ts",
     "prepare": "simple-git-hooks",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "peerDependencies": {
     "react": "^19.0.0",

@@ -6,7 +6,7 @@ After multiple runtime, tooling, and renderer phases, the package surface still 
 
 - `private` + publish-style metadata need a coherent stance
 - `sandbox-entry.ts` may still be a weak passthrough surface
-- basic package scripts are incomplete for day-to-day maintenance (`type-check`, `test:watch`)
+- basic package scripts are not fully honest about supported day-to-day maintenance workflows
 
 This phase is not about changing product behavior. It is about making the package and its public surfaces internally coherent.
 
@@ -30,4 +30,4 @@ After this phase:
 
 - package metadata no longer contradicts itself
 - `sandbox-entry.ts` has a justified contract or is reduced appropriately
-- baseline maintenance scripts exist and are tested
+- baseline maintenance scripts are honest and tested
