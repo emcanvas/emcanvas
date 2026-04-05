@@ -1,16 +1,13 @@
 // @vitest-environment node
 
 import { fileURLToPath } from 'node:url'
-import type { UserConfig, UserConfigFnObject } from 'vite'
 import { describe, expect, it } from 'vitest'
 import tsconfig from '../../tsconfig.json'
-import viteConfig from '../../vite.config'
-import viteConfigSource from '../../vite.config.ts?raw'
-
-type AliasEntry = {
-  find: string
-  replacement: string
-}
+import {
+  EMCANVAS_VITE_ALIASES,
+  readViteConfigSource,
+  VITE_CONFIG_SOURCE_PATH,
+} from '../../vite.config'
 
 describe('path alias config', () => {
   it('defines the main emcanvas aliases', () => {
@@ -25,53 +22,34 @@ describe('path alias config', () => {
     expect(tsconfig.compilerOptions.paths['@emcanvas/plugin/*']).toBeDefined()
   })
 
-  it('keeps the Vite alias map aligned with tsconfig', async () => {
+  it('keeps the Vite alias map aligned with tsconfig', () => {
     const expectedAliases = Object.fromEntries(
-      Object.entries(tsconfig.compilerOptions.paths).map(([alias, [target]]) => [
-        alias.replace(/\/\*$/, ''),
-        fileURLToPath(
-          new URL(`../../${target.replace(/\/\*$/, '')}`, import.meta.url),
-        ),
-      ]),
+      Object.entries(tsconfig.compilerOptions.paths).map(
+        ([alias, [target]]) => [
+          alias.replace(/\/\*$/, ''),
+          fileURLToPath(
+            new URL(`../../${target.replace(/\/\*$/, '')}`, import.meta.url),
+          ),
+        ],
+      ),
     )
 
-    const viteConfigFactory = viteConfig as UserConfigFnObject
-
-    const resolvedViteConfig: UserConfig =
-      typeof viteConfig === 'function'
-        ? await viteConfigFactory({
-            command: 'serve',
-            mode: 'test',
-            isSsrBuild: false,
-            isPreview: false,
-          })
-        : viteConfig
-
-    const aliasEntries: AliasEntry[] = Array.isArray(resolvedViteConfig.resolve?.alias)
-      ? resolvedViteConfig.resolve.alias.filter(
-          (entry: unknown): entry is AliasEntry =>
-            typeof entry === 'object' &&
-            entry !== null &&
-            'find' in entry &&
-            'replacement' in entry &&
-            typeof entry.find === 'string' &&
-            typeof entry.replacement === 'string',
-        )
-      : Object.entries(resolvedViteConfig.resolve?.alias ?? {}).map(
-          ([find, replacement]) => ({ find, replacement: String(replacement) }),
-        )
-
-    const emcanvasAliases = Object.fromEntries(
-      aliasEntries
-        .filter((entry) => entry.find.startsWith('@emcanvas/'))
-        .map(({ find, replacement }) => [find, replacement]),
-    )
-
-    expect(emcanvasAliases).toEqual(expectedAliases)
+    expect(EMCANVAS_VITE_ALIASES).toEqual(expectedAliases)
   })
 
   it('uses fileURLToPath for portable Vite aliases', () => {
+    const viteConfigSource = readViteConfigSource()
+
+    expect(VITE_CONFIG_SOURCE_PATH).toContain('/vite.config.ts')
     expect(viteConfigSource).toContain('fileURLToPath(new URL(')
     expect(viteConfigSource).not.toContain('.pathname')
+  })
+
+  it('fails explicitly when the Vite config source cannot be read', () => {
+    expect(() =>
+      readViteConfigSource(`${VITE_CONFIG_SOURCE_PATH}.missing`),
+    ).toThrow(
+      `Unable to read Vite config source at ${VITE_CONFIG_SOURCE_PATH}.missing`,
+    )
   })
 })

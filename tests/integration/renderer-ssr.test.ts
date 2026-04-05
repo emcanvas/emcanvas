@@ -1,8 +1,10 @@
 // @vitest-environment node
 
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { experimental_AstroContainer as AstroContainer } from 'astro/container'
+import { ASTRO_TEST_SRC_DIR } from '../../vite.config'
 import { widgetRegistry } from '../../src/editor/registry/widget-registry'
 import EmCanvasRenderer from '../../src/renderer/astro/EmCanvasRenderer.astro'
 
@@ -14,6 +16,34 @@ const rendererBranchingPatterns = [
 ]
 
 describe('EmCanvasRenderer', () => {
+  it('keeps Astro-backed SSR tests anchored to the dedicated Astro fixture srcDir', async () => {
+    const fixturePagesDir = fileURLToPath(
+      new URL('../fixtures/astro-src/pages', import.meta.url),
+    )
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(EmCanvasRenderer, {
+      props: {
+        document: {
+          version: 1,
+          settings: {},
+          root: {
+            id: 'root',
+            type: 'section',
+            props: {},
+            styles: {
+              desktop: {},
+            },
+            children: [],
+          },
+        },
+      },
+    })
+
+    expect(ASTRO_TEST_SRC_DIR).toBe('./tests/fixtures/astro-src')
+    expect(existsSync(fixturePagesDir)).toBe(true)
+    expect(html).toContain('data-emcanvas-root')
+  })
+
   it('renders MVP nodes recursively in SSR output', async () => {
     const container = await AstroContainer.create()
     const html = await container.renderToString(EmCanvasRenderer, {

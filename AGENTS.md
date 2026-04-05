@@ -46,7 +46,6 @@ Current state:
 
 ## Current Known Notes
 
-- Astro warning `Missing pages directory: src/pages` appears during tests but does not currently fail the suite.
 - `IMPROVEMENTS.md` contains broader architecture/codebase cleanup opportunities.
 - `renderer-improvements.md` contains renderer-specific ideas beyond the completed renderer hardening phase.
 
