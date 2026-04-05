@@ -17,47 +17,43 @@
 - Modify: `package.json`
 - Create: `tests/contracts/package-metadata-consistency.test.ts`
 
-- [ ] **Step 1: Write the failing package consistency test**
+- [x] **Step 1: Write the failing package consistency test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
 import pkg from '../../package.json'
 
 describe('package metadata consistency', () => {
-  it('defines coherent package metadata and maintenance scripts', () => {
-    expect(pkg.scripts['type-check']).toBeDefined()
+  it('defines honest package metadata and maintenance scripts', () => {
+    expect(pkg.private).toBe(true)
+    expect(pkg.scripts.test).toBe('vitest run')
+    expect(pkg.scripts['type-check']).toBeUndefined()
     expect(pkg.scripts['test:watch']).toBeDefined()
   })
 })
 ```
 
-- [ ] **Step 2: Run the focused contract test**
+- [x] **Step 2: Run the focused contract test**
 
 Run: `pnpm vitest run tests/contracts/package-metadata-consistency.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Add missing maintenance scripts and align metadata stance**
+- [x] **Step 3: Remove the dishonest maintenance script and align metadata stance**
 
 ```json
 {
   "scripts": {
-    "type-check": "tsc --noEmit",
     "test:watch": "vitest"
   }
 }
 ```
 
-- [ ] **Step 4: Run the focused contract test**
+- [x] **Step 4: Run the focused contract test**
 
 Run: `pnpm vitest run tests/contracts/package-metadata-consistency.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
-
-```bash
-git add package.json tests/contracts/package-metadata-consistency.test.ts
-git commit -m "chore: align package metadata and maintenance scripts"
-```
+- [x] **Step 5: Leave changes uncommitted unless explicitly requested**
 
 ---
 

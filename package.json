@@ -21,7 +21,6 @@
     "format": "prettier --check package.json .prettierrc.json tests/contracts/prettier-config.test.ts",
     "prepare": "simple-git-hooks",
     "test": "vitest run",
-    "type-check": "tsc --noEmit",
     "test:watch": "vitest"
   },
   "peerDependencies": {

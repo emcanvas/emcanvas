@@ -7,10 +7,10 @@ const packageJson = pkg as {
 }
 
 describe('package metadata consistency', () => {
-  it('defines coherent package metadata and maintenance scripts', () => {
+  it('defines honest package metadata and maintenance scripts', () => {
     expect(packageJson.private).toBe(true)
     expect(packageJson.scripts?.test).toBe('vitest run')
-    expect(packageJson.scripts?.['type-check']).toBeDefined()
+    expect(packageJson.scripts?.['type-check']).toBeUndefined()
     expect(packageJson.scripts?.['test:watch']).toBeDefined()
   })
 })
