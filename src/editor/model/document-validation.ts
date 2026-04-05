@@ -1,9 +1,12 @@
 import { isCanvasNode } from '../../foundation/model/guards'
 import type { CanvasNode } from '../../foundation/types/canvas'
+import type { WidgetDefinition } from '../registry/widget-definition'
 import { widgetRegistry } from '../registry/widget-registry'
 
-function getWidgetDefinition(type: string) {
-  const definition = widgetRegistry.get(type)
+export type WidgetDefinitionRegistry = Pick<Map<string, WidgetDefinition>, 'get'>
+
+function getWidgetDefinition(type: string, registry: WidgetDefinitionRegistry) {
+  const definition = registry.get(type)
 
   if (!definition) {
     throw new Error(`Unknown widget type: '${type}'`)
@@ -34,7 +37,12 @@ function collectNodeIds(node: CanvasNode, ids: Set<string> = new Set<string>()):
   return ids
 }
 
-export function validateInsertChildNode(parent: CanvasNode, child: CanvasNode, root: CanvasNode): void {
+export function validateInsertChildNode(
+  parent: CanvasNode,
+  child: CanvasNode,
+  root: CanvasNode,
+  registry: WidgetDefinitionRegistry = widgetRegistry,
+): void {
   if (!isCanvasNode(child)) {
     throw new Error('Inserted node must satisfy the canvas node contract')
   }
@@ -45,8 +53,8 @@ export function validateInsertChildNode(parent: CanvasNode, child: CanvasNode, r
     }
   }
 
-  const parentDefinition = getWidgetDefinition(parent.type)
-  getWidgetDefinition(child.type)
+  const parentDefinition = getWidgetDefinition(parent.type, registry)
+  getWidgetDefinition(child.type, registry)
 
   if (parentDefinition.allowedChildren === 'none' || parentDefinition.allowedChildren === undefined) {
     throw new Error(`Node '${parent.id}' of type '${parent.type}' cannot accept children`)

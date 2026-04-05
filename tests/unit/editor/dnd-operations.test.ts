@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import type { CanvasDocument, CanvasNode } from '../../../src/foundation/types/canvas'
 import { createNode, createNodeFromWidgetType, deleteNode, moveNode } from '../../../src/editor/dnd/dnd-operations'
+import { validateInsertChildNode } from '../../../src/editor/model/document-validation'
+import type { WidgetDefinition } from '../../../src/editor/registry/widget-definition'
 
 function createNodeFixture(overrides: Partial<CanvasNode> = {}): CanvasNode {
   return {
@@ -167,5 +169,40 @@ describe('moveNode', () => {
     expect(() => moveNode(document, 'columns-1', 'container-1')).toThrow(
       "Node 'columns-1' cannot be moved into its own descendant",
     )
+  })
+})
+
+describe('document validation registry dependency', () => {
+  it('does not require the global widget registry singleton to validate insertions', () => {
+    const parent = createNodeFixture({ id: 'parent-1', type: 'custom-parent' })
+    const child = createNodeFixture({ id: 'child-1', type: 'custom-child' })
+    const registry = new Map<string, WidgetDefinition>([
+      [
+        'custom-parent',
+        {
+          type: 'custom-parent',
+          label: 'Custom Parent',
+          category: 'layout',
+          defaultProps: {},
+          propSchema: [],
+          allowedChildren: ['custom-child'],
+          disableBaseWrapper: false,
+        },
+      ],
+      [
+        'custom-child',
+        {
+          type: 'custom-child',
+          label: 'Custom Child',
+          category: 'content',
+          defaultProps: {},
+          propSchema: [],
+          allowedChildren: 'none',
+          disableBaseWrapper: false,
+        },
+      ],
+    ])
+
+    expect(() => validateInsertChildNode(parent, child, createFixtureDocument().root, registry)).not.toThrow()
   })
 })
