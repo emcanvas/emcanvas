@@ -5,6 +5,7 @@
 EmCanvas is a visual page builder for EmDash CMS.
 
 Current state:
+
 - MVP implemented and tested
 - runtime/plugin packaging adapted for EmDash consumption
 - renderer hardening phase completed
@@ -30,7 +31,7 @@ Current state:
 - Keep renderer semantics single-source-of-truth.
 - Avoid hidden fallbacks at boundaries.
 - **State Memory**: Use `immer` (or Zustand) to mutate the editor JSON tree immutably, avoiding deep-clone performance hits during Undo/Redo.
-- **CSS Strategy**: Rely on global minimal CSS mapped via inline CSS Custom Properties for responsive layouts. Avoid standard inline styles or heavy CSS-in-JS parsers in SSR.
+- **CSS Strategy**: Generate a scoped page-level stylesheet dynamically during SSR and inject it via EmDash's `page:fragments`. Strictly avoid inline `style="..."` properties. Universally enforce the `emc-` prefix for all CSS classes (e.g., `.emc-node`, `.emc-[node.id]`).
 - **Defensive Rendering**: Always parse incoming `entry.data` JSON via structural schemas (e.g. Zod) in the SSR layer to prevent catastrophic crashing (HTTP 500) from corrupted payloads.
 - **Widget Schemas**: Expose widget configuration schemas using standard JSON Schema to automate Property Inspector UI generation.
 

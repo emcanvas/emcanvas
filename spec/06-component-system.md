@@ -15,6 +15,7 @@ interface WidgetDefinition {
   defaultProps: Record<string, unknown>
   propSchema: Record<string, unknown> // Subconjunto de JSON Schema estándar en lugar de interfaces custom
   allowedChildren?: string[] | 'any' | 'none'
+  disableBaseWrapper?: boolean // Excluye al componente del Universal Base Wrapper (Advanced Tab)
 }
 ```
 

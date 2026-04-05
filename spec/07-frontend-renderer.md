@@ -11,9 +11,12 @@ Este nodo es **arquitectónicamente ciego y universal**: carga automáticamente 
 
 ## Estrategia CSS
 
-- Estilos basados puramente en **CSS Custom Properties en línea** (ej: `style="--mobile-width: 100%; --desktop-width: 50%"`) para evitar parseos pesados en SSR.
-- Responsive soportado con una única hoja de estilos global mínima que lee estas propiedades y aplica los media queries (ej: `@media (max-width: 768px) { width: var(--mobile-width); }`).
-- Esto evita el problema de que estilos en línea tradicionales no soporten breakpoints o `:hover`, sin requerir inyectar tags `<style>` por cada componente renderizado.
+## Estrategia CSS
+
+- **Sin estilos en línea**: Por legibilidad del DOM, escalabilidad y estricta seguridad (CSP), se prohíbe el uso intensivo del atributo `style="..."` en los nodos renderizados.
+- Se procesa el árbol de nodos JSON generando una única serie de clases mapeadas (e.g., `.emc-hash123`) correspondientes a la configuración de cada componente.
+- Todos esos estilos (`margin`, `display`, media queries responsivas, estados `:hover`) se compilan en un único bloque estático de texto CSS durante el proceso de renderizado (SSR).
+- Este bloque se inyecta globalmente encapsulado a través del hook `page:fragments`, produciendo una hoja de estilos unificada por página.
 
 ## Integración con EmDash
 
