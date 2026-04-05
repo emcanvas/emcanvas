@@ -19,7 +19,7 @@ const Component = getAstroComponent(node.type)
     {node.children.map((child) => <Astro.self node={child} />)}
   </Component>
 ) : (
-  <BaseWidgetWrapper nodeId={node.id}>
+  <BaseWidgetWrapper nodeId={node.id} advancedProps={node.advancedProps}>
     <Component {...node.componentProps}>
       {node.children.map((child) => <Astro.self node={child} />)}
     </Component>

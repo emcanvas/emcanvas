@@ -361,6 +361,52 @@ describe('EmCanvasRenderer', () => {
         widgetRegistry.set('button', originalDefinition)
       }
     })
+
+    it('renders css id, css classes, and basic visibility metadata from advanced props', async () => {
+      const container = await AstroContainer.create()
+      const html = await container.renderToString(EmCanvasRenderer, {
+        props: {
+          document: {
+            version: 1,
+            settings: {},
+            root: {
+              id: 'root',
+              type: 'section',
+              props: {},
+              styles: {
+                desktop: {},
+              },
+              children: [
+                {
+                  id: 'hero-button',
+                  type: 'button',
+                  props: {
+                    label: 'Read more',
+                    href: '/read-more',
+                  },
+                  advancedProps: {
+                    cssId: 'hero-cta',
+                    cssClasses: ['custom-hero', 'layout-block'],
+                    visibility: {
+                      hideOnTablet: true,
+                      hideOnMobile: true,
+                    },
+                  },
+                  styles: {
+                    desktop: {},
+                  },
+                  children: [],
+                },
+              ],
+            },
+          },
+        },
+      })
+
+      expect(html).toMatch(
+        /<div(?=[^>]*id="hero-cta")(?=[^>]*class="emc-node emc-hero-button custom-hero layout-block emc-hide-tablet emc-hide-mobile")(?=[^>]*data-emcanvas-hide-on-tablet="true")(?=[^>]*data-emcanvas-hide-on-mobile="true")[^>]*><a(?=[^>]*data-emcanvas-node="hero-button")(?=[^>]*href="\/read-more")[^>]*>Read more<\/a><\/div>/,
+      )
+    })
   })
 
   it('keeps renderer-layer Astro files blind to concrete node types', () => {

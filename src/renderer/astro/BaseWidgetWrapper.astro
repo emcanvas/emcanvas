@@ -1,12 +1,39 @@
 ---
+import type { BaseWidgetProps } from '../../foundation/types/canvas'
 import { sanitizeCssSelectorValue } from '../styles/sanitize-css-selector-value'
 
 interface Props {
   nodeId: string
+  advancedProps?: BaseWidgetProps
 }
 
-const { nodeId } = Astro.props
+const { nodeId, advancedProps } = Astro.props
 const normalizedNodeId = sanitizeCssSelectorValue(nodeId)
+const normalizedCssId = advancedProps?.cssId?.trim()
+const normalizedCssClasses = (advancedProps?.cssClasses ?? [])
+  .map((className) => className.trim())
+  .filter(Boolean)
+  .map((className) => sanitizeCssSelectorValue(className))
+
+const visibility = advancedProps?.visibility
+const hideOnDesktop = visibility?.hideOnDesktop === true
+const hideOnTablet = visibility?.hideOnTablet === true
+const hideOnMobile = visibility?.hideOnMobile === true
+
+const className = [
+  'emc-node',
+  `emc-${normalizedNodeId}`,
+  ...normalizedCssClasses,
+  ...(hideOnDesktop ? ['emc-hide-desktop'] : []),
+  ...(hideOnTablet ? ['emc-hide-tablet'] : []),
+  ...(hideOnMobile ? ['emc-hide-mobile'] : []),
+].join(' ')
 ---
 
-<div class={`emc-node emc-${normalizedNodeId}`}><slot /></div>
+<div
+  class={className}
+  id={normalizedCssId}
+  data-emcanvas-hide-on-desktop={hideOnDesktop ? 'true' : undefined}
+  data-emcanvas-hide-on-tablet={hideOnTablet ? 'true' : undefined}
+  data-emcanvas-hide-on-mobile={hideOnMobile ? 'true' : undefined}
+><slot /></div>
