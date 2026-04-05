@@ -1,7 +1,7 @@
 import { createNodeId } from '../../foundation/shared/ids'
 import type { CanvasDocument, CanvasNode } from '../../foundation/types/canvas'
+import { validateInsertChildNode } from '../model/document-validation'
 import { widgetRegistry } from '../registry/widget-registry'
-import { validateInsertChildNodeWithWidgetRegistry } from '../model/document-validation-registry'
 import { findNodePathById, getNodeAtPath, replaceNodeAtPath } from '../shared/tree-path'
 import { insertChildNode } from '../model/document-mutations'
 
@@ -44,7 +44,7 @@ export function createNodeFromWidgetType(nodeType: string): CanvasNode {
 }
 
 export function createNode(document: CanvasDocument, parentId: string, nodeType: string): CanvasDocument {
-  return insertChildNode(document, parentId, createNodeFromWidgetType(nodeType))
+  return insertChildNode(document, parentId, createNodeFromWidgetType(nodeType), widgetRegistry)
 }
 
 export function deleteNode(document: CanvasDocument, nodeId: string): CanvasDocument {
@@ -108,7 +108,7 @@ export function moveNode(document: CanvasDocument, nodeId: string, targetParentI
     throw new Error(`Cannot find node '${targetParentId}'`)
   }
 
-  validateInsertChildNodeWithWidgetRegistry(nextTargetParent, node, documentWithoutNode.root)
+  validateInsertChildNode(nextTargetParent, node, documentWithoutNode.root, widgetRegistry)
 
-  return insertChildNode(documentWithoutNode, targetParentId, node)
+  return insertChildNode(documentWithoutNode, targetParentId, node, widgetRegistry)
 }

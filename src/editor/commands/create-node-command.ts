@@ -1,4 +1,5 @@
 import type { CanvasDocument, CanvasNode } from '../../foundation/types/canvas'
+import { widgetRegistry } from '../registry/widget-registry'
 import type { Command } from './command'
 import { insertChildNode } from '../model/document-mutations'
 
@@ -17,7 +18,9 @@ export class CreateNodeCommand implements Command {
   execute(): void {
     const currentDocument = this.options.getDocument()
     this.previousDocument = currentDocument
-    this.options.setDocument(insertChildNode(currentDocument, this.options.parentId, this.options.node))
+    this.options.setDocument(
+      insertChildNode(currentDocument, this.options.parentId, this.options.node, widgetRegistry),
+    )
   }
 
   undo(): void {

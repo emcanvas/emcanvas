@@ -1,6 +1,6 @@
 import type { CanvasDocument, CanvasNode } from '../../foundation/types/canvas'
 import { getNodeAtPath, findNodePathById, replaceNodeAtPath } from '../shared/tree-path'
-import { validateInsertChildNodeWithWidgetRegistry } from './document-validation-registry'
+import { validateInsertChildNode, type WidgetDefinitionRegistry } from './document-validation'
 
 function cloneNode(node: CanvasNode): CanvasNode {
   return {
@@ -19,6 +19,7 @@ export function insertChildNode(
   document: CanvasDocument,
   parentId: string,
   node: CanvasNode,
+  registry: WidgetDefinitionRegistry,
 ): CanvasDocument {
   const path = findNodePathById(document.root, parentId)
 
@@ -32,7 +33,7 @@ export function insertChildNode(
     throw new Error(`Cannot find node '${parentId}'`)
   }
 
-  validateInsertChildNodeWithWidgetRegistry(parentNode, node, document.root)
+  validateInsertChildNode(parentNode, node, document.root, registry)
 
   return {
     ...document,
