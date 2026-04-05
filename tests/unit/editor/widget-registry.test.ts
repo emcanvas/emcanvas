@@ -64,6 +64,13 @@ describe('widgetRegistry', () => {
     expectTypeOf<WidgetDefinition['propSchema'][number]>().toEqualTypeOf<WidgetPropSchemaItem>()
   })
 
+  it('makes base wrapper participation explicit for every widget', () => {
+    for (const definition of widgetRegistry.values()) {
+      expect(definition).toHaveProperty('disableBaseWrapper')
+      expectTypeOf(definition.disableBaseWrapper).toEqualTypeOf<boolean | undefined>()
+    }
+  })
+
   it('throws when two widgets share the same type', async () => {
     await expect(
       import('../../../src/editor/registry/widget-registry').then(({ createWidgetRegistry }) =>

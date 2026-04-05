@@ -22,4 +22,5 @@ export const headingWidget: WidgetDefinition = {
     },
   ],
   allowedChildren: 'none',
+  disableBaseWrapper: false,
 }

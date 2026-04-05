@@ -20,4 +20,5 @@ export const imageWidget: WidgetDefinition = {
     },
   ],
   allowedChildren: 'none',
+  disableBaseWrapper: false,
 }

@@ -17,4 +17,5 @@ export const columnsWidget: WidgetDefinition = {
     },
   ],
   allowedChildren: ['container'],
+  disableBaseWrapper: false,
 }

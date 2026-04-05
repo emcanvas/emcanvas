@@ -34,4 +34,5 @@ export const videoWidget: WidgetDefinition = {
     },
   ],
   allowedChildren: 'none',
+  disableBaseWrapper: false,
 }

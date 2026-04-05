@@ -16,4 +16,5 @@ export interface WidgetDefinition {
   defaultProps: Record<string, unknown>
   propSchema: WidgetPropSchemaItem[]
   allowedChildren?: string[] | 'any' | 'none'
+  disableBaseWrapper?: boolean
 }

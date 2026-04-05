@@ -20,4 +20,5 @@ export const buttonWidget: WidgetDefinition = {
     },
   ],
   allowedChildren: 'none',
+  disableBaseWrapper: false,
 }

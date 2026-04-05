@@ -15,4 +15,5 @@ export const textWidget: WidgetDefinition = {
     },
   ],
   allowedChildren: 'none',
+  disableBaseWrapper: false,
 }

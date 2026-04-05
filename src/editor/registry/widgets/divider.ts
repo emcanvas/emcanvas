@@ -8,4 +8,5 @@ export const dividerWidget: WidgetDefinition = {
   defaultProps: {},
   propSchema: [],
   allowedChildren: 'none',
+  disableBaseWrapper: false,
 }

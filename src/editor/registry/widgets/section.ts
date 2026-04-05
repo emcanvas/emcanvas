@@ -8,4 +8,5 @@ export const sectionWidget: WidgetDefinition = {
   defaultProps: {},
   propSchema: [],
   allowedChildren: 'any',
+  disableBaseWrapper: false,
 }
