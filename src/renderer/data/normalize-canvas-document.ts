@@ -1,9 +1,9 @@
-import { isCanvasDocument } from '@emcanvas/foundation/model/guards'
 import type { CanvasNode } from '@emcanvas/foundation/types/canvas'
 import type {
   NormalizedCanvasDocument,
   NormalizedCanvasNode,
 } from '@emcanvas/renderer/types/renderer'
+import { parseCanvasDocument } from './canvas-document-schema'
 
 function cloneJsonValue<T>(value: T): T {
   if (Array.isArray(value)) {
@@ -33,13 +33,15 @@ function normalizeNode(node: CanvasNode): NormalizedCanvasNode {
 }
 
 export function normalizeCanvasDocument(value: unknown): NormalizedCanvasDocument | null {
-  if (!isCanvasDocument(value)) {
+  const result = parseCanvasDocument(value)
+
+  if (!result.success) {
     return null
   }
 
   return {
-    ...value,
-    settings: cloneJsonValue(value.settings),
-    root: normalizeNode(value.root),
+    ...result.data,
+    settings: cloneJsonValue(result.data.settings),
+    root: normalizeNode(result.data.root),
   }
 }

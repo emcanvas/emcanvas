@@ -74,6 +74,32 @@ describe('getCanvasEntryState', () => {
     })
   })
 
+  it('fails safe instead of rendering when the persisted document contains non-JSON props', () => {
+    const state = getCanvasEntryState({
+      [EMCANVAS_ENTRY_META_KEY]: {
+        enabled: true,
+        version: CANVAS_DOCUMENT_VERSION,
+        editorVersion: EMCANVAS_EDITOR_VERSION,
+      },
+      [EMCANVAS_LAYOUT_KEY]: {
+        version: CANVAS_DOCUMENT_VERSION,
+        root: {
+          id: 'root',
+          type: 'section',
+          props: {
+            unsafe: () => 'boom',
+          },
+          styles: { desktop: {} },
+          children: [],
+        },
+        settings: {},
+      },
+    })
+
+    expect(state.shouldRender).toBe(false)
+    expect(state.document).toBeNull()
+  })
+
   it('does not render when the layout payload is invalid', () => {
     const state = getCanvasEntryState({
       [EMCANVAS_ENTRY_META_KEY]: {
