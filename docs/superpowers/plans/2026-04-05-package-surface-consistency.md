@@ -52,7 +52,7 @@ Expected: FAIL
 Run: `pnpm vitest run tests/contracts/package-metadata-consistency.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add package.json tests/contracts/package-metadata-consistency.test.ts
