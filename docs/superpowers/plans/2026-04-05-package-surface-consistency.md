@@ -93,7 +93,7 @@ Expected: FAIL or reveal current passthrough ambiguity.
 Run: `pnpm vitest run tests/contracts/plugin-public-exports.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/plugin/sandbox-entry.ts tests/contracts/plugin-public-exports.test.ts
