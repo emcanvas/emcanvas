@@ -10,18 +10,11 @@ import {
 import type { CanvasDocument } from '../../src/foundation/types/canvas'
 import { buildEntryPayload } from '../../src/editor/persistence/entry-payload'
 import { loadDocumentWithPort } from '../../src/editor/persistence/load-document'
+import type { PersistencePort } from '../../src/editor/persistence/persistence-port'
 import { saveDocumentWithPort } from '../../src/editor/persistence/save-document'
 import { createAutosaveController } from '../../src/editor/state/autosave-controller'
 import { createEditorStore } from '../../src/editor/state/editor-store'
-
-interface TestPersistencePort {
-  loadDocument: (args: { entry: { data: Record<string, unknown> } }) => Promise<unknown>
-  saveDocument: (args: {
-    entry: { data: Record<string, unknown> }
-    payload: Record<string, unknown>
-  }) => Promise<unknown>
-  getPreviewLink: (args: { entry: { data: Record<string, unknown> }; origin?: string }) => string
-}
+import type { CanvasEntry } from '../../src/shared/types/canvas-entry'
 
 afterEach(() => {
   vi.useRealTimers()
@@ -29,14 +22,14 @@ afterEach(() => {
 
 describe('editor save flow', () => {
   it('lets editor persistence depend on an injected port instead of plugin runtime imports', async () => {
-    const entry = {
+    const entry: CanvasEntry = {
       data: {
         slug: 'home',
       },
     }
     const canvasLayout = createDefaultCanvasDocument()
-    const port: TestPersistencePort = {
-      loadDocument: vi.fn().mockResolvedValue({
+    const port: PersistencePort = {
+      loadDocument: vi.fn<PersistencePort['loadDocument']>().mockResolvedValue({
         canvasLayout,
         _emcanvas: {
           enabled: true,
@@ -44,10 +37,14 @@ describe('editor save flow', () => {
           editorVersion: EMCANVAS_EDITOR_VERSION,
         },
       }),
-      saveDocument: vi.fn().mockResolvedValue({
+      saveDocument: vi.fn<PersistencePort['saveDocument']>().mockResolvedValue({
         ...entry.data,
       }),
-      getPreviewLink: vi.fn().mockReturnValue('https://example.test/preview?slug=home&source=emcanvas'),
+      getPreviewLink: vi
+        .fn<PersistencePort['getPreviewLink']>()
+        .mockReturnValue(
+          'https://example.test/preview?slug=home&source=emcanvas',
+        ),
     }
 
     await expect(loadDocumentWithPort(entry, port)).resolves.toEqual({
@@ -58,7 +55,9 @@ describe('editor save flow', () => {
         editorVersion: EMCANVAS_EDITOR_VERSION,
       },
     })
-    await expect(saveDocumentWithPort({ entry, canvasLayout }, port)).resolves.toEqual({
+    await expect(
+      saveDocumentWithPort({ entry, canvasLayout }, port),
+    ).resolves.toEqual({
       ...entry.data,
     })
 
@@ -96,20 +95,22 @@ describe('editor save flow', () => {
       version: CANVAS_DOCUMENT_VERSION,
       editorVersion: EMCANVAS_EDITOR_VERSION,
     }
-    const entry = {
+    const entry: CanvasEntry = {
       data: {
         slug: 'home',
         [EMCANVAS_LAYOUT_KEY]: canvasLayout,
         [EMCANVAS_ENTRY_META_KEY]: meta,
       },
     }
-    const port: TestPersistencePort = {
-      loadDocument: vi.fn().mockResolvedValue({
+    const port: PersistencePort = {
+      loadDocument: vi.fn<PersistencePort['loadDocument']>().mockResolvedValue({
         canvasLayout,
         _emcanvas: meta,
       }),
-      saveDocument: vi.fn(),
-      getPreviewLink: vi.fn().mockReturnValue(''),
+      saveDocument: vi.fn<PersistencePort['saveDocument']>(),
+      getPreviewLink: vi
+        .fn<PersistencePort['getPreviewLink']>()
+        .mockReturnValue(''),
     }
 
     await expect(loadDocumentWithPort(entry, port)).resolves.toEqual({
@@ -120,7 +121,7 @@ describe('editor save flow', () => {
   })
 
   it('saves the current document back into entry data through an explicit port', async () => {
-    const entry = {
+    const entry: CanvasEntry = {
       data: {
         slug: 'home',
         title: 'Homepage',
@@ -136,13 +137,19 @@ describe('editor save flow', () => {
         editorVersion: EMCANVAS_EDITOR_VERSION,
       },
     }
-    const port: TestPersistencePort = {
-      loadDocument: vi.fn(),
-      saveDocument: vi.fn().mockResolvedValue(result),
-      getPreviewLink: vi.fn().mockReturnValue(''),
+    const port: PersistencePort = {
+      loadDocument: vi.fn<PersistencePort['loadDocument']>(),
+      saveDocument: vi
+        .fn<PersistencePort['saveDocument']>()
+        .mockResolvedValue(result),
+      getPreviewLink: vi
+        .fn<PersistencePort['getPreviewLink']>()
+        .mockReturnValue(''),
     }
 
-    await expect(saveDocumentWithPort({ entry, canvasLayout }, port)).resolves.toEqual(result)
+    await expect(
+      saveDocumentWithPort({ entry, canvasLayout }, port),
+    ).resolves.toEqual(result)
 
     expect(port.saveDocument).toHaveBeenCalledWith({
       entry,
@@ -198,7 +205,7 @@ describe('editor save flow', () => {
 
     const store = createEditorStore<CanvasDocument>()
     let document = createDefaultCanvasDocument()
-    let resolveSave: (() => void) | null = null
+    let resolveSave: (() => void) | undefined
 
     const controller = createAutosaveController({
       delayMs: 250,
@@ -226,7 +233,8 @@ describe('editor save flow', () => {
     }
     store.markDirty()
 
-    resolveSave?.()
+    const completeSave = resolveSave
+    completeSave?.()
     await Promise.resolve()
 
     expect(store.getState().dirty).toBe(true)
@@ -239,9 +247,9 @@ describe('editor save flow', () => {
 
     const store = createEditorStore<CanvasDocument>()
     let document = createDefaultCanvasDocument()
-    const save = vi.fn<(
-      nextDocument: CanvasDocument,
-    ) => Promise<void>>().mockRejectedValue(new Error('save failed'))
+    const save = vi
+      .fn<(nextDocument: CanvasDocument) => Promise<void>>()
+      .mockRejectedValue(new Error('save failed'))
 
     const controller = createAutosaveController({
       delayMs: 250,

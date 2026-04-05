@@ -4,6 +4,19 @@ describe('package build layout', () => {
   it('defines the packaging contract for published runtime artifacts', async () => {
     const { default: tsupConfig } = await import('../../tsup.config')
 
+    expect(Array.isArray(tsupConfig)).toBe(false)
+    expect(typeof tsupConfig).toBe('object')
+
+    if (
+      Array.isArray(tsupConfig) ||
+      typeof tsupConfig !== 'object' ||
+      tsupConfig === null
+    ) {
+      throw new Error(
+        'Expected tsup.config default export to resolve to a single config object.',
+      )
+    }
+
     expect(tsupConfig.entry).toEqual({
       index: 'src/plugin/index.ts',
       'sandbox-entry': 'src/plugin/sandbox-entry.ts',

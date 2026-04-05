@@ -9,6 +9,7 @@ import {
   EMCANVAS_ENTRY_META_KEY,
   EMCANVAS_LAYOUT_KEY,
 } from '../../src/foundation/shared/constants'
+import type { EmCanvasEntryData } from '../../src/foundation/types/entry-data'
 import { renderEntryPage } from '../../src/integration/page/render-entry-page'
 import { shouldRenderEmCanvas } from '../../src/integration/page/should-render-emcanvas'
 import { getEntryEditorActions } from '../../src/plugin/hooks/entry-editor-actions'
@@ -17,7 +18,10 @@ import { pageFragments } from '../../src/plugin/hooks/page-fragments'
 
 describe('entry takeover flow', () => {
   it('switches an entry into emcanvas mode', async () => {
-    const entry = {
+    const entry: {
+      data: Record<string, unknown> &
+        EmCanvasEntryData & { slug: string; title: string }
+    } = {
       data: {
         slug: 'home',
         title: 'Homepage',
@@ -25,7 +29,9 @@ describe('entry takeover flow', () => {
     }
 
     const actions = getEntryEditorActions({ entry })
-    const enableAction = actions.find((action) => action.id === 'enable-emcanvas')
+    const enableAction = actions.find(
+      (action) => action.id === 'enable-emcanvas',
+    )
 
     expect(enableAction).toBeDefined()
     await enableAction?.run?.()

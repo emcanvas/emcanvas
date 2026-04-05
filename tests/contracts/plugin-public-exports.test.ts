@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 
 describe('plugin public exports', () => {
   it('defines the minimum public contract for each entry module', async () => {
-    const root = await import('../../src/plugin/index.ts')
-    const sandbox = await import('../../src/plugin/sandbox-entry.ts')
-    const admin = await import('../../src/plugin/admin-entry.ts')
-    const astro = await import('../../src/plugin/astro-entry.ts')
+    const root = await import('../../src/plugin/index')
+    const sandbox = await import('../../src/plugin/sandbox-entry')
+    const admin = await import('../../src/plugin/admin-entry')
+    const astro = await import('../../src/plugin/astro-entry')
 
     expect(root).toMatchObject({
       default: expect.objectContaining({
@@ -23,7 +23,11 @@ describe('plugin public exports', () => {
         version: expect.any(String),
       }),
     })
-    expect(Object.keys(root).sort()).toEqual(['default', 'descriptor', 'manifest'])
+    expect(Object.keys(root).sort()).toEqual([
+      'default',
+      'descriptor',
+      'manifest',
+    ])
     expect(root.default).not.toHaveProperty('adminPages')
 
     expect(sandbox).toMatchObject({

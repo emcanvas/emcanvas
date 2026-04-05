@@ -23,11 +23,13 @@
     }
   },
   "include": [
+    "src/**/*.d.ts",
     "src/**/*.ts",
     "src/**/*.tsx",
     "tests/**/*.ts",
     "tests/**/*.tsx",
     "tests/**/*.d.ts",
+    "tsup.config.ts",
     "vite.config.ts"
   ]
 }

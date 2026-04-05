@@ -9,11 +9,23 @@ type CompilerExecutionError = {
   message?: string
 }
 
-function runStrictnessCheck(executeCompiler: typeof execFileSync = execFileSync): string {
+type StrictnessCheckExecutor = (
+  file: string,
+  args: readonly string[],
+  options: { encoding: 'utf8' },
+) => string
+
+function runStrictnessCheck(
+  executeCompiler: StrictnessCheckExecutor = execFileSync,
+): string {
   try {
-    return executeCompiler(resolveCompilerBinary(), ['--noEmit', '--pretty', 'false'], {
-      encoding: 'utf8',
-    })
+    return executeCompiler(
+      resolveCompilerBinary(),
+      ['--noEmit', '--pretty', 'false'],
+      {
+        encoding: 'utf8',
+      },
+    )
   } catch (error: unknown) {
     const compilerError = error as CompilerExecutionError
 
@@ -26,10 +38,7 @@ function runStrictnessCheck(executeCompiler: typeof execFileSync = execFileSync)
 }
 
 function resolveCompilerBinary(): string {
-  const candidates = [
-    './node_modules/.bin/tsc',
-    '../../node_modules/.bin/tsc',
-  ]
+  const candidates = ['./node_modules/.bin/tsc', '../../node_modules/.bin/tsc']
 
   for (const candidate of candidates) {
     if (existsSync(candidate)) {
@@ -42,15 +51,17 @@ function resolveCompilerBinary(): string {
 
 describe('typescript strictness smoke', () => {
   it('throws when the compiler cannot be executed', () => {
-    const failingExecFileSync: typeof execFileSync = (): string => {
+    const failingExecFileSync: StrictnessCheckExecutor = () => {
       throw Object.assign(new Error('spawn tsc ENOENT'), { code: 'ENOENT' })
     }
 
-    expect(() => runStrictnessCheck(failingExecFileSync)).toThrow('spawn tsc ENOENT')
+    expect(() => runStrictnessCheck(failingExecFileSync)).toThrow(
+      'spawn tsc ENOENT',
+    )
   })
 
   it('keeps actual compiler diagnostics available for assertions', () => {
-    const failingExecFileSync: typeof execFileSync = (): string => {
+    const failingExecFileSync: StrictnessCheckExecutor = () => {
       throw {
         status: 2,
         stdout: 'src/example.ts(1,1): error TS1005: expected ;\n',
@@ -66,5 +77,14 @@ describe('typescript strictness smoke', () => {
 
     expect(output).not.toContain('src/admin/pages/CanvasEditorPage.tsx')
     expect(output).not.toContain('src/editor/inspector/property-inspector.tsx')
+  })
+
+  it('keeps tooling and astro surfaces honest without missing-type diagnostics', () => {
+    const output = runStrictnessCheck()
+
+    expect(output).not.toContain('tsup.config.ts')
+    expect(output).not.toContain('render-entry-page.ts')
+    expect(output).not.toContain('renderer-ssr.test.ts')
+    expect(output).not.toContain("Cannot find module 'node:")
   })
 })
