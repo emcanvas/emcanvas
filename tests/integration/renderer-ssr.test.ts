@@ -362,7 +362,7 @@ describe('EmCanvasRenderer', () => {
       }
     })
 
-    it('renders css id, css classes, and basic visibility metadata from advanced props', async () => {
+    it('normalizes advanced css classes and omits blank css ids from SSR output', async () => {
       const container = await AstroContainer.create()
       const html = await container.renderToString(EmCanvasRenderer, {
         props: {
@@ -385,8 +385,8 @@ describe('EmCanvasRenderer', () => {
                     href: '/read-more',
                   },
                   advancedProps: {
-                    cssId: 'hero-cta',
-                    cssClasses: ['custom-hero', 'layout-block'],
+                    cssId: '   ',
+                    cssClasses: ['custom-hero', ' layout-block '],
                     visibility: {
                       hideOnTablet: true,
                       hideOnMobile: true,
@@ -404,7 +404,7 @@ describe('EmCanvasRenderer', () => {
       })
 
       expect(html).toMatch(
-        /<div(?=[^>]*id="hero-cta")(?=[^>]*class="emc-node emc-hero-button custom-hero layout-block emc-hide-tablet emc-hide-mobile")(?=[^>]*data-emcanvas-hide-on-tablet="true")(?=[^>]*data-emcanvas-hide-on-mobile="true")[^>]*><a(?=[^>]*data-emcanvas-node="hero-button")(?=[^>]*href="\/read-more")[^>]*>Read more<\/a><\/div>/,
+        /<div(?=[^>]*class="emc-node emc-hero-button emc-custom-hero emc-layout-block emc-hide-tablet emc-hide-mobile")(?=[^>]*data-emcanvas-hide-on-tablet="true")(?=[^>]*data-emcanvas-hide-on-mobile="true")(?![^>]*\sid=)[^>]*><a(?=[^>]*data-emcanvas-node="hero-button")(?=[^>]*href="\/read-more")[^>]*>Read more<\/a><\/div>/,
       )
     })
   })

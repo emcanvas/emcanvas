@@ -9,11 +9,12 @@ interface Props {
 
 const { nodeId, advancedProps } = Astro.props
 const normalizedNodeId = sanitizeCssSelectorValue(nodeId)
-const normalizedCssId = advancedProps?.cssId?.trim()
+const normalizedCssId = advancedProps?.cssId?.trim() || undefined
 const normalizedCssClasses = (advancedProps?.cssClasses ?? [])
   .map((className) => className.trim())
   .filter(Boolean)
   .map((className) => sanitizeCssSelectorValue(className))
+  .map((className) => (className.startsWith('emc-') ? className : `emc-${className}`))
 
 const visibility = advancedProps?.visibility
 const hideOnDesktop = visibility?.hideOnDesktop === true
