@@ -1,9 +1,13 @@
 import type { CanvasNode } from '../../foundation/types/canvas'
-import { buildMediaRules } from './build-media-rules'
 
-export function collectMediaRules(root: CanvasNode): string {
+export function collectNodeRules(
+  root: CanvasNode,
+  buildRules: (node: CanvasNode) => string[],
+): string[] {
   return [
-    ...buildMediaRules(root.id, root.styles),
-    ...(root.children ?? []).flatMap((child) => collectMediaRules(child)),
-  ].join('')
+    ...buildRules(root),
+    ...(root.children ?? []).flatMap((child) =>
+      collectNodeRules(child, buildRules),
+    ),
+  ]
 }

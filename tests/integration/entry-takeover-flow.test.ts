@@ -42,12 +42,7 @@ describe('entry takeover flow', () => {
       editor: 'emcanvas',
       takeover: true,
     })
-    expect(pageFragments({ entry })).toEqual([
-      {
-        slot: 'head',
-        html: expect.stringContaining('data-emcanvas-page-fragments'),
-      },
-    ])
+    expect(pageFragments({ entry })).toEqual([])
   })
 
   it('keeps takeover metadata and fragments disabled when the persisted layout is invalid', async () => {

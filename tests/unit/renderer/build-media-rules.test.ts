@@ -16,6 +16,16 @@ describe('buildMediaRules', () => {
     ])
   })
 
+  it('omits desktop declarations from responsive-only media rules', () => {
+    expect(
+      buildMediaRules('hero', {
+        desktop: { color: 'red' },
+        tablet: {},
+        mobile: {},
+      }),
+    ).toEqual([])
+  })
+
   it('sanitizes the selector value and skips empty responsive styles', () => {
     expect(
       buildMediaRules('hero"]{color:red}body{display:block}/*', {

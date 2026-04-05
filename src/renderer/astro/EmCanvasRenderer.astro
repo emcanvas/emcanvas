@@ -2,8 +2,6 @@
 import { widgetRegistry } from '../../editor/registry/widget-registry'
 import CanvasNodeRenderer from './CanvasNodeRenderer.astro'
 import { getAstroComponentProps } from '../components/registry'
-import { collectMediaRules } from '../styles/collect-media-rules'
-import { buildInlineStyle } from '../styles/build-inline-style'
 import type { NormalizedCanvasDocument, NormalizedCanvasNode } from '../types/renderer'
 
 interface Props {
@@ -23,26 +21,21 @@ function toRenderableNode(node: NormalizedCanvasNode): RenderableCanvasNode {
     throw new Error(`Unsupported canvas node type: ${node.type}`)
   }
 
-  const style = buildInlineStyle(node.styles.desktop) || undefined
-
   return {
     ...node,
     disableBaseWrapper: definition.disableBaseWrapper,
     componentProps: {
       ...getAstroComponentProps(node.type, node.props),
       'data-emcanvas-node': node.id,
-      style,
     },
     children: node.children.map(toRenderableNode),
   }
 }
 
 const { document } = Astro.props
-const mediaCss = collectMediaRules(document.root)
 const rootNode = toRenderableNode(document.root)
 ---
 
 <div data-emcanvas-root>
-  {mediaCss && <style data-emcanvas-media-rules set:html={mediaCss}></style>}
   <CanvasNodeRenderer node={rootNode} />
 </div>

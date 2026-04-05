@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildInlineStyle } from '../../../src/renderer/styles/build-inline-style'
+import { buildStyleDeclarations } from '../../../src/renderer/styles/build-style-declarations'
 
-describe('buildInlineStyle', () => {
+describe('buildStyleDeclarations', () => {
   it('serializes safe string declarations and ignores unsupported entries', () => {
     expect(
-      buildInlineStyle({
+      buildStyleDeclarations({
         color: 'red',
         backgroundColor: '#111111',
         opacity: 0.5,
@@ -16,17 +16,19 @@ describe('buildInlineStyle', () => {
 
   it('sanitizes unsafe characters and omits declarations that become empty', () => {
     expect(
-      buildInlineStyle({
+      buildStyleDeclarations({
         backgroundImage: 'url(/hero.png" onerror="alert(1))',
         color: '}</style><script>alert(1)</script>',
         width: '   ',
       }),
-    ).toBe('background-image:url(/hero.png onerror=alert(1));color:/stylescriptalert(1)/script')
+    ).toBe(
+      'background-image:url(/hero.png onerror=alert(1));color:/stylescriptalert(1)/script',
+    )
   })
 
   it('drops undefined and numeric values without breaking adjacent safe declarations', () => {
     expect(
-      buildInlineStyle({
+      buildStyleDeclarations({
         color: 'red',
         width: undefined,
         opacity: 0,

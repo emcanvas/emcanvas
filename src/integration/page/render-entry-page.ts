@@ -17,5 +17,7 @@ export async function renderEntryPage(data: Record<string, unknown>) {
     },
   })
 
-  return `${getPageFragments(data).map((fragment) => fragment.html).join('')}${html}`
+  return `${getPageFragments(data, state.document)
+    .map((fragment) => fragment.html)
+    .join('')}${html}`
 }

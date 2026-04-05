@@ -109,15 +109,20 @@ describe('EmCanvasRenderer', () => {
     expect(html).toContain('<section')
     expect(html).toContain('<div data-emcanvas-node="hero-columns"')
     expect(html).toContain('<div data-emcanvas-node="hero-copy"')
-    expect(html).toMatch(/<h1[^>]*data-emcanvas-node="hero-title"[^>]*style="color:#111111"[^>]*>Hello SSR<\/h1>/)
-    expect(html).toMatch(/<p[^>]*data-emcanvas-node="hero-text"[^>]*style="color:#444444"[^>]*>Renderer body copy<\/p>/)
     expect(html).toMatch(
-      /<a(?=[^>]*data-emcanvas-node="hero-button")(?=[^>]*href="\/read-more")(?=[^>]*style="background-color:#222222")[^>]*>Read more<\/a>/,
+      /<h1[^>]*data-emcanvas-node="hero-title"[^>]*>Hello SSR<\/h1>/,
     )
-    expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="hero-columns"]{gap:8px;}}')
+    expect(html).toMatch(
+      /<p[^>]*data-emcanvas-node="hero-text"[^>]*>Renderer body copy<\/p>/,
+    )
+    expect(html).toMatch(
+      /<a(?=[^>]*data-emcanvas-node="hero-button")(?=[^>]*href="\/read-more")[^>]*>Read more<\/a>/,
+    )
+    expect(html).not.toContain('style="')
+    expect(html).not.toContain('<style')
   })
 
-  it('emits a single style block for responsive media rules', async () => {
+  it('keeps node selector hooks without renderer-local stylesheet output', async () => {
     const container = await AstroContainer.create()
     const html = await container.renderToString(EmCanvasRenderer, {
       props: {
@@ -172,11 +177,11 @@ describe('EmCanvasRenderer', () => {
       },
     })
 
-    expect((html.match(/<style/g) ?? []).length).toBe(1)
-    expect(html).toContain('<style data-emcanvas-media-rules>')
-    expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="root"]{padding:12px;}}')
-    expect(html).toContain('@media (max-width: 767px){[data-emcanvas-node="hero-columns"]{gap:8px;}}')
-    expect(html).toContain('@media (max-width: 1024px){[data-emcanvas-node="hero-copy"]{max-width:100%;}}')
+    expect(html).toContain('data-emcanvas-node="root"')
+    expect(html).toContain('data-emcanvas-node="hero-columns"')
+    expect(html).toContain('data-emcanvas-node="hero-copy"')
+    expect(html).not.toContain('<style')
+    expect(html).not.toContain('style="')
   })
 
   it('does not leak widget config props into SSR DOM output', async () => {
@@ -223,7 +228,9 @@ describe('EmCanvasRenderer', () => {
       },
     })
 
-    expect(html).toMatch(/<div[^>]*data-emcanvas-node="layout-columns"[^>]*><\/div>/)
+    expect(html).toMatch(
+      /<div[^>]*data-emcanvas-node="layout-columns"[^>]*><\/div>/,
+    )
     expect(html).not.toContain(' columns="3"')
     expect(html).toMatch(
       /<video(?=[^>]*data-emcanvas-node="hero-video")(?=[^>]*src="\/uploads\/hero.mp4")(?=[^>]*controls)[^>]*><\/video>/,
@@ -303,9 +310,13 @@ describe('EmCanvasRenderer', () => {
         },
       })
 
-      expect(html).toContain('class="emc-node emc-hero_button___color_red_body_display_block___"')
+      expect(html).toContain(
+        'class="emc-node emc-hero_button___color_red_body_display_block___"',
+      )
       expect(html).not.toContain('class="emc-node emc-hero button')
-      expect(html).not.toContain('class="emc-node emc-hero button&#34;]{color:red}body{display:block}/*"')
+      expect(html).not.toContain(
+        'class="emc-node emc-hero button&#34;]{color:red}body{display:block}/*"',
+      )
     })
 
     it('keeps widgets pure when their universal wrapper is disabled', async () => {
@@ -426,9 +437,10 @@ describe('EmCanvasRenderer', () => {
 
     for (const { fileName, source } of astroFiles) {
       for (const pattern of rendererBranchingPatterns) {
-        expect(source, `${fileName} should stay blind to concrete node types`).not.toMatch(
-          pattern,
-        )
+        expect(
+          source,
+          `${fileName} should stay blind to concrete node types`,
+        ).not.toMatch(pattern)
       }
     }
   })

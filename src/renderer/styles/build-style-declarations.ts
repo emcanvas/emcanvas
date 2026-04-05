@@ -10,11 +10,20 @@ function sanitizeCssValue(value: string): string {
   return value.replace(/[{}<>;"\\]/g, '').trim()
 }
 
-export function buildInlineStyle(styles: Record<string, unknown>): string {
+export function buildStyleDeclarations(
+  styles: Record<string, unknown>,
+): string {
   return Object.entries(styles)
     .map(([property, value]) => [toCssPropertyName(property), value] as const)
-    .filter(([property, value]) => typeof value === 'string' && value.length > 0 && isSafeCssPropertyName(property))
-    .map(([property, value]) => `${property}:${sanitizeCssValue(value as string)}`)
+    .filter(
+      ([property, value]) =>
+        typeof value === 'string' &&
+        value.length > 0 &&
+        isSafeCssPropertyName(property),
+    )
+    .map(
+      ([property, value]) => `${property}:${sanitizeCssValue(value as string)}`,
+    )
     .filter((declaration) => !declaration.endsWith(':'))
     .join(';')
 }

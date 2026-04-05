@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest'
 import EmCanvasRenderer from '../../src/renderer/astro/EmCanvasRenderer.astro'
 import { getAstroComponent } from '../../src/renderer/components/registry'
 import { getCanvasEntryState } from '../../src/renderer/data/get-canvas-entry-state'
-import { buildInlineStyle } from '../../src/renderer/styles/build-inline-style'
+import { buildStyleDeclarations } from '../../src/renderer/styles/build-style-declarations'
 
 const testDir = dirname(fileURLToPath(import.meta.url))
 
@@ -17,7 +17,14 @@ function readProjectFile(relativePath: string) {
 }
 
 function readRendererAstroSources() {
-  const rendererAstroDir = resolve(testDir, '..', '..', 'src', 'renderer', 'astro')
+  const rendererAstroDir = resolve(
+    testDir,
+    '..',
+    '..',
+    'src',
+    'renderer',
+    'astro',
+  )
 
   return readdirSync(rendererAstroDir)
     .filter((fileName: string) => fileName.endsWith('.astro'))
@@ -37,7 +44,7 @@ const rendererBranchingPatterns = [
 describe('renderer improvements backlog', () => {
   it('documents which renderer improvements are already covered in code', async () => {
     expect(
-      buildInlineStyle({
+      buildStyleDeclarations({
         width: 'calc(100% - 20px)',
         color: 'var(--brand-color)',
       }),
@@ -87,14 +94,8 @@ describe('renderer improvements backlog', () => {
       },
     })
 
-    expect((html.match(/<style/g) ?? []).length).toBe(1)
-    expect(html).toContain('<style data-emcanvas-media-rules>')
-    expect(html).toContain(
-      '@media (max-width: 767px){[data-emcanvas-node="root"]{padding:12px;}}',
-    )
-    expect(html).toContain(
-      '@media (max-width: 1024px){[data-emcanvas-node="copy"]{max-width:100%;}}',
-    )
+    expect(html).not.toContain('<style')
+    expect(html).not.toContain('style="')
   })
 
   it('closes the universal blind renderer item once the Astro template stops branching per node kind', () => {
@@ -103,7 +104,9 @@ describe('renderer improvements backlog', () => {
 
     expect(renderModelSource).toContain("category: 'wrapper'")
     expect(renderModelSource).toContain("category: 'leaf'")
-    expect(renderModelSource).toContain('attributes?: Record<string, string | true>')
+    expect(renderModelSource).toContain(
+      'attributes?: Record<string, string | true>',
+    )
     expect(renderModelSource).toContain('textContent?: string')
 
     expect(
@@ -114,9 +117,10 @@ describe('renderer improvements backlog', () => {
 
     for (const { fileName, source } of rendererAstroSources) {
       for (const pattern of rendererBranchingPatterns) {
-        expect(source, `${fileName} should stay blind to concrete node types`).not.toMatch(
-          pattern,
-        )
+        expect(
+          source,
+          `${fileName} should stay blind to concrete node types`,
+        ).not.toMatch(pattern)
       }
     }
   })

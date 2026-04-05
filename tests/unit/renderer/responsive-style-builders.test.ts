@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { buildInlineStyle } from '../../../src/renderer/styles/build-inline-style'
+import { buildStyleDeclarations } from '../../../src/renderer/styles/build-style-declarations'
 import { buildMediaRules } from '../../../src/renderer/styles/build-media-rules'
 
 describe('responsive style serialization responsibilities', () => {
-  it('builds desktop declarations as inline CSS only', () => {
+  it('builds safe CSS declarations for stylesheet rules', () => {
     expect(
-      buildInlineStyle({
+      buildStyleDeclarations({
         color: 'red',
         backgroundColor: '#111111',
         ignored: 42,
@@ -14,7 +14,7 @@ describe('responsive style serialization responsibilities', () => {
   })
 
   it('preserves valid modern CSS values like calc and var while stripping unsafe chars', () => {
-    const result = buildInlineStyle({
+    const result = buildStyleDeclarations({
       width: 'calc(100% - 20px)',
       color: 'var(--brand-color)',
       backgroundImage: 'url(/images/hero.png" onerror="alert(1))',
@@ -22,7 +22,9 @@ describe('responsive style serialization responsibilities', () => {
 
     expect(result).toContain('width:calc(100% - 20px)')
     expect(result).toContain('color:var(--brand-color)')
-    expect(result).toContain('background-image:url(/images/hero.png onerror=alert(1))')
+    expect(result).toContain(
+      'background-image:url(/images/hero.png onerror=alert(1))',
+    )
     expect(result).not.toContain('"')
     expect(result).not.toContain('<')
     expect(result).not.toContain('>')
@@ -49,18 +51,23 @@ describe('responsive style serialization responsibilities', () => {
   })
 
   it('omits empty declarations and sanitizes selector input in media rules', () => {
-    const mediaRules = buildMediaRules('hero"]{color:red}body{display:block}/*', {
-      desktop: {},
-      tablet: {},
-      mobile: {
-        color: 'red;}</style><script>alert(1)</script>',
-        'fontSize;background:url(javascript:alert(1))': '16px',
+    const mediaRules = buildMediaRules(
+      'hero"]{color:red}body{display:block}/*',
+      {
+        desktop: {},
+        tablet: {},
+        mobile: {
+          color: 'red;}</style><script>alert(1)</script>',
+          'fontSize;background:url(javascript:alert(1))': '16px',
+        },
       },
-    })
+    )
 
-    expect(buildInlineStyle({ color: '' })).toBe('')
+    expect(buildStyleDeclarations({ color: '' })).toBe('')
     expect(mediaRules).toHaveLength(1)
-    expect(mediaRules[0]).toContain('[data-emcanvas-node="hero___color_red_body_display_block___"]')
+    expect(mediaRules[0]).toContain(
+      '[data-emcanvas-node="hero___color_red_body_display_block___"]',
+    )
     expect(mediaRules[0]).toContain('{color:red')
     expect(mediaRules[0]).not.toContain('</style>')
     expect(mediaRules[0]).not.toContain('<script>')
