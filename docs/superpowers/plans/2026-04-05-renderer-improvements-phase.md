@@ -17,7 +17,7 @@
 - Create: `tests/contracts/renderer-improvements-backlog.test.ts`
 - Modify: only if a claimed item is still missing and minimal to prove/close it
 
-- [ ] **Step 1: Write the failing backlog reconciliation test**
+- [x] **Step 1: Write the failing backlog reconciliation test**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -29,28 +29,23 @@ describe('renderer improvements backlog', () => {
 })
 ```
 
-- [ ] **Step 2: Run the focused contract test**
+- [x] **Step 2: Run the focused contract test**
 
 Run: `pnpm vitest run tests/contracts/renderer-improvements-backlog.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Close or codify remaining renderer backlog items**
+- [x] **Step 3: Close or codify remaining renderer backlog items**
 
 ```ts
 // prove remaining renderer backlog through focused contracts/tests
 ```
 
-- [ ] **Step 4: Run the focused contract test**
+- [x] **Step 4: Run the focused contract test**
 
 Run: `pnpm vitest run tests/contracts/renderer-improvements-backlog.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
-
-```bash
-git add tests/contracts/renderer-improvements-backlog.test.ts src/renderer docs
-git commit -m "test: reconcile renderer improvements backlog"
-```
+- [x] **Step 5: Leave changes uncommitted unless explicitly requested**
 
 ---
 
@@ -62,7 +57,7 @@ git commit -m "test: reconcile renderer improvements backlog"
 - Modify: `tests/integration/renderer-ssr.test.ts`
 - Modify production renderer files only if a real uncovered bug appears
 
-- [ ] **Step 1: Write failing regression(s) for remaining renderer backlog**
+- [x] **Step 1: Write failing regression(s) for remaining renderer backlog**
 
 ```ts
 import { describe, expect, it } from 'vitest'
@@ -74,28 +69,23 @@ describe('renderer backlog regressions', () => {
 })
 ```
 
-- [ ] **Step 2: Run the focused renderer tests**
+- [x] **Step 2: Run the focused renderer tests**
 
 Run: `pnpm vitest run tests/unit/renderer/*.test.ts tests/integration/renderer-ssr.test.ts`
 Expected: FAIL if a real renderer gap remains.
 
-- [ ] **Step 3: Add the missing regression coverage and minimal fix if needed**
+- [x] **Step 3: Add the missing regression coverage and minimal fix if needed**
 
 ```ts
 // close only real remaining renderer backlog items
 ```
 
-- [ ] **Step 4: Run the focused renderer tests again**
+- [x] **Step 4: Run the focused renderer tests again**
 
 Run: `pnpm vitest run tests/unit/renderer/*.test.ts tests/integration/renderer-ssr.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
-
-```bash
-git add src/renderer tests/unit/renderer tests/integration/renderer-ssr.test.ts
-git commit -m "test: close remaining renderer backlog regressions"
-```
+- [x] **Step 5: Leave changes uncommitted unless explicitly requested**
 
 ---
 
