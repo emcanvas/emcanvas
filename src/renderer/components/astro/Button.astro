@@ -1,0 +1,10 @@
+---
+const href = typeof Astro.props.href === 'string' ? Astro.props.href : '#'
+const label = typeof Astro.props.label === 'string'
+  ? Astro.props.label
+  : typeof Astro.props.text === 'string'
+    ? Astro.props.text
+    : ''
+---
+
+<a href={href}><slot />{label}</a>

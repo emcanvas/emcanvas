@@ -1,0 +1,6 @@
+---
+const src = typeof Astro.props.src === 'string' ? Astro.props.src : ''
+const alt = typeof Astro.props.alt === 'string' ? Astro.props.alt : ''
+---
+
+<img src={src} alt={alt} />

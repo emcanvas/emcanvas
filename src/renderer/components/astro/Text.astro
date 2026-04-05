@@ -1,0 +1,5 @@
+---
+const text = typeof Astro.props.text === 'string' ? Astro.props.text : ''
+---
+
+<p><slot />{text}</p>

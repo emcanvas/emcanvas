@@ -1,46 +1,30 @@
-import type { CanvasNodeRenderer } from '../types/renderer'
-import { renderButtonNode } from './renderers/button'
-import { renderColumnsNode } from './renderers/columns'
-import { renderContainerNode } from './renderers/container'
-import { renderDividerNode } from './renderers/divider'
-import { renderHeadingNode } from './renderers/heading'
-import { renderImageNode } from './renderers/image'
-import { renderSectionNode } from './renderers/section'
-import { renderSpacerNode } from './renderers/spacer'
-import { renderTextNode } from './renderers/text'
-import { renderVideoNode } from './renderers/video'
+type AstroComponent = (...args: never[]) => unknown
 
-const renderers: Record<string, CanvasNodeRenderer> = {
-  section: renderSectionNode,
-  columns: renderColumnsNode,
-  container: renderContainerNode,
-  heading: renderHeadingNode,
-  text: renderTextNode,
-  button: renderButtonNode,
-  spacer: renderSpacerNode,
-  divider: renderDividerNode,
-  image: renderImageNode,
-  video: renderVideoNode,
+type AstroComponentModule = {
+  default: AstroComponent
 }
 
-export function registerRenderer(type: string, renderer: CanvasNodeRenderer): () => void {
-  if (type in renderers) {
-    throw new Error(`Renderer already registered for type: ${type}`)
-  }
-
-  renderers[type] = renderer
-
-  return () => {
-    delete renderers[type]
-  }
+type ImportMetaWithGlob = ImportMeta & {
+  glob: <T>(pattern: string, options: { eager: true }) => Record<string, T>
 }
 
-export function getComponentRenderer(type: string): CanvasNodeRenderer {
-  const renderer = renderers[type]
+const componentModules = (import.meta as ImportMetaWithGlob).glob<AstroComponentModule>('./astro/*.astro', {
+  eager: true,
+})
 
-  if (!renderer) {
+const components = Object.fromEntries(
+  Object.entries(componentModules).map(([path, module]) => {
+    const fileName = path.slice(path.lastIndexOf('/') + 1, -'.astro'.length)
+    return [fileName, module.default]
+  }),
+) as Record<string, AstroComponent>
+
+export function getAstroComponent(type: string): AstroComponent {
+  const component = components[type]
+
+  if (!component) {
     throw new Error(`Unsupported canvas node type: ${type}`)
   }
 
-  return renderer
+  return component
 }
