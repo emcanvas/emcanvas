@@ -48,6 +48,7 @@ describe('manual smoke harness docs', () => {
 
   it('maps manual checklist items to the existing integration contracts', () => {
     expect(checklistContent).toContain('# EmCanvas manual smoke checklist')
+    expect(checklistContent).toContain('docker bootstrap + seed')
     expect(checklistContent).toContain(
       'tests/integration/admin-editor-publish-flow.test.tsx',
     )
@@ -66,6 +67,9 @@ describe('manual smoke harness docs', () => {
   })
 
   it('links the smoke harness from local validation and release docs without implying site deployment', () => {
+    expect(localValidationContent).toContain(
+      'node ./scripts/smoke-docker-local-host.mjs up',
+    )
     expect(localValidationContent).toContain(
       'docs/integration/manual-smoke-harness-playbook.md',
     )

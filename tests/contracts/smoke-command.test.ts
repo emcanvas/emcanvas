@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import pkg from '../../package.json'
 import {
+  DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND,
   MANUAL_SMOKE_DOC_PATHS,
   SMOKE_PREFLIGHT_TEST_PATH,
   runSmokePreflight,
@@ -28,8 +29,9 @@ describe('smoke command', () => {
     const summary = smokeSummaryLines.join('\n')
 
     expect(summary).toContain('bounded preflight only')
-    expect(summary).toContain('local EmDash host')
+    expect(summary).toContain('Docker-backed local EmDash host')
     expect(summary).toContain('seeded `home` / `Homepage` scenario')
+    expect(summary).toContain(DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND)
     expect(summary).toContain('manual-smoke-harness-playbook.md')
     expect(summary).toContain('manual-smoke-harness-checklist.md')
     expect(summary).not.toContain('deploy the final site')

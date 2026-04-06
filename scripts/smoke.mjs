@@ -2,6 +2,9 @@ import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND } from './smoke-local-host-shared.mjs'
+
+export { DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND }
 
 export const SMOKE_PREFLIGHT_TEST_PATH =
   'tests/contracts/manual-smoke-harness-docs.test.ts'
@@ -15,8 +18,9 @@ export const MANUAL_SMOKE_DOC_PATHS = [
 export const smokeSummaryLines = [
   'EmCanvas smoke: bounded preflight only.',
   `- Preflight verified: ${SMOKE_PREFLIGHT_TEST_PATH}`,
-  '- Manual smoke runs in a local EmDash host only.',
+  '- Manual smoke runs in a Docker-backed local EmDash host only.',
   '- Use the seeded `home` / `Homepage` scenario for one deterministic sanity pass.',
+  `- Then run ${DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND} for the repo-owned bootstrap wrapper.`,
   '- Follow the canonical harness docs:',
   ...MANUAL_SMOKE_DOC_PATHS.map((docPath) => `  - ${docPath}`),
 ]

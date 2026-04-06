@@ -11,6 +11,8 @@ Use exactly one deterministic entry for this harness:
 
 If the entry differs from this contract, the run is outside the bounded harness.
 
+Use `scripts/smoke-seed-local-host.mjs` to send this payload through your caller-supplied seed endpoint. The script requires `EMDASH_SEED_ENDPOINT` and `EMDASH_SEED_TOKEN`.
+
 ## Fixture source
 
 Derive the entry document from the same minimal fixture shape used in tests:

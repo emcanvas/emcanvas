@@ -1,0 +1,25 @@
+# Tasks: Docker Local Host Smoke
+
+## Phase 1: Contract and docs first
+
+- [x] 1.1 Add `tests/contracts/docker-local-host-smoke-docs.test.ts` to RED the Docker bootstrap contract, required external host input, and bounded handoff after `pnpm smoke`.
+- [x] 1.2 Update `scripts/smoke.mjs` so the summary stays preflight-only and links the Docker local-host bootstrap flow without implying full EmDash deployment.
+- [x] 1.3 Update `docs/integration/emdash-local-validation.md`, `docs/integration/manual-smoke-harness-playbook.md`, `docs/integration/manual-smoke-harness-checklist.md`, and `docs/integration/manual-smoke-harness-seeded-scenario.md` to document `pnpm smoke -> Docker bootstrap -> manual pass`.
+
+## Phase 2: Bootstrap assets
+
+- [x] 2.1 Add `tests/contracts/docker-local-host-bootstrap-assets.test.ts` to RED the expected bootstrap files, env placeholders, and “no EmDash patching” boundary.
+- [x] 2.2 Create `docker/local-host/compose.yaml` and `docker/local-host/.env.example` to start a caller-supplied local EmDash host that consumes the local EmCanvas package.
+- [x] 2.3 Create `scripts/smoke-docker-local-host.mjs` to validate required inputs, start/stop Docker Compose, and print the next operator steps.
+
+## Phase 3: Deterministic seed flow
+
+- [x] 3.1 Add `tests/contracts/docker-local-host-seed.test.ts` to RED the seed payload derived from `tests/fixtures/document-factory.ts` with `slug: home`, `title: Homepage`, and heading `Welcome`.
+- [x] 3.2 Create `scripts/smoke-seed-local-host.mjs` plus a shared helper module to build the seed payload and document any caller-supplied auth/API requirements.
+- [x] 3.3 Wire `scripts/smoke-docker-local-host.mjs` and the docs to run the seed step before handing off to the existing manual checklist.
+
+## Phase 4: Verification and polish
+
+- [x] 4.1 Expand `tests/contracts/smoke-command.test.ts` and `tests/contracts/manual-smoke-harness-docs.test.ts` to lock the new Docker references and unchanged publish/preview boundary wording.
+- [x] 4.2 Run `pnpm vitest run tests/contracts/smoke-command.test.ts tests/contracts/manual-smoke-harness-docs.test.ts tests/contracts/docker-local-host-*.test.ts` and fix contract drift.
+- [x] 4.3 Finalize `docs/integration/emdash-local-validation.md` with the canonical execution order and operator-facing troubleshooting notes for missing external host inputs.

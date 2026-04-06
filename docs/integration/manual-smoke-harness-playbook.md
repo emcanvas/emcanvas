@@ -11,10 +11,14 @@ Use this playbook for one bounded real-host smoke pass inside a local EmDash hos
 
 ## Prerequisites
 
+- Run `pnpm smoke` first.
+- Run `node ./scripts/smoke-docker-local-host.mjs up` before opening the host UI.
 - A local EmDash host is running with the local EmCanvas package loaded.
+- The Docker bootstrap seeds the canonical `home` / `Homepage` entry.
 - The seeded entry from `docs/integration/manual-smoke-harness-seeded-scenario.md` already exists.
 - Use the real EmDash host UI. Do not replace this flow with a standalone demo shell.
 - Keep the run bounded to the seeded `home` / `Homepage` scenario.
+- Treat the EmDash image, runtime secrets, and admin credentials as caller-supplied prerequisites outside this repository.
 
 ## Operator flow
 

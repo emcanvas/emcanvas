@@ -1,0 +1,12 @@
+services:
+  emdash:
+    image: ${EMDASH_IMAGE:?Set EMDASH_IMAGE to a caller-supplied EmDash image/tag.}
+    env_file:
+      - ${EMDASH_ENV_FILE:?Set EMDASH_ENV_FILE to a caller-supplied runtime env file.}
+    ports:
+      - '${EMDASH_HOST_PORT:-3000}:${EMDASH_CONTAINER_PORT:-3000}'
+    volumes:
+      - ${EMCANVAS_PACKAGE_ROOT:?Set by scripts/smoke-docker-local-host.mjs or the caller.}:/opt/emcanvas-package:ro
+    environment:
+      EMCANVAS_PACKAGE_ROOT: /opt/emcanvas-package
+      EMCANVAS_LOCAL_HOST_MODE: docker-smoke
