@@ -9,13 +9,13 @@ const packageJson = pkg as {
 }
 
 describe('package surface', () => {
-  it('exposes the consumable runtime entrypoints', () => {
-    expect(packageJson.main).toBe('./dist/index.mjs')
+  it('exposes source-first runtime entrypoints while keeping dist artifact-only', () => {
+    expect(packageJson.main).toBe('./src/plugin/index.ts')
     expect(packageJson.exports).toEqual({
-      '.': './dist/index.mjs',
-      './sandbox': './dist/sandbox-entry.mjs',
-      './admin': './dist/admin.mjs',
-      './astro': './dist/astro.mjs',
+      '.': './src/plugin/index.ts',
+      './sandbox': './src/plugin/sandbox-entry.ts',
+      './admin': './src/plugin/admin-entry.ts',
+      './astro': './src/plugin/astro-entry.ts',
     })
     expect(packageJson.files).toEqual(['dist'])
     expect(packageJson.peerDependencies).toEqual({

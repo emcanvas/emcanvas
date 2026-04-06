@@ -27,7 +27,7 @@ describe('docker local host smoke docs', () => {
     )
     expect(localValidationContent).toContain('## Optional Docker wrapper')
     expect(localValidationContent).toContain(
-      `- If you want the repo-owned Docker bootstrap wrapper, run \`${DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND}\` after the rebuild/relink/restart loop.`,
+      `- If you want the repo-owned Docker bootstrap wrapper, run \`${DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND}\` after the refresh/restart loop.`,
     )
   })
 

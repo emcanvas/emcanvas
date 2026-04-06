@@ -6,12 +6,12 @@
   "license": "MIT",
   "type": "module",
   "packageManager": "pnpm@10.12.4",
-  "main": "./dist/index.mjs",
+  "main": "./src/plugin/index.ts",
   "exports": {
-    ".": "./dist/index.mjs",
-    "./sandbox": "./dist/sandbox-entry.mjs",
-    "./admin": "./dist/admin.mjs",
-    "./astro": "./dist/astro.mjs"
+    ".": "./src/plugin/index.ts",
+    "./sandbox": "./src/plugin/sandbox-entry.ts",
+    "./admin": "./src/plugin/admin-entry.ts",
+    "./astro": "./src/plugin/astro-entry.ts"
   },
   "files": [
     "dist"

@@ -5,9 +5,9 @@ Use these local checks before review or release.
 ## Canonical execution order
 
 1. Confirm EmDash loads EmCanvas from the canonical repo-root/worktree package path.
-2. Run `pnpm build` to refresh the `dist/*` artifacts EmDash consumes.
-3. Reconfirm or refresh the canonical EmCanvas repo-root/worktree dependency in EmDash if the host still points at stale artifacts.
-4. Restart or reload EmDash so the host resolves the refreshed local package before trusting validation output.
+2. Reconfirm or refresh the canonical EmCanvas repo-root/worktree dependency in EmDash if the host still points at stale source modules.
+3. Restart or reload EmDash so the host resolves the refreshed local package before trusting validation output.
+4. Run `pnpm build` only when you explicitly need refreshed `dist/*` packaging artifacts.
 5. Run `pnpm smoke` for the bounded manual-smoke preflight.
 6. Run `node ./scripts/smoke-seed-local-host.mjs` when you want the deterministic `home` / `Homepage` entry created through a local EmDash seed endpoint.
 7. Continue with `docs/integration/manual-smoke-harness-playbook.md`, `docs/integration/manual-smoke-harness-seeded-scenario.md`, and `docs/integration/manual-smoke-harness-checklist.md` for the real-host edit, publish, preview, and reopen pass.
@@ -22,7 +22,7 @@ Run the manual smoke harness when you need a real EmDash host sanity check beyon
 
 ## Optional Docker wrapper
 
-- If you want the repo-owned Docker bootstrap wrapper, run `node ./scripts/smoke-docker-local-host.mjs up` after the rebuild/relink/restart loop.
+- If you want the repo-owned Docker bootstrap wrapper, run `node ./scripts/smoke-docker-local-host.mjs up` after the refresh/restart loop.
 - Keep Docker secondary: the local path/worktree host flow above remains the source of truth for real plugin consumption.
 
 ## Optional Docker wrapper inputs
@@ -46,6 +46,6 @@ Run the manual smoke harness when you need a real EmDash host sanity check beyon
 ## Troubleshooting local host refresh and optional inputs
 
 - If EmDash is not loading EmCanvas from the repo-root/worktree path you expect, fix that dependency first before trusting the rest of the smoke pass.
-- If EmDash still resolves stale plugin code after `pnpm build`, refresh the existing local path dependency again and restart or reload the host before retrying the smoke pass.
+- If EmDash still resolves stale plugin code, refresh the existing local path dependency again and restart or reload the host before retrying the smoke pass.
 - If `node ./scripts/smoke-seed-local-host.mjs` fails, confirm your host-specific endpoint accepts the canonical `home` / `Homepage` payload before retrying the bounded smoke pass.
 - If `node ./scripts/smoke-docker-local-host.mjs up` fails before Docker starts, copy `docker/local-host/.env.example` and fill the optional Docker wrapper values.

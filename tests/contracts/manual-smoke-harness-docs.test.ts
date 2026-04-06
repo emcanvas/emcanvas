@@ -94,18 +94,18 @@ describe('manual smoke harness docs', () => {
     expect(finalChecklistContent).toContain('not final site deployment')
   })
 
-  it('documents the rebuild, relink, restart, and smoke handoff order', () => {
+  it('documents the refresh, restart, optional artifact build, and smoke handoff order', () => {
     expect(localValidationContent).toContain(
       'Confirm EmDash loads EmCanvas from the canonical repo-root/worktree package path.',
     )
     expect(localValidationContent).toContain(
-      'Run `pnpm build` to refresh the `dist/*` artifacts EmDash consumes.',
-    )
-    expect(localValidationContent).toContain(
-      'Reconfirm or refresh the canonical EmCanvas repo-root/worktree dependency in EmDash if the host still points at stale artifacts.',
+      'Reconfirm or refresh the canonical EmCanvas repo-root/worktree dependency in EmDash if the host still points at stale source modules.',
     )
     expect(localValidationContent).toContain(
       'Restart or reload EmDash so the host resolves the refreshed local package before trusting validation output.',
+    )
+    expect(localValidationContent).toContain(
+      'Run `pnpm build` only when you explicitly need refreshed `dist/*` packaging artifacts.',
     )
     expect(localValidationContent).toContain(
       'Run `pnpm smoke` for the bounded manual-smoke preflight.',
@@ -120,21 +120,12 @@ describe('manual smoke harness docs', () => {
       ),
     ).toBeLessThan(
       localValidationContent.indexOf(
-        'Run `pnpm build` to refresh the `dist/*` artifacts EmDash consumes.',
+        'Reconfirm or refresh the canonical EmCanvas repo-root/worktree dependency in EmDash if the host still points at stale source modules.',
       ),
     )
     expect(
       localValidationContent.indexOf(
-        'Run `pnpm build` to refresh the `dist/*` artifacts EmDash consumes.',
-      ),
-    ).toBeLessThan(
-      localValidationContent.indexOf(
-        'Reconfirm or refresh the canonical EmCanvas repo-root/worktree dependency in EmDash if the host still points at stale artifacts.',
-      ),
-    )
-    expect(
-      localValidationContent.indexOf(
-        'Reconfirm or refresh the canonical EmCanvas repo-root/worktree dependency in EmDash if the host still points at stale artifacts.',
+        'Reconfirm or refresh the canonical EmCanvas repo-root/worktree dependency in EmDash if the host still points at stale source modules.',
       ),
     ).toBeLessThan(
       localValidationContent.indexOf(
@@ -144,6 +135,15 @@ describe('manual smoke harness docs', () => {
     expect(
       localValidationContent.indexOf(
         'Restart or reload EmDash so the host resolves the refreshed local package before trusting validation output.',
+      ),
+    ).toBeLessThan(
+      localValidationContent.indexOf(
+        'Run `pnpm build` only when you explicitly need refreshed `dist/*` packaging artifacts.',
+      ),
+    )
+    expect(
+      localValidationContent.indexOf(
+        'Run `pnpm build` only when you explicitly need refreshed `dist/*` packaging artifacts.',
       ),
     ).toBeLessThan(
       localValidationContent.indexOf(
@@ -166,12 +166,12 @@ describe('manual smoke harness docs', () => {
       '- Load EmCanvas from the canonical repo-root/worktree package path in EmDash.',
     )
     expect(pluginRuntimeChecklistContent).toContain(
-      '- After package-facing changes, run `pnpm build`, relink or refresh that same path dependency if needed, then restart or reload EmDash before manual validation.',
+      '- After package-facing changes, refresh that same path dependency if needed, then restart or reload EmDash before manual validation.',
     )
     expect(pluginRuntimeChecklistContent).toContain(
       '- EmCanvas stays documented as a native EmDash plugin package with a named `createPlugin()` root factory.',
     )
-    expect(pluginRuntimeChecklistContent).not.toContain('src/plugin/index.ts')
+    expect(pluginRuntimeChecklistContent).toContain('./src/plugin/index.ts')
 
     expect(readmeContent).toContain(
       'docs/integration/emdash-local-validation.md',
@@ -180,10 +180,10 @@ describe('manual smoke harness docs', () => {
       'The root package exports a native EmDash descriptor plus a named `createPlugin()` factory.',
     )
     expect(readmeContent).toContain(
-      'Run `pnpm build` when you need refreshed package artifacts for EmDash local-host consumption.',
+      'Run `pnpm build` only when you explicitly need refreshed package artifacts.',
     )
     expect(readmeContent).toContain(
-      'relink or refresh the same local dependency if EmDash still sees stale artifacts',
+      'Restart or reload the same local dependency if EmDash still sees stale source modules',
     )
     expect(readmeContent).toContain('Optional Docker wrapper:')
   })

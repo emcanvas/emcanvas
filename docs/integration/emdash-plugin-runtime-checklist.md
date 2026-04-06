@@ -4,7 +4,7 @@ Use this checklist to validate the local EmDash host loop without touching the u
 
 ## Contract checks
 
-- `package.json` resolves `.` to `./dist/index.mjs`, `./sandbox` to `./dist/sandbox-entry.mjs`, `./admin` to `./dist/admin.mjs`, and `./astro` to `./dist/astro.mjs`.
+- `package.json` resolves `.` to `./src/plugin/index.ts`, `./sandbox` to `./src/plugin/sandbox-entry.ts`, `./admin` to `./src/plugin/admin-entry.ts`, and `./astro` to `./src/plugin/astro-entry.ts`.
 - The plugin descriptor stays aligned with the published `entrypoint`, `sandbox`, `adminEntry`, and `componentsEntry` package specifiers.
 - EmCanvas stays documented as a native EmDash plugin package with a named `createPlugin()` root factory.
 - The root runtime default-exports the host plugin definition and keeps `createPlugin`, `descriptor`, and `manifest` available as explicit exports.
@@ -19,7 +19,7 @@ Use this checklist to validate the local EmDash host loop without touching the u
 ## Manual host loop
 
 - Load EmCanvas from the canonical repo-root/worktree package path in EmDash.
-- After package-facing changes, run `pnpm build`, relink or refresh that same path dependency if needed, then restart or reload EmDash before manual validation.
+- After package-facing changes, refresh that same path dependency if needed, then restart or reload EmDash before manual validation.
 - Open the editor route exposed by the plugin and confirm the real editor mounts.
 - Edit a node, publish, and confirm the saved entry data reflects the latest editor state.
 - Open the preview link and confirm rendered output contains the published EmCanvas markup.

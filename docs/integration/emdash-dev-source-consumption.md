@@ -1,44 +1,28 @@
-# EmDash dev-source consumption
+# EmDash source-first local consumption
 
-Use this workflow only when a local EmDash host needs to consume EmCanvas source modules directly during development.
+Use this workflow when a local EmDash host consumes EmCanvas directly from the repo package during development.
 
-- Keep packaged `dist/*` consumption as the canonical release contract.
-- Use the `@emcanvas/plugin` alias namespace only for loading the dev-source descriptor and root plugin module.
+- Use the native `emcanvas` package specifiers as the only local host contract.
 - This workflow is for local EmDash hosts only and does not require EmDash upstream changes.
+- `dist/*` remains a secondary packaging artifact and not the primary development runtime contract.
 
-## Dev-source descriptor contract
+## Native descriptor contract
 
-After the local EmDash host mirrors the `@emcanvas/plugin` namespace in Vite, import the dedicated source descriptor through that alias:
-
-```ts
-import descriptor from '@emcanvas/plugin/dev-source'
-```
-
-The descriptor keeps `entrypoint` on the mirrored `@emcanvas/plugin` alias, but emits self-resolving absolute source paths for the runtime sub-entries that EmDash imports verbatim:
-
-- `entrypoint` → `@emcanvas/plugin`
-- `sandbox` → `/absolute/path/to/emcanvas/src/plugin/sandbox-entry.ts`
-- `adminEntry` → `/absolute/path/to/emcanvas/src/plugin/admin-entry.ts`
-- `componentsEntry` → `/absolute/path/to/emcanvas/src/plugin/astro-entry.ts`
-
-## Host-local Vite aliases
-
-Mirror the root plugin namespace inside the local EmDash host:
+Import EmCanvas from the public package surface:
 
 ```ts
-resolve: {
-  alias: {
-    '@emcanvas/plugin': '/absolute/path/to/emcanvas/src/plugin',
-  },
-}
+import emcanvasPlugin, { createPlugin, descriptor } from 'emcanvas'
 ```
 
-Do not add a fallback from these aliases back to packaged `dist` artifacts. If the alias wiring is missing, resolution should fail explicitly so the host fixes its local setup.
+The descriptor stays package-specifier based so EmDash resolves the same public contract in development:
 
-Do not add extra alias rules for `sandbox-entry`, `admin-entry`, or `astro-entry`. The dev-source descriptor already points those runtime imports at concrete source files so host-side `index.ts/...` resolution bugs cannot occur.
+- `entrypoint` → `emcanvas`
+- `sandbox` → `emcanvas/sandbox`
+- `adminEntry` → `emcanvas/admin`
+- `componentsEntry` → `emcanvas/astro`
 
-## Usage boundaries
+## Host-local boundaries
 
-- Use packaged `file:`/`dist` consumption for release validation and the canonical local package workflow.
-- Use dev-source mode only for local development loops where rebuilding EmCanvas package artifacts would slow iteration.
+- Do not introduce a parallel `dev-source` descriptor entry.
+- Do not rely on host-local alias fallback for the public `emcanvas/*` surfaces.
 - Do not modify EmDash upstream to support this mode; keep all workflow changes host-local.

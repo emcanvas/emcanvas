@@ -1,0 +1,12 @@
+# Tasks: EmDash Source-First Package Alignment
+
+## Phase 1: Source-first public contract
+
+- [x] 1.1 Expand package-surface and runtime contract tests so the public `emcanvas` exports RED on `dist/*`-first entrypoints or a parallel dev-source contract.
+- [x] 1.2 Update the package/docs contract (`package.json`, README, and integration checklists/guides) so local EmDash consumption uses the source-first `emcanvas` package surface as the only public workflow.
+- [x] 1.3 Remove the redundant dev-source descriptor path while preserving the native package-specifier descriptor contract for `emcanvas`, `emcanvas/sandbox`, `emcanvas/admin`, and `emcanvas/astro`.
+
+## Phase 2: Bounded verification and artifact hygiene
+
+- [x] 2.1 Run focused contract verification for package exports, descriptor alignment, and source-first docs boundaries.
+- [x] 2.2 Save `sdd/emdash-source-first-package-alignment/apply-progress` with completion status and strict-TDD evidence.

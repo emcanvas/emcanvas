@@ -55,7 +55,7 @@ pnpm smoke
 
 ## Product testing
 
-The packaged `file:`/`dist` workflow is the canonical release and local-host contract.
+The canonical local-host contract is the source-first package surface.
 
 ### Quick preflight
 
@@ -69,13 +69,7 @@ This is a bounded preflight that checks the smoke docs and points to the canonic
 
 To test EmCanvas from source as a real EmDash plugin:
 
-1. Build EmCanvas artifacts:
-
-```bash
-pnpm build
-```
-
-2. Add EmCanvas as a local dependency in your EmDash host. For the `emdash/demos/simple` demo this means adding:
+1. Add EmCanvas as a local dependency in your EmDash host. For the `emdash/demos/simple` demo this means adding:
 
 ```json
 "emcanvas": "file:../../../emcanvas"
@@ -83,7 +77,7 @@ pnpm build
 
 to `dependencies` in `demos/simple/package.json`.
 
-3. Register the plugin in `demos/simple/astro.config.mjs`:
+2. Register the plugin in `demos/simple/astro.config.mjs`:
 
 ```js
 import emcanvasPlugin, { createPlugin, descriptor } from 'emcanvas'
@@ -95,14 +89,14 @@ EmDash's native plugin loader consumes `descriptor.entrypoint` and imports the n
 plugins: [auditLogPlugin(), emcanvasPlugin]
 ```
 
-4. Refresh dependencies in EmDash:
+3. Refresh dependencies in EmDash:
 
 ```bash
 cd /Users/lopezlean/development/js/emdash
 pnpm install
 ```
 
-5. Bootstrap and run the demo host:
+4. Bootstrap and run the demo host:
 
 ```bash
 cd /Users/lopezlean/development/js/emdash/demos/simple
@@ -110,55 +104,47 @@ pnpm bootstrap
 pnpm dev
 ```
 
-6. After EmCanvas changes, repeat the local loop:
+5. After EmCanvas changes, repeat the local loop:
 
 ```bash
-cd /Users/lopezlean/development/js/emcanvas
-pnpm build
-
-cd /Users/lopezlean/development/js/emdash
-pnpm install
-
 cd /Users/lopezlean/development/js/emdash/demos/simple
 pnpm dev
 ```
 
-7. Run the bounded smoke preflight:
+Restart or reload the host if it cached the previous module graph. Build only when you explicitly need packaging artifacts.
+
+6. Run the bounded smoke preflight:
 
 ```bash
 pnpm smoke
 ```
 
-8. If your local EmDash host exposes the seed endpoint, create the canonical smoke entry:
+7. If your local EmDash host exposes the seed endpoint, create the canonical smoke entry:
 
 ```bash
 node ./scripts/smoke-seed-local-host.mjs
 ```
 
-9. Complete the real host pass with:
+8. Complete the real host pass with:
 
 - `docs/integration/emdash-local-validation.md`
 - `docs/integration/manual-smoke-harness-playbook.md`
 - `docs/integration/manual-smoke-harness-seeded-scenario.md`
 - `docs/integration/manual-smoke-harness-checklist.md`
 
-### Optional: dev-source mode for local EmDash hosts
+Import EmCanvas from the repo package path and let the public package specifiers resolve to source entry modules during local development.
+`dist/*` remains a secondary packaging artifact boundary and does not define the primary host runtime contract.
 
-Dev-source mode is opt-in for local development only and does not replace packaged `dist` consumption.
-
-Use `src/plugin/dev-source.ts` only when a local EmDash host wants to resolve EmCanvas source modules through host-local Vite aliases during development. The host mirrors `@emcanvas/plugin` for loading the descriptor, the descriptor resolves runtime sub-entries to concrete absolute source paths, and packaged `file:`/`dist` consumption remains the release contract.
-
-See `docs/integration/emdash-dev-source-consumption.md` for the bounded host-local setup and guardrails.
+See `docs/integration/emdash-dev-source-consumption.md` for the bounded source-first host setup and guardrails.
 
 ### Real local-host smoke
 
 Use the canonical local-path workflow in `docs/integration/emdash-local-validation.md` as the source of truth for real EmDash plugin consumption.
 
-Run `pnpm build` when you need refreshed package artifacts for EmDash local-host consumption.
-Then relink or refresh the same local dependency if EmDash still sees stale artifacts, restart or reload the host, and continue with the bounded smoke handoff.
+Restart or reload the same local dependency if EmDash still sees stale source modules, and continue with the bounded smoke handoff.
+Run `pnpm build` only when you explicitly need refreshed package artifacts.
 
 ```bash
-pnpm build
 pnpm smoke
 node ./scripts/smoke-seed-local-host.mjs
 ```
