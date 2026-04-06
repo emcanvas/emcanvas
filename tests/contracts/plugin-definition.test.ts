@@ -4,6 +4,8 @@ import { createRuntimePluginDefinition } from '../../src/plugin/runtime/create-r
 
 describe('plugin definition', () => {
   it('exposes a native runtime plugin shape without admin pages', () => {
+    const hooks = plugin.hooks as Record<string, unknown>
+
     expect(plugin.id).toBe('emcanvas')
     expect(plugin.name).toBe('EmCanvas')
     expect(plugin.version).toBe('0.1.0')
@@ -12,9 +14,25 @@ describe('plugin definition', () => {
       'write:content',
       'page:inject',
     ])
-    expect(plugin.hooks['page:fragments']).toBeDefined()
-    expect(plugin.hooks['page:metadata']).toBeDefined()
-    expect(plugin.hooks['entry:editor:actions']).toBeUndefined()
+    expect(hooks['page:fragments']).toEqual({
+      priority: 0,
+      timeout: 0,
+      dependencies: [],
+      errorPolicy: 'continue',
+      exclusive: false,
+      handler: expect.any(Function),
+      pluginId: 'emcanvas',
+    })
+    expect(hooks['page:metadata']).toEqual({
+      priority: 0,
+      timeout: 0,
+      dependencies: [],
+      errorPolicy: 'continue',
+      exclusive: false,
+      handler: expect.any(Function),
+      pluginId: 'emcanvas',
+    })
+    expect(hooks['entry:editor:actions']).toBeUndefined()
     expect(plugin.routes['preview-link']).toEqual({
       handler: expect.any(Function),
     })

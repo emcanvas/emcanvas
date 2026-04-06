@@ -8,6 +8,32 @@ const nativeCapabilities = [
   'page:inject',
 ] as const
 
+type NativeHookHandler = (...args: never[]) => unknown
+
+interface NativeResolvedHook {
+  priority: number
+  timeout: number
+  dependencies: string[]
+  errorPolicy: 'continue'
+  exclusive: boolean
+  handler: NativeHookHandler
+  pluginId: string
+}
+
+function createNativeResolvedHook(
+  handler: NativeHookHandler,
+): NativeResolvedHook {
+  return {
+    priority: 0,
+    timeout: 0,
+    dependencies: [],
+    errorPolicy: 'continue',
+    exclusive: false,
+    handler,
+    pluginId: manifest.id,
+  }
+}
+
 export function createNativeResolvedPlugin() {
   const runtimeDefinition = createRuntimePluginDefinition()
 
@@ -17,8 +43,12 @@ export function createNativeResolvedPlugin() {
     version: manifest.version,
     capabilities: [...nativeCapabilities],
     hooks: {
-      'page:fragments': runtimeDefinition.hooks['page:fragments'],
-      'page:metadata': runtimeDefinition.hooks['page:metadata'],
+      'page:fragments': createNativeResolvedHook(
+        runtimeDefinition.hooks['page:fragments'],
+      ),
+      'page:metadata': createNativeResolvedHook(
+        runtimeDefinition.hooks['page:metadata'],
+      ),
     },
     routes: {
       'preview-link': {

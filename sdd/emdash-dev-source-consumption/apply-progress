@@ -1,0 +1,39 @@
+## Implementation Progress
+
+**Change**: emdash-dev-source-consumption
+**Mode**: Strict TDD
+
+### Completed Tasks
+- [x] 1.1 Add a docs-backed contract test that extracts the documented dev-source import specifier and proves it resolves through the mirrored local alias.
+- [x] 1.2 Correct the dev-source guide so the documented import contract uses the executable local alias path instead of an unexported package subpath.
+- [x] 1.3 Save the bounded remediation progress with strict-TDD evidence.
+- [x] 1.4 Run focused verification covering the docs import contract and canonical packaged runtime surface.
+
+### Files Changed
+| File | Action | What Was Done |
+|------|--------|---------------|
+| `tests/contracts/path-alias-config.test.ts` | Modified | Added a docs-backed contract that reads the markdown import example, locks it to `@emcanvas/plugin/dev-source`, and verifies the specifier resolves through the mirrored host alias. |
+| `docs/integration/emdash-dev-source-consumption.md` | Modified | Replaced the invalid `emcanvas/src/plugin/dev-source` import example with the executable alias-based import and clarified that the alias must exist first. |
+| `sdd/emdash-dev-source-consumption/apply-progress` | Created | Saved the bounded remediation summary with strict-TDD evidence and focused verification output. |
+
+### TDD Cycle Evidence
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 1.1 / 1.2 / 1.4 | `tests/contracts/path-alias-config.test.ts` | Docs contract | ✅ `pnpm vitest run tests/contracts/path-alias-config.test.ts` passed first with 7/7 before edits. | ✅ Added the docs-backed import-specifier assertion, then `pnpm vitest run tests/contracts/path-alias-config.test.ts` failed because the guide still documented `emcanvas/src/plugin/dev-source`. | ✅ The same command passed after updating the guide to `@emcanvas/plugin/dev-source`. | ✅ The updated test now covers both the exact documented specifier and executable alias resolution; the neighboring missing-alias contract keeps the fail-loud boundary intact. | ➖ None needed. |
+
+### Test Summary
+- **Total tests written/updated**: 1 updated contract test covering 2 assertions
+- **Focused verification**: `pnpm vitest run tests/contracts/path-alias-config.test.ts tests/contracts/consumable-package-docs.test.ts tests/contracts/emdash-plugin-runtime.test.ts tests/contracts/package-runtime-exports.test.ts tests/contracts/package-surface.test.ts`
+- **Result**: 16 focused contract tests passing with canonical `dist/*` exports unchanged
+
+### Deviations from Design
+None — the remediation stayed bounded to docs/contracts/local workflow and preserved packaged `dist/*` consumption as canonical.
+
+### Issues Found
+None.
+
+### Remaining Tasks
+- [ ] None.
+
+### Status
+4/4 tasks complete. Ready for verify.

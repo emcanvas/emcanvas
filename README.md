@@ -55,6 +55,8 @@ pnpm smoke
 
 ## Product testing
 
+The packaged `file:`/`dist` workflow is the canonical release and local-host contract.
+
 ### Quick preflight
 
 ```bash
@@ -139,6 +141,14 @@ node ./scripts/smoke-seed-local-host.mjs
 - `docs/integration/manual-smoke-harness-playbook.md`
 - `docs/integration/manual-smoke-harness-seeded-scenario.md`
 - `docs/integration/manual-smoke-harness-checklist.md`
+
+### Optional: dev-source mode for local EmDash hosts
+
+Dev-source mode is opt-in for local development only and does not replace packaged `dist` consumption.
+
+Use `src/plugin/dev-source.ts` only when a local EmDash host wants to resolve EmCanvas source modules through host-local Vite aliases during development. The alias namespace stays `@emcanvas/plugin*`, the host must mirror that namespace explicitly, and packaged `file:`/`dist` consumption remains the release contract.
+
+See `docs/integration/emdash-dev-source-consumption.md` for the bounded host-local setup and guardrails.
 
 ### Real local-host smoke
 
