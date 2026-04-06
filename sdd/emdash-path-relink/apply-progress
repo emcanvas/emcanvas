@@ -1,0 +1,50 @@
+## Implementation Progress
+
+**Change**: emdash-path-relink
+**Mode**: Strict TDD
+
+### Completed Tasks
+- [x] 1.1 Expand the docs contract tests to RED on local-first wording for rebuild -> relink/refresh -> restart/reload -> smoke verify, while keeping Docker explicitly optional.
+- [x] 1.2 Update `scripts/smoke.mjs` and `scripts/smoke-seed-local-host.mjs` so the operator guidance and failure text align with the canonical local path/worktree workflow.
+- [x] 1.3 Update `docs/integration/emdash-local-validation.md`, `docs/integration/manual-smoke-harness-playbook.md`, `docs/integration/manual-smoke-harness-checklist.md`, and `README.md` so local non-Docker EmDash consumption is the source of truth and Docker stays secondary.
+- [x] 2.1 Run focused contract verification for the relink workflow docs and smoke guidance.
+- [x] 2.2 Run the explicit package build step so `dist/*` artifacts exist for real local EmDash path consumption.
+- [x] 2.3 Save `sdd/emdash-path-relink/apply-progress` with completion status and TDD evidence.
+
+### Files Changed
+| File | Action | What Was Done |
+|------|--------|---------------|
+| `tests/contracts/smoke-command.test.ts` | Modified | Redefined smoke summary expectations around the local path/worktree workflow, local seed command, and optional Docker wrapper. |
+| `tests/contracts/manual-smoke-harness-docs.test.ts` | Modified | Locked the local-first validation order, manual harness wording, README alignment, and bounded smoke handoff. |
+| `tests/contracts/docker-local-host-smoke-docs.test.ts` | Modified | Preserved Docker coverage while asserting it remains explicitly optional after the local-first flow. |
+| `scripts/smoke.mjs` | Modified | Changed preflight summary text to point operators at the canonical local validation doc and optional Docker wrapper. |
+| `scripts/smoke-seed-local-host.mjs` | Modified | Removed Docker-only wording from the missing-input failure path so the seed tooling stays local-host neutral. |
+| `docs/integration/emdash-local-validation.md` | Modified | Made the canonical execution order local-first and moved Docker to a secondary optional section. |
+| `docs/integration/manual-smoke-harness-playbook.md` | Modified | Reworked prerequisites around a local host plus optional deterministic seed/Docker wrapper setup. |
+| `docs/integration/manual-smoke-harness-checklist.md` | Modified | Replaced the Docker-first checklist row with a local rebuild/refresh/seed contract. |
+| `README.md` | Modified | Updated the real local-host smoke section to point at the local-first workflow and demote Docker to an optional wrapper. |
+| `sdd/emdash-path-relink/tasks` | Created | Saved the completed checklist for this change. |
+| `sdd/emdash-path-relink/apply-progress` | Created | Saved the apply artifact with TDD evidence and focused verification results. |
+
+### TDD Cycle Evidence
+| Task | Test File | Layer | Safety Net | RED | GREEN | TRIANGULATE | REFACTOR |
+|------|-----------|-------|------------|-----|-------|-------------|----------|
+| 1.1 / 2.1 | `tests/contracts/smoke-command.test.ts`, `tests/contracts/manual-smoke-harness-docs.test.ts`, `tests/contracts/docker-local-host-smoke-docs.test.ts` | Docs contract | Existing smoke/docs contract suite | ✅ `pnpm vitest run tests/contracts/smoke-command.test.ts tests/contracts/manual-smoke-harness-docs.test.ts tests/contracts/docker-local-host-smoke-docs.test.ts` failed first with 8 assertion failures because the repo still documented a Docker-first workflow. | ✅ The same command passed after updating the smoke summary, local validation order, harness docs, and README wording. | ✅ Coverage spans smoke summary text, local validation order, README alignment, and optional Docker wrapper language across 12 assertions. | ➖ No extra refactor needed beyond tightening wording and shared guidance. |
+
+### Test Summary
+- **Total tests written/updated**: 12 contract assertions across 3 focused test files
+- **Focused verification**: `pnpm vitest run tests/contracts/smoke-command.test.ts tests/contracts/manual-smoke-harness-docs.test.ts tests/contracts/docker-local-host-smoke-docs.test.ts tests/contracts/consumable-package-docs.test.ts tests/contracts/package-build-layout.test.ts`
+- **Explicit build verification**: `pnpm build`
+- **Result**: 15 focused contract tests passing and package artifacts rebuilt into `dist/*`
+
+### Deviations from Design
+None — implementation matches the approved local-first workflow and keeps Docker outside the critical path.
+
+### Issues Found
+None.
+
+### Remaining Tasks
+- [ ] None.
+
+### Status
+6/6 tasks complete. Ready for verify.

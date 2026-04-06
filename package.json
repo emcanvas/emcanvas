@@ -17,6 +17,7 @@
     "dist"
   ],
   "scripts": {
+    "build": "tsup",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --check package.json .prettierrc.json tests/contracts/prettier-config.test.ts",
     "prepare": "simple-git-hooks",

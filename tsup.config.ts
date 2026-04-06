@@ -9,6 +9,9 @@ export default defineConfig({
   },
   format: ['esm'],
   outDir: 'dist',
+  outExtension({ format }) {
+    return format === 'esm' ? { js: '.mjs' } : { js: '.js' }
+  },
   splitting: false,
   sourcemap: true,
   clean: true,

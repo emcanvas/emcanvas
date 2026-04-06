@@ -1,0 +1,13 @@
+# Tasks: EmDash Path Relink
+
+## Phase 1: Contract-first local workflow
+
+- [x] 1.1 Expand the docs contract tests to RED on local-first wording for rebuild -> relink/refresh -> restart/reload -> smoke verify, while keeping Docker explicitly optional.
+- [x] 1.2 Update `scripts/smoke.mjs` and `scripts/smoke-seed-local-host.mjs` so the operator guidance and failure text align with the canonical local path/worktree workflow.
+- [x] 1.3 Update `docs/integration/emdash-local-validation.md`, `docs/integration/manual-smoke-harness-playbook.md`, `docs/integration/manual-smoke-harness-checklist.md`, and `README.md` so local non-Docker EmDash consumption is the source of truth and Docker stays secondary.
+
+## Phase 2: Bounded verification
+
+- [x] 2.1 Run focused contract verification for the relink workflow docs and smoke guidance.
+- [x] 2.2 Run the explicit package build step so `dist/*` artifacts exist for real local EmDash path consumption.
+- [x] 2.3 Save `sdd/emdash-path-relink/apply-progress` with completion status and TDD evidence.

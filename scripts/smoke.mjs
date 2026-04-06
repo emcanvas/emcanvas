@@ -18,9 +18,11 @@ export const MANUAL_SMOKE_DOC_PATHS = [
 export const smokeSummaryLines = [
   'EmCanvas smoke: bounded preflight only.',
   `- Preflight verified: ${SMOKE_PREFLIGHT_TEST_PATH}`,
-  '- Manual smoke runs in a Docker-backed local EmDash host only.',
+  '- Manual smoke follows the canonical local EmDash path/worktree workflow.',
   '- Use the seeded `home` / `Homepage` scenario for one deterministic sanity pass.',
-  `- Then run ${DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND} for the repo-owned bootstrap wrapper.`,
+  '- Start from docs/integration/emdash-local-validation.md for the rebuild/relink/restart order.',
+  '- Seed the canonical entry with node ./scripts/smoke-seed-local-host.mjs when your local EmDash host exposes the seed endpoint.',
+  `- Optional Docker wrapper: ${DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND}.`,
   '- Follow the canonical harness docs:',
   ...MANUAL_SMOKE_DOC_PATHS.map((docPath) => `  - ${docPath}`),
 ]

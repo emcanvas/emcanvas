@@ -9,31 +9,39 @@ import {
 } from '../../scripts/smoke.mjs'
 
 describe('docker local host smoke docs', () => {
-  it('keeps pnpm smoke as the bounded preflight and hands off to docker bootstrap', () => {
+  it('keeps pnpm smoke local-first and relegates docker bootstrap to an optional wrapper', () => {
     const summary = smokeSummaryLines.join('\n')
 
     expect(summary).toContain('bounded preflight only')
+    expect(summary).toContain('local EmDash path/worktree workflow')
     expect(summary).toContain(DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND)
+    expect(summary).toContain('Optional Docker wrapper')
     expect(summary).not.toContain('full EmDash deployment')
 
     expect(localValidationContent).toContain('## Canonical execution order')
-    expect(localValidationContent).toContain('1. Run `pnpm smoke`')
     expect(localValidationContent).toContain(
-      `2. Run \`${DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND}\``,
+      '1. Confirm EmDash loads EmCanvas from the canonical repo-root/worktree package path.',
     )
     expect(localValidationContent).toContain(
-      '3. Continue with `docs/integration/manual-smoke-harness-playbook.md`',
+      '5. Run `pnpm smoke` for the bounded manual-smoke preflight.',
+    )
+    expect(localValidationContent).toContain('## Optional Docker wrapper')
+    expect(localValidationContent).toContain(
+      `- If you want the repo-owned Docker bootstrap wrapper, run \`${DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND}\` after the rebuild/relink/restart loop.`,
     )
   })
 
-  it('documents explicit external host inputs and automation boundaries', () => {
+  it('documents explicit local seed inputs, optional docker inputs, and automation boundaries', () => {
     expect(localValidationContent).toContain(
-      '## External inputs you must supply',
+      '## Local seed inputs you must supply',
+    )
+    expect(localValidationContent).toContain('`EMDASH_SEED_ENDPOINT`')
+    expect(localValidationContent).toContain('`EMDASH_SEED_TOKEN`')
+    expect(localValidationContent).toContain(
+      '## Optional Docker wrapper inputs',
     )
     expect(localValidationContent).toContain('`EMDASH_IMAGE`')
     expect(localValidationContent).toContain('`EMDASH_ENV_FILE`')
-    expect(localValidationContent).toContain('`EMDASH_SEED_ENDPOINT`')
-    expect(localValidationContent).toContain('`EMDASH_SEED_TOKEN`')
     expect(localValidationContent).toContain(
       'This repository does not own the EmDash image',
     )
@@ -41,16 +49,16 @@ describe('docker local host smoke docs', () => {
     expect(localValidationContent).toContain('out of scope')
   })
 
-  it('keeps the manual harness docs wired to the docker-backed seed handoff', () => {
+  it('keeps the manual harness docs wired to the local seeded scenario while preserving docker as optional setup', () => {
     expect(playbookContent).toContain('Run `pnpm smoke` first.')
     expect(playbookContent).toContain(
-      `Run \`${DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND}\` before opening the host UI.`,
+      'Run `node ./scripts/smoke-seed-local-host.mjs` if you want the deterministic entry created through your local EmDash seed endpoint.',
     )
     expect(playbookContent).toContain(
-      'The Docker bootstrap seeds the canonical `home` / `Homepage` entry.',
+      'If you prefer the repo-owned wrapper, you can run the optional Docker bootstrap instead.',
     )
 
-    expect(checklistContent).toContain('docker bootstrap + seed')
+    expect(checklistContent).toContain('local rebuild + refresh + seed')
     expect(checklistContent).toContain(
       '`tests/contracts/docker-local-host-smoke-docs.test.ts`',
     )

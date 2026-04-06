@@ -4,11 +4,11 @@ Use this checklist to validate the local EmDash host loop without touching the u
 
 ## Contract checks
 
-- `package.json` resolves `.` to `./src/plugin/index.ts` and `./sandbox` to `./src/plugin/sandbox-entry.ts`.
-- `src/plugin/descriptor.ts` exposes the same runtime entrypoint and sandbox paths declared by the package surface.
-- `src/plugin/index.ts` default-exports the host plugin definition and keeps `descriptor` and `manifest` available as named exports.
+- `package.json` resolves `.` to `./dist/index.mjs`, `./sandbox` to `./dist/sandbox-entry.mjs`, `./admin` to `./dist/admin.mjs`, and `./astro` to `./dist/astro.mjs`.
+- The plugin descriptor stays aligned with the runtime entrypoint and sandbox paths declared by the package surface.
+- The root runtime default-exports the host plugin definition and keeps `descriptor` and `manifest` available as named exports.
 - `plugin.routes['canvas-data']`, `plugin.routes['save-canvas-data']`, and `plugin.routes['preview-link']` stay wired to `routeAdapters`.
-- `plugin.adminPages.editor` mounts the real editor page and `plugin.adminPages.dashboard` remains loadable.
+- Runtime exports stay host-focused and do not promise hot reload or upstream EmDash automation.
 
 ## Verification commands
 
@@ -17,7 +17,8 @@ Use this checklist to validate the local EmDash host loop without touching the u
 
 ## Manual host loop
 
-- Load EmCanvas from the local worktree package in EmDash.
+- Load EmCanvas from the canonical repo-root/worktree package path in EmDash.
+- After package-facing changes, run `pnpm build`, relink or refresh that same path dependency if needed, then restart or reload EmDash before manual validation.
 - Open the editor route exposed by the plugin and confirm the real editor mounts.
 - Edit a node, publish, and confirm the saved entry data reflects the latest editor state.
 - Open the preview link and confirm rendered output contains the published EmCanvas markup.

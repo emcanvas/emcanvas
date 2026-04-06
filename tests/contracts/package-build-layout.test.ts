@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
+import pkg from '../../package.json'
+
+const packageJson = pkg as {
+  scripts?: Record<string, string>
+}
+
 describe('package build layout', () => {
   it('defines the packaging contract for published runtime artifacts', async () => {
     const { default: tsupConfig } = await import('../../tsup.config')
@@ -27,5 +33,9 @@ describe('package build layout', () => {
     expect(tsupConfig.outDir).toBe('dist')
     expect(tsupConfig.splitting).toBe(false)
     expect(tsupConfig.clean).toBe(true)
+    expect(tsupConfig.outExtension?.({ format: 'esm' } as never)).toEqual({
+      js: '.mjs',
+    })
+    expect(packageJson.scripts?.build).toBe('tsup')
   })
 })

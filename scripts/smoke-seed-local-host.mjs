@@ -36,7 +36,7 @@ export async function runSmokeSeedLocalHost({
       [
         'Missing deterministic seed inputs:',
         ...missingEnvVars.map((envVar) => `- ${envVar}`),
-        '- Provide a caller-supplied seed endpoint and token before running the Docker smoke handoff.',
+        '- Provide a caller-supplied seed endpoint and token before running the local smoke handoff.',
       ].join('\n') + '\n',
     )
 

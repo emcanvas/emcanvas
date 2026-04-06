@@ -29,9 +29,12 @@ describe('smoke command', () => {
     const summary = smokeSummaryLines.join('\n')
 
     expect(summary).toContain('bounded preflight only')
-    expect(summary).toContain('Docker-backed local EmDash host')
+    expect(summary).toContain('local EmDash path/worktree workflow')
     expect(summary).toContain('seeded `home` / `Homepage` scenario')
+    expect(summary).toContain('docs/integration/emdash-local-validation.md')
+    expect(summary).toContain('node ./scripts/smoke-seed-local-host.mjs')
     expect(summary).toContain(DOCKER_LOCAL_HOST_BOOTSTRAP_COMMAND)
+    expect(summary).toContain('Optional Docker wrapper')
     expect(summary).toContain('manual-smoke-harness-playbook.md')
     expect(summary).toContain('manual-smoke-harness-checklist.md')
     expect(summary).not.toContain('deploy the final site')

@@ -63,7 +63,18 @@ This is a bounded preflight that checks the smoke docs and points to the canonic
 
 ### Real local-host smoke
 
-Use the Docker-backed local-host wrapper plus the smoke harness docs:
+Use the canonical local-path workflow in `docs/integration/emdash-local-validation.md` as the source of truth for real EmDash plugin consumption.
+
+Run `pnpm build` when you need refreshed package artifacts for EmDash local-host consumption.
+Then relink or refresh the same local dependency if EmDash still sees stale artifacts, restart or reload the host, and continue with the bounded smoke handoff.
+
+```bash
+pnpm build
+pnpm smoke
+node ./scripts/smoke-seed-local-host.mjs
+```
+
+Optional Docker wrapper:
 
 ```bash
 node ./scripts/smoke-docker-local-host.mjs up
