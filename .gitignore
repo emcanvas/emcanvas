@@ -2,3 +2,5 @@
 node_modules/
 .atl/
 .DS_Store
+spec/
+docs/superpowers/
