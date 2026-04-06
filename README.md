@@ -61,6 +61,38 @@ pnpm smoke
 
 This is a bounded preflight that checks the smoke docs and points to the canonical manual flow.
 
+### Test from source
+
+To test EmCanvas from source as a real EmDash plugin:
+
+1. Point EmDash at this repo/worktree path as the canonical local package.
+2. Rebuild EmCanvas artifacts:
+
+```bash
+pnpm build
+```
+
+3. Refresh or relink the same local dependency in EmDash if it still points at stale artifacts.
+4. Restart or reload EmDash.
+5. Run the bounded smoke preflight:
+
+```bash
+pnpm smoke
+```
+
+6. If your local EmDash host exposes the seed endpoint, create the canonical smoke entry:
+
+```bash
+node ./scripts/smoke-seed-local-host.mjs
+```
+
+7. Complete the real host pass with:
+
+- `docs/integration/emdash-local-validation.md`
+- `docs/integration/manual-smoke-harness-playbook.md`
+- `docs/integration/manual-smoke-harness-seeded-scenario.md`
+- `docs/integration/manual-smoke-harness-checklist.md`
+
 ### Real local-host smoke
 
 Use the canonical local-path workflow in `docs/integration/emdash-local-validation.md` as the source of truth for real EmDash plugin consumption.
