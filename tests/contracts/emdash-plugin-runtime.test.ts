@@ -1,5 +1,9 @@
 // @vitest-environment node
 
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { createServer, type ViteDevServer } from 'vite'
 
@@ -46,6 +50,27 @@ async function withLocalAliasServer<T>(
     return await run(server)
   } finally {
     await server.close()
+  }
+}
+
+async function withGeneratedImportModule<T>(
+  importSpecifier: string,
+  run: (modulePath: string) => Promise<T>,
+): Promise<T> {
+  const tempDirectory = await mkdtemp(
+    join(tmpdir(), 'emcanvas-generated-import-'),
+  )
+  const modulePath = join(tempDirectory, 'generated-import.ts')
+
+  await writeFile(
+    modulePath,
+    `import * as importedEntry from ${JSON.stringify(importSpecifier)}\nexport default importedEntry\n`,
+  )
+
+  try {
+    return await run(modulePath)
+  } finally {
+    await rm(tempDirectory, { force: true, recursive: true })
   }
 }
 
@@ -151,9 +176,15 @@ describe('emdash runtime contract', () => {
       version: packageJson.version,
       format: 'module',
       entrypoint: '@emcanvas/plugin',
-      sandbox: '@emcanvas/plugin/sandbox-entry',
-      adminEntry: '@emcanvas/plugin/admin-entry',
-      componentsEntry: '@emcanvas/plugin/astro-entry',
+      sandbox: fileURLToPath(
+        new URL('../../src/plugin/sandbox-entry.ts', import.meta.url),
+      ),
+      adminEntry: fileURLToPath(
+        new URL('../../src/plugin/admin-entry.ts', import.meta.url),
+      ),
+      componentsEntry: fileURLToPath(
+        new URL('../../src/plugin/astro-entry.ts', import.meta.url),
+      ),
     })
     expect(devSourceDescriptor).not.toEqual(descriptor)
     expect(devSourceDescriptor.entrypoint).not.toBe(packageJson.name)
@@ -212,6 +243,24 @@ describe('emdash runtime contract', () => {
     expect(aliasLoadedModules.devSource.descriptor).toEqual(devSourceDescriptor)
     expect(aliasLoadedModules.devSource.default).not.toEqual(
       aliasLoadedModules.root.descriptor,
+    )
+  })
+
+  it('keeps EmDash-style generated imports resolvable when the host aliases only the plugin root entry file', async () => {
+    await withGeneratedImportModule(
+      devSourceDescriptor.componentsEntry,
+      async (generatedModulePath) => {
+        const importedModule = await withLocalAliasServer(
+          {
+            '@emcanvas/plugin': join(process.cwd(), 'src/plugin/index.ts'),
+          },
+          (server) => server.ssrLoadModule(generatedModulePath),
+        )
+
+        expect(importedModule.default).toMatchObject({
+          blockComponents: {},
+        })
+      },
     )
   })
 })

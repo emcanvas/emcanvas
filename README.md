@@ -146,7 +146,7 @@ node ./scripts/smoke-seed-local-host.mjs
 
 Dev-source mode is opt-in for local development only and does not replace packaged `dist` consumption.
 
-Use `src/plugin/dev-source.ts` only when a local EmDash host wants to resolve EmCanvas source modules through host-local Vite aliases during development. The alias namespace stays `@emcanvas/plugin*`, the host must mirror that namespace explicitly, and packaged `file:`/`dist` consumption remains the release contract.
+Use `src/plugin/dev-source.ts` only when a local EmDash host wants to resolve EmCanvas source modules through host-local Vite aliases during development. The host mirrors `@emcanvas/plugin` for loading the descriptor, the descriptor resolves runtime sub-entries to concrete absolute source paths, and packaged `file:`/`dist` consumption remains the release contract.
 
 See `docs/integration/emdash-dev-source-consumption.md` for the bounded host-local setup and guardrails.
 

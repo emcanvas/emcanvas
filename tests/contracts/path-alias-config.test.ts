@@ -59,9 +59,15 @@ describe('path alias config', () => {
   it('locks the dev-source descriptor to the documented plugin alias namespace', () => {
     expect(devSourceDescriptor).toMatchObject({
       entrypoint: '@emcanvas/plugin',
-      sandbox: '@emcanvas/plugin/sandbox-entry',
-      adminEntry: '@emcanvas/plugin/admin-entry',
-      componentsEntry: '@emcanvas/plugin/astro-entry',
+      sandbox: fileURLToPath(
+        new URL('../../src/plugin/sandbox-entry.ts', import.meta.url),
+      ),
+      adminEntry: fileURLToPath(
+        new URL('../../src/plugin/admin-entry.ts', import.meta.url),
+      ),
+      componentsEntry: fileURLToPath(
+        new URL('../../src/plugin/astro-entry.ts', import.meta.url),
+      ),
     })
 
     expect(tsconfig.compilerOptions.paths['@emcanvas/plugin']).toEqual([

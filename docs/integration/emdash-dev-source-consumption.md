@@ -3,7 +3,7 @@
 Use this workflow only when a local EmDash host needs to consume EmCanvas source modules directly during development.
 
 - Keep packaged `dist/*` consumption as the canonical release contract.
-- Use the `@emcanvas/plugin` alias namespace and mirror it in the local EmDash host Vite config.
+- Use the `@emcanvas/plugin` alias namespace only for loading the dev-source descriptor and root plugin module.
 - This workflow is for local EmDash hosts only and does not require EmDash upstream changes.
 
 ## Dev-source descriptor contract
@@ -14,16 +14,16 @@ After the local EmDash host mirrors the `@emcanvas/plugin` namespace in Vite, im
 import descriptor from '@emcanvas/plugin/dev-source'
 ```
 
-The descriptor resolves these source specifiers:
+The descriptor keeps `entrypoint` on the mirrored `@emcanvas/plugin` alias, but emits self-resolving absolute source paths for the runtime sub-entries that EmDash imports verbatim:
 
-- `@emcanvas/plugin`
-- `@emcanvas/plugin/sandbox-entry`
-- `@emcanvas/plugin/admin-entry`
-- `@emcanvas/plugin/astro-entry`
+- `entrypoint` → `@emcanvas/plugin`
+- `sandbox` → `/absolute/path/to/emcanvas/src/plugin/sandbox-entry.ts`
+- `adminEntry` → `/absolute/path/to/emcanvas/src/plugin/admin-entry.ts`
+- `componentsEntry` → `/absolute/path/to/emcanvas/src/plugin/astro-entry.ts`
 
 ## Host-local Vite aliases
 
-Mirror the same namespace inside the local EmDash host:
+Mirror the root plugin namespace inside the local EmDash host:
 
 ```ts
 resolve: {
@@ -34,6 +34,8 @@ resolve: {
 ```
 
 Do not add a fallback from these aliases back to packaged `dist` artifacts. If the alias wiring is missing, resolution should fail explicitly so the host fixes its local setup.
+
+Do not add extra alias rules for `sandbox-entry`, `admin-entry`, or `astro-entry`. The dev-source descriptor already points those runtime imports at concrete source files so host-side `index.ts/...` resolution bugs cannot occur.
 
 ## Usage boundaries
 

@@ -50,12 +50,15 @@ describe('consumable package docs', () => {
       '- Keep packaged `dist/*` consumption as the canonical release contract.',
     )
     expect(devSourceGuideContent).toContain(
-      '- Use the `@emcanvas/plugin` alias namespace and mirror it in the local EmDash host Vite config.',
+      '- Use the `@emcanvas/plugin` alias namespace only for loading the dev-source descriptor and root plugin module.',
     )
     expect(devSourceGuideContent).toContain(
       '- This workflow is for local EmDash hosts only and does not require EmDash upstream changes.',
     )
     expect(devSourceGuideContent).toContain('```ts')
     expect(devSourceGuideContent).toContain("'@emcanvas/plugin':")
+    expect(devSourceGuideContent).toContain(
+      'The descriptor keeps `entrypoint` on the mirrored `@emcanvas/plugin` alias, but emits self-resolving absolute source paths',
+    )
   })
 })
