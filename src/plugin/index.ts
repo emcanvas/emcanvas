@@ -3,7 +3,11 @@ import manifest from './manifest'
 
 import { createRuntimePluginDefinition } from './runtime/create-runtime-plugin-definition'
 
-const plugin = createRuntimePluginDefinition()
+function createPlugin() {
+  return createRuntimePluginDefinition()
+}
 
-export { descriptor, manifest }
+const plugin = createPlugin()
+
+export { createPlugin, descriptor, manifest }
 export default plugin

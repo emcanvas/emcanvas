@@ -8,14 +8,19 @@ describe('plugin public exports', () => {
     const astro = await import('../../src/plugin/astro-entry')
 
     expect(root).toMatchObject({
+      createPlugin: expect.any(Function),
       default: expect.objectContaining({
         hooks: expect.any(Object),
         routes: expect.any(Object),
       }),
       descriptor: expect.objectContaining({
+        id: expect.any(String),
+        version: expect.any(String),
         entrypoint: expect.any(String),
         format: expect.any(String),
         sandbox: expect.any(String),
+        adminEntry: expect.any(String),
+        componentsEntry: expect.any(String),
       }),
       manifest: expect.objectContaining({
         id: expect.any(String),
@@ -24,6 +29,7 @@ describe('plugin public exports', () => {
       }),
     })
     expect(Object.keys(root).sort()).toEqual([
+      'createPlugin',
       'default',
       'descriptor',
       'manifest',
@@ -32,17 +38,26 @@ describe('plugin public exports', () => {
 
     expect(sandbox).toMatchObject({
       default: expect.objectContaining({
+        id: expect.any(String),
+        version: expect.any(String),
         entrypoint: expect.any(String),
         format: expect.any(String),
         sandbox: expect.any(String),
+        adminEntry: expect.any(String),
+        componentsEntry: expect.any(String),
       }),
     })
     expect(Object.keys(sandbox)).toEqual(['default'])
     expect(Object.keys(sandbox.default).sort()).toEqual([
+      'adminEntry',
+      'componentsEntry',
       'entrypoint',
       'format',
+      'id',
       'sandbox',
+      'version',
     ])
+    expect(sandbox.default).toEqual(root.descriptor)
     expect(sandbox.default).not.toBe(root.descriptor)
 
     expect(admin).toMatchObject({

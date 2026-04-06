@@ -8,6 +8,9 @@ describe('consumable package docs', () => {
       '- Package exports point to `dist` runtime artifacts.',
     )
     expect(checklistContent).toContain(
+      '- The native plugin descriptor resolves `entrypoint`, `sandbox`, `adminEntry`, and `componentsEntry` from the published package specifiers.',
+    )
+    expect(checklistContent).toContain(
       '- EmDash can import the root and sandbox surfaces from the local package.',
     )
     expect(checklistContent).toContain(

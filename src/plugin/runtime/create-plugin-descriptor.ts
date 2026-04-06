@@ -1,7 +1,15 @@
+import manifest from '../manifest'
+
 export function createPluginDescriptor() {
+  const packageName = manifest.id
+
   return {
-    entrypoint: './src/plugin/index.ts',
+    id: manifest.id,
+    version: manifest.version,
+    entrypoint: packageName,
     format: 'module',
-    sandbox: './src/plugin/sandbox-entry.ts',
-  }
+    sandbox: `${packageName}/sandbox`,
+    adminEntry: `${packageName}/admin`,
+    componentsEntry: `${packageName}/astro`,
+  } as const
 }

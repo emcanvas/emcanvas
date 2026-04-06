@@ -168,10 +168,16 @@ describe('manual smoke harness docs', () => {
     expect(pluginRuntimeChecklistContent).toContain(
       '- After package-facing changes, run `pnpm build`, relink or refresh that same path dependency if needed, then restart or reload EmDash before manual validation.',
     )
+    expect(pluginRuntimeChecklistContent).toContain(
+      '- EmCanvas stays documented as a native EmDash plugin package with a named `createPlugin()` root factory.',
+    )
     expect(pluginRuntimeChecklistContent).not.toContain('src/plugin/index.ts')
 
     expect(readmeContent).toContain(
       'docs/integration/emdash-local-validation.md',
+    )
+    expect(readmeContent).toContain(
+      'The root package exports a native EmDash descriptor plus a named `createPlugin()` factory.',
     )
     expect(readmeContent).toContain(
       'Run `pnpm build` when you need refreshed package artifacts for EmDash local-host consumption.',

@@ -26,6 +26,8 @@ The package exposes these public entrypoints:
 - `./admin` → admin bundle entry
 - `./astro` → Astro integration entry
 
+The root package exports a native EmDash descriptor plus a named `createPlugin()` factory.
+
 ## Core architecture
 
 - The visual editor is a dedicated admin app, not a TipTap extension.
@@ -65,28 +67,73 @@ This is a bounded preflight that checks the smoke docs and points to the canonic
 
 To test EmCanvas from source as a real EmDash plugin:
 
-1. Point EmDash at this repo/worktree path as the canonical local package.
-2. Rebuild EmCanvas artifacts:
+1. Build EmCanvas artifacts:
 
 ```bash
 pnpm build
 ```
 
-3. Refresh or relink the same local dependency in EmDash if it still points at stale artifacts.
-4. Restart or reload EmDash.
-5. Run the bounded smoke preflight:
+2. Add EmCanvas as a local dependency in your EmDash host. For the `emdash/demos/simple` demo this means adding:
+
+```json
+"emcanvas": "file:../../../emcanvas"
+```
+
+to `dependencies` in `demos/simple/package.json`.
+
+3. Register the plugin in `demos/simple/astro.config.mjs`:
+
+```js
+import emcanvasPlugin, { createPlugin, descriptor } from 'emcanvas'
+```
+
+EmDash's native plugin loader consumes `descriptor.entrypoint` and imports the named `createPlugin()` factory from that root package surface. For the current local demo integration, you can still include the default runtime plugin in the EmDash integration config:
+
+```js
+plugins: [auditLogPlugin(), emcanvasPlugin]
+```
+
+4. Refresh dependencies in EmDash:
+
+```bash
+cd /Users/lopezlean/development/js/emdash
+pnpm install
+```
+
+5. Bootstrap and run the demo host:
+
+```bash
+cd /Users/lopezlean/development/js/emdash/demos/simple
+pnpm bootstrap
+pnpm dev
+```
+
+6. After EmCanvas changes, repeat the local loop:
+
+```bash
+cd /Users/lopezlean/development/js/emcanvas
+pnpm build
+
+cd /Users/lopezlean/development/js/emdash
+pnpm install
+
+cd /Users/lopezlean/development/js/emdash/demos/simple
+pnpm dev
+```
+
+7. Run the bounded smoke preflight:
 
 ```bash
 pnpm smoke
 ```
 
-6. If your local EmDash host exposes the seed endpoint, create the canonical smoke entry:
+8. If your local EmDash host exposes the seed endpoint, create the canonical smoke entry:
 
 ```bash
 node ./scripts/smoke-seed-local-host.mjs
 ```
 
-7. Complete the real host pass with:
+9. Complete the real host pass with:
 
 - `docs/integration/emdash-local-validation.md`
 - `docs/integration/manual-smoke-harness-playbook.md`

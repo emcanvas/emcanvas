@@ -9,6 +9,7 @@ describe('plugin consumption boundary', () => {
     expect(root.default).not.toHaveProperty('adminPages')
     expect(root.default).not.toHaveProperty('blockComponents')
     expect(Object.keys(root).sort()).toEqual([
+      'createPlugin',
       'default',
       'descriptor',
       'manifest',

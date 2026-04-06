@@ -1,7 +1,8 @@
-const plugin = {
+const manifest = {
   id: 'emcanvas',
   name: 'EmCanvas',
   version: '0.1.0',
-}
+} as const
 
-export default plugin
+export { manifest }
+export default manifest
