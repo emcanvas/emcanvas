@@ -10,6 +10,10 @@ describe('plugin public exports', () => {
     expect(root).toMatchObject({
       createPlugin: expect.any(Function),
       default: expect.objectContaining({
+        id: expect.any(String),
+        name: expect.any(String),
+        version: expect.any(String),
+        capabilities: expect.any(Array),
         hooks: expect.any(Object),
         routes: expect.any(Object),
       }),

@@ -1,10 +1,10 @@
 import descriptor from './descriptor'
 import manifest from './manifest'
 
-import { createRuntimePluginDefinition } from './runtime/create-runtime-plugin-definition'
+import { createNativeResolvedPlugin } from './runtime/create-native-resolved-plugin'
 
 function createPlugin() {
-  return createRuntimePluginDefinition()
+  return createNativeResolvedPlugin()
 }
 
 const plugin = createPlugin()

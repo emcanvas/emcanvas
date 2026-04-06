@@ -7,6 +7,8 @@ import plugin, {
   manifest,
 } from '../../src/plugin'
 import descriptor from '../../src/plugin/descriptor'
+import { pageFragments } from '../../src/plugin/hooks/page-fragments'
+import { getPageMetadata } from '../../src/plugin/hooks/page-metadata'
 import { routeAdapters } from '../../src/plugin/runtime/route-adapters'
 
 const packageJson = pkg as {
@@ -47,13 +49,26 @@ describe('emdash runtime contract', () => {
 
     expect(createdPlugin).toEqual(plugin)
 
-    expect(plugin.hooks['page:fragments']).toBeTypeOf('function')
-    expect(plugin.hooks['page:metadata']).toBeTypeOf('function')
-    expect(plugin.hooks['entry:editor:actions']).toBeTypeOf('function')
+    expect(plugin).toMatchObject({
+      id: packageJson.name,
+      name: 'EmCanvas',
+      version: packageJson.version,
+      capabilities: ['read:content', 'write:content', 'page:inject'],
+    })
 
-    expect(plugin.routes['canvas-data']).toBe(routeAdapters.loadDocument)
-    expect(plugin.routes['save-canvas-data']).toBe(routeAdapters.saveDocument)
-    expect(plugin.routes['preview-link']).toBe(routeAdapters.getPreviewLink)
+    expect(plugin.hooks['page:fragments']).toBe(pageFragments)
+    expect(plugin.hooks['page:metadata']).toBe(getPageMetadata)
+    expect(plugin.hooks).not.toHaveProperty('entry:editor:actions')
+
+    expect(plugin.routes['canvas-data']).toEqual({
+      handler: routeAdapters.loadDocument,
+    })
+    expect(plugin.routes['save-canvas-data']).toEqual({
+      handler: routeAdapters.saveDocument,
+    })
+    expect(plugin.routes['preview-link']).toEqual({
+      handler: routeAdapters.getPreviewLink,
+    })
 
     expect(createdPlugin).not.toHaveProperty('adminPages')
     expect(plugin).not.toHaveProperty('adminPages')

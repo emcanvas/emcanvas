@@ -3,20 +3,42 @@ import plugin, { manifest } from '../../src/plugin'
 import { createRuntimePluginDefinition } from '../../src/plugin/runtime/create-runtime-plugin-definition'
 
 describe('plugin definition', () => {
-  it('exposes host-compatible hooks and routes without admin pages', () => {
+  it('exposes a native runtime plugin shape without admin pages', () => {
+    expect(plugin.id).toBe('emcanvas')
+    expect(plugin.name).toBe('EmCanvas')
+    expect(plugin.version).toBe('0.1.0')
+    expect(plugin.capabilities).toEqual([
+      'read:content',
+      'write:content',
+      'page:inject',
+    ])
     expect(plugin.hooks['page:fragments']).toBeDefined()
     expect(plugin.hooks['page:metadata']).toBeDefined()
-    expect(plugin.hooks['entry:editor:actions']).toBeDefined()
-    expect(plugin.routes['preview-link']).toBeDefined()
-    expect(plugin.routes['canvas-data']).toBeDefined()
-    expect(plugin.routes['save-canvas-data']).toBeDefined()
+    expect(plugin.hooks['entry:editor:actions']).toBeUndefined()
+    expect(plugin.routes['preview-link']).toEqual({
+      handler: expect.any(Function),
+    })
+    expect(plugin.routes['canvas-data']).toEqual({
+      handler: expect.any(Function),
+    })
+    expect(plugin.routes['save-canvas-data']).toEqual({
+      handler: expect.any(Function),
+    })
     expect(plugin).not.toHaveProperty('adminPages')
   })
 
-  it('builds the root runtime definition without admin surfaces', () => {
+  it('keeps the raw runtime definition available for internal adapters', () => {
     expect(createRuntimePluginDefinition()).toEqual({
-      hooks: expect.any(Object),
-      routes: expect.any(Object),
+      hooks: {
+        'page:fragments': expect.any(Function),
+        'page:metadata': expect.any(Function),
+        'entry:editor:actions': expect.any(Function),
+      },
+      routes: {
+        'preview-link': expect.any(Function),
+        'canvas-data': expect.any(Function),
+        'save-canvas-data': expect.any(Function),
+      },
     })
   })
 
