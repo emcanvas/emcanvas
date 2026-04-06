@@ -44,11 +44,6 @@ Current state:
   - renderer behavior
   - host integration
 
-## Current Known Notes
-
-- `IMPROVEMENTS.md` contains broader architecture/codebase cleanup opportunities.
-- `renderer-improvements.md` contains renderer-specific ideas beyond the completed renderer hardening phase.
-
 ## Pending Explicitly Requested
 
 - Keep this file updated as AI workflow guidance evolves.
