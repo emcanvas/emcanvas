@@ -1,0 +1,16 @@
+# quick-smoke-entrypoint design
+
+## Accepted behavior
+
+The desired behavior is the current summary-and-links flow:
+
+1. check the canonical manual-smoke docs referenced by `MANUAL_SMOKE_DOC_PATHS`
+2. if any doc is missing, write an explicit error and stop
+3. otherwise run the bounded docs contract test
+4. print the short smoke summary plus canonical doc links
+
+## Implementation notes
+
+- keep the entrypoint in `scripts/smoke.mjs`
+- keep the docs contract in `tests/contracts/manual-smoke-harness-docs.test.ts`
+- use lightweight dependency injection in `runSmokePreflight()` only as needed to verify the missing-doc runtime path without changing CLI scope

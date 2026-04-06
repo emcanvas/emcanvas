@@ -1,0 +1,8 @@
+# quick-smoke-entrypoint tasks
+
+## Remediation
+
+- [x] Add a focused contract for the missing canonical-doc failure path.
+- [x] Keep `pnpm smoke` aligned to the accepted short summary plus canonical-doc links behavior.
+- [x] Record the accepted contract in repo-facing SDD artifacts.
+- [x] Verify the bounded remediation with focused tests only.

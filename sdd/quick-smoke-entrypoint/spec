@@ -1,0 +1,23 @@
+# quick-smoke-entrypoint spec
+
+## Requirements
+
+### Requirement: bounded smoke preflight contract
+`pnpm smoke` MUST remain a bounded preflight entrypoint.
+
+#### Scenario: successful bounded preflight
+- **Given** the canonical manual-smoke docs exist
+- **When** the operator runs `pnpm smoke`
+- **Then** the command runs `tests/contracts/manual-smoke-harness-docs.test.ts`
+- **And** it prints a short summary with canonical manual-smoke doc links
+- **And** it does not imply broader host automation or final-site deployment
+
+### Requirement: missing-doc failure is explicit
+The smoke command MUST fail explicitly when canonical harness docs are missing.
+
+#### Scenario: canonical doc missing
+- **Given** one or more paths in `MANUAL_SMOKE_DOC_PATHS` do not exist
+- **When** the operator runs `pnpm smoke`
+- **Then** the command exits non-zero
+- **And** it prints `Missing smoke harness docs:` with each missing canonical path
+- **And** it does not silently continue to the summary output

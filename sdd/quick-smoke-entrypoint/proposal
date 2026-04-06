@@ -1,0 +1,17 @@
+# quick-smoke-entrypoint
+
+## Summary
+
+Keep `pnpm smoke` as a bounded preflight that prints a short operator summary plus canonical manual-smoke doc links.
+
+## Accepted Scope
+
+- verify the canonical manual-smoke docs exist before printing the summary
+- run the focused docs contract test as the bounded preflight
+- fail explicitly when any canonical doc is missing
+
+## Out of Scope
+
+- Docker or host automation
+- broader CLI workflow changes
+- build or packaging changes

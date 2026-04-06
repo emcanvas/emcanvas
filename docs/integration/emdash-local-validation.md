@@ -2,6 +2,7 @@
 
 Use these local checks before review or release:
 
+- Run `pnpm smoke` for the bounded manual-smoke preflight, then use the linked harness docs for the real host pass.
 - Run `pnpm vitest run tests/contracts/consumable-package-docs.test.ts` to verify the consumable package checklist doc stays present.
 - Run `pnpm vitest run tests/contracts/manual-smoke-harness-docs.test.ts` to verify the manual smoke harness docs stay present and bounded to the real EmDash host loop.
 - Run `pnpm vitest run tests/contracts/emdash-plugin-runtime.test.ts` to verify the package surface, descriptor, plugin definition, and route adapters stay coherent for local host loading.
