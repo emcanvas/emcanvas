@@ -1,4 +1,4 @@
-import descriptor from './descriptor'
+import descriptor from './descriptor.js'
 
 const sandboxDescriptor = {
   ...descriptor,

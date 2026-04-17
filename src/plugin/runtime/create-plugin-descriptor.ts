@@ -1,5 +1,7 @@
 import manifest from '../manifest'
 
+import { createDescriptorAdminPages } from './plugin-admin-contract.js'
+
 export function createPluginDescriptor() {
   const packageName = manifest.id
 
@@ -8,8 +10,8 @@ export function createPluginDescriptor() {
     version: manifest.version,
     entrypoint: packageName,
     format: 'module',
-    sandbox: `${packageName}/sandbox`,
     adminEntry: `${packageName}/admin`,
     componentsEntry: `${packageName}/astro`,
+    adminPages: createDescriptorAdminPages(),
   } as const
 }

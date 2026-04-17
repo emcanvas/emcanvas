@@ -7,55 +7,58 @@ describe('consumable package docs', () => {
   it('documents the runtime package checklist', () => {
     expect(checklistContent).toContain('## Consumable package checklist')
     expect(checklistContent).toContain(
-      '- Package exports point to source plugin entry modules for local host consumption.',
+      '- Package exports point to `src/plugin/*` entry modules for source-first host consumption.',
     )
     expect(checklistContent).toContain(
-      '- The native plugin descriptor resolves `entrypoint`, `sandbox`, `adminEntry`, and `componentsEntry` from the published package specifiers.',
+      '- The native plugin descriptor resolves `entrypoint`, `adminEntry`, `componentsEntry`, and `adminPages` from the published package specifiers.',
     )
     expect(checklistContent).toContain(
-      '- EmDash can import the root and sandbox surfaces from the local package.',
+      '- EmDash can import the root runtime and descriptor surfaces from the local package.',
     )
     expect(checklistContent).toContain(
       '- Admin and astro surfaces stay explicit and host-focused.',
     )
   })
 
-  it('defines one canonical local path contract backed by source-first package exports', () => {
+  it('defines one canonical local path contract backed by published package exports', () => {
     expect(checklistContent).toContain(
       '- Use one canonical local dependency: point EmDash at the EmCanvas repo root/worktree package path.',
     )
     expect(checklistContent).toContain(
-      '- Local EmDash consumption resolves `emcanvas`, `emcanvas/sandbox`, `emcanvas/admin`, and `emcanvas/astro` through source exports.',
+      '- Local EmDash consumption resolves `emcanvas`, `emcanvas/descriptor`, `emcanvas/admin`, and `emcanvas/astro` through the package exports map.',
     )
     expect(checklistContent).toContain(
-      '- Keep `dist/*` only as a secondary packaging artifact boundary.',
+      '- Keep the package exports map aligned with the source-first `src/plugin/*` entry layout.',
     )
     expect(checklistContent).not.toContain('npm link')
   })
 
-  it('documents source-first host consumption as the only public local workflow', () => {
+  it('documents source-first host consumption as the public local workflow', () => {
     expect(readmeContent).toContain('## Test from source')
     expect(readmeContent).toContain(
       'The canonical local-host contract is the source-first package surface.',
     )
     expect(readmeContent).toContain(
-      'Import EmCanvas from the repo package path and let the public package specifiers resolve to source entry modules during local development.',
+      'Import EmCanvas from the repo package path and let the public package specifiers resolve directly to source entry modules during local development.',
     )
     expect(readmeContent).not.toContain(
       '### Optional: dev-source mode for local EmDash hosts',
     )
 
     expect(devSourceGuideContent).toContain(
-      '# EmDash source-first local consumption',
+      '# EmDash local package consumption',
     )
     expect(devSourceGuideContent).toContain(
       '- Use the native `emcanvas` package specifiers as the only local host contract.',
     )
     expect(devSourceGuideContent).toContain(
-      "import emcanvasPlugin, { createPlugin, descriptor } from 'emcanvas'",
+      "import emcanvasPlugin, { createPlugin } from 'emcanvas'",
     )
     expect(devSourceGuideContent).toContain(
-      '- `dist/*` remains a secondary packaging artifact and not the primary development runtime contract.',
+      "import descriptor from 'emcanvas/descriptor'",
+    )
+    expect(devSourceGuideContent).toContain(
+      '- The package exports map must stay aligned with the source-first `src/plugin/*` runtime entry modules.',
     )
     expect(devSourceGuideContent).not.toContain('@emcanvas/plugin/dev-source')
   })

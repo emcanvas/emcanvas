@@ -4,10 +4,10 @@ Use this checklist to validate the local EmDash host loop without touching the u
 
 ## Contract checks
 
-- `package.json` resolves `.` to `./src/plugin/index.ts`, `./sandbox` to `./src/plugin/sandbox-entry.ts`, `./admin` to `./src/plugin/admin-entry.ts`, and `./astro` to `./src/plugin/astro-entry.ts`.
-- The plugin descriptor stays aligned with the published `entrypoint`, `sandbox`, `adminEntry`, and `componentsEntry` package specifiers.
-- EmCanvas stays documented as a native EmDash plugin package with a named `createPlugin()` root factory.
-- The root runtime default-exports the host plugin definition and keeps `createPlugin`, `descriptor`, and `manifest` available as explicit exports.
+- `package.json` resolves `.` to `./src/plugin/index.ts`, `./descriptor` to `./src/plugin/descriptor.ts`, `./admin` to `./src/plugin/admin-entry.ts`, and `./astro` to `./src/plugin/astro-entry.ts`.
+- The plugin descriptor stays aligned with the published `entrypoint`, `adminEntry`, `componentsEntry`, and `adminPages` package specifiers.
+- EmCanvas stays documented as a native EmDash plugin package with a runtime root entry and a separate `emcanvas/descriptor` contract.
+- The root runtime default-exports the host plugin definition and keeps `createPlugin` and `manifest` available as explicit exports.
 - `plugin.routes['canvas-data']`, `plugin.routes['save-canvas-data']`, and `plugin.routes['preview-link']` stay wired to `routeAdapters`.
 - Runtime exports stay host-focused and do not promise hot reload or upstream EmDash automation.
 

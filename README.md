@@ -7,7 +7,7 @@ It lives as an external plugin, stores layout data inside `entry.data`, and rend
 ## Status
 
 - MVP implemented and tested
-- package/runtime surfaces aligned for EmDash consumption
+- package/runtime surfaces aligned for source-first EmDash consumption
 - renderer hardening completed
 - quick smoke, manual smoke, and Docker-backed local-host smoke flows available
 
@@ -22,11 +22,12 @@ It lives as an external plugin, stores layout data inside `entry.data`, and rend
 The package exposes these public entrypoints:
 
 - `.` → root runtime
+- `./descriptor` → build-time descriptor
 - `./sandbox` → sandbox runtime entry
 - `./admin` → admin bundle entry
 - `./astro` → Astro integration entry
 
-The root package exports a native EmDash descriptor plus a named `createPlugin()` factory.
+The root package stays runtime-only, while `emcanvas/descriptor` exposes the build-time descriptor contract.
 
 ## Core architecture
 
@@ -80,7 +81,8 @@ to `dependencies` in `demos/simple/package.json`.
 2. Register the plugin in `demos/simple/astro.config.mjs`:
 
 ```js
-import emcanvasPlugin, { createPlugin, descriptor } from 'emcanvas'
+import emcanvasPlugin, { createPlugin } from 'emcanvas'
+import descriptor from 'emcanvas/descriptor'
 ```
 
 EmDash's native plugin loader consumes `descriptor.entrypoint` and imports the named `createPlugin()` factory from that root package surface. For the current local demo integration, you can still include the default runtime plugin in the EmDash integration config:
@@ -132,10 +134,10 @@ node ./scripts/smoke-seed-local-host.mjs
 - `docs/integration/manual-smoke-harness-seeded-scenario.md`
 - `docs/integration/manual-smoke-harness-checklist.md`
 
-Import EmCanvas from the repo package path and let the public package specifiers resolve to source entry modules during local development.
-`dist/*` remains a secondary packaging artifact boundary and does not define the primary host runtime contract.
+Import EmCanvas from the repo package path and let the public package specifiers resolve directly to source entry modules during local development.
+Keep the package exports map aligned with the `src/plugin/*` runtime entry modules.
 
-See `docs/integration/emdash-dev-source-consumption.md` for the bounded source-first host setup and guardrails.
+See `docs/integration/emdash-dev-source-consumption.md` for the bounded local package setup and guardrails.
 
 ### Real local-host smoke
 

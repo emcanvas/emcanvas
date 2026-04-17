@@ -3,17 +3,22 @@ import { describe, expect, it } from 'vitest'
 describe('plugin consumption boundary', () => {
   it('keeps the root runtime host-focused', async () => {
     const root = await import('../../src/plugin/index')
+    const descriptor = await import('../../src/plugin/descriptor')
 
     expect('pages' in root).toBe(false)
     expect('blockComponents' in root).toBe(false)
-    expect(root.default).not.toHaveProperty('adminPages')
     expect(root.default).not.toHaveProperty('blockComponents')
+    expect(root.default.admin).toMatchObject({
+      entry: 'emcanvas/admin',
+      pages: expect.any(Array),
+      widgets: expect.any(Array),
+    })
     expect(Object.keys(root).sort()).toEqual([
       'createPlugin',
       'default',
-      'descriptor',
       'manifest',
     ])
+    expect(Object.keys(descriptor)).toEqual(['default'])
   })
 
   it('keeps the admin entry isolated to admin pages', async () => {

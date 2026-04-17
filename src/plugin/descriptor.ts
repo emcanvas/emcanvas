@@ -1,4 +1,4 @@
-import { createPluginDescriptor } from './runtime/create-plugin-descriptor'
+import { createPluginDescriptor } from './runtime/create-plugin-descriptor.js'
 
 const descriptor = createPluginDescriptor()
 

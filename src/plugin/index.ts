@@ -1,7 +1,6 @@
-import descriptor from './descriptor'
-import manifest from './manifest'
+import manifest from './manifest.js'
 
-import { createNativeResolvedPlugin } from './runtime/create-native-resolved-plugin'
+import { createNativeResolvedPlugin } from './runtime/create-native-resolved-plugin.js'
 
 function createPlugin() {
   return createNativeResolvedPlugin()
@@ -9,5 +8,5 @@ function createPlugin() {
 
 const plugin = createPlugin()
 
-export { createPlugin, descriptor, manifest }
+export { createPlugin, manifest }
 export default plugin

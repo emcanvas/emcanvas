@@ -1,10 +1,5 @@
-import { pages as adminPages } from '@emcanvas/plugin/admin-entry'
-
-import { createRuntimePluginDefinition } from '@emcanvas/plugin/runtime/create-runtime-plugin-definition'
+import { createRuntimePluginDefinition } from './create-runtime-plugin-definition.js'
 
 export function createPluginDefinition() {
-  return {
-    ...createRuntimePluginDefinition(),
-    adminPages,
-  }
+  return createRuntimePluginDefinition()
 }

@@ -1,6 +1,6 @@
-import manifest from '../manifest'
+import manifest from '../manifest.js'
 
-import { createRuntimePluginDefinition } from './create-runtime-plugin-definition'
+import { createRuntimePluginDefinition } from './create-runtime-plugin-definition.js'
 
 const nativeCapabilities = [
   'read:content',
@@ -61,5 +61,7 @@ export function createNativeResolvedPlugin() {
         handler: runtimeDefinition.routes['save-canvas-data'],
       },
     },
+    storage: runtimeDefinition.storage,
+    admin: runtimeDefinition.admin,
   }
 }

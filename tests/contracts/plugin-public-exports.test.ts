@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 describe('plugin public exports', () => {
   it('defines the minimum public contract for each entry module', async () => {
     const root = await import('../../src/plugin/index')
+    const descriptor = await import('../../src/plugin/descriptor')
     const sandbox = await import('../../src/plugin/sandbox-entry')
     const admin = await import('../../src/plugin/admin-entry')
     const astro = await import('../../src/plugin/astro-entry')
@@ -14,17 +15,9 @@ describe('plugin public exports', () => {
         name: expect.any(String),
         version: expect.any(String),
         capabilities: expect.any(Array),
+        admin: expect.any(Object),
         hooks: expect.any(Object),
         routes: expect.any(Object),
-      }),
-      descriptor: expect.objectContaining({
-        id: expect.any(String),
-        version: expect.any(String),
-        entrypoint: expect.any(String),
-        format: expect.any(String),
-        sandbox: expect.any(String),
-        adminEntry: expect.any(String),
-        componentsEntry: expect.any(String),
       }),
       manifest: expect.objectContaining({
         id: expect.any(String),
@@ -35,10 +28,21 @@ describe('plugin public exports', () => {
     expect(Object.keys(root).sort()).toEqual([
       'createPlugin',
       'default',
-      'descriptor',
       'manifest',
     ])
-    expect(root.default).not.toHaveProperty('adminPages')
+
+    expect(descriptor).toMatchObject({
+      default: expect.objectContaining({
+        id: expect.any(String),
+        version: expect.any(String),
+        entrypoint: expect.any(String),
+        format: expect.any(String),
+        adminEntry: expect.any(String),
+        componentsEntry: expect.any(String),
+        adminPages: expect.any(Array),
+      }),
+    })
+    expect(Object.keys(descriptor)).toEqual(['default'])
 
     expect(sandbox).toMatchObject({
       default: expect.objectContaining({
@@ -46,23 +50,23 @@ describe('plugin public exports', () => {
         version: expect.any(String),
         entrypoint: expect.any(String),
         format: expect.any(String),
-        sandbox: expect.any(String),
         adminEntry: expect.any(String),
         componentsEntry: expect.any(String),
+        adminPages: expect.any(Array),
       }),
     })
     expect(Object.keys(sandbox)).toEqual(['default'])
     expect(Object.keys(sandbox.default).sort()).toEqual([
       'adminEntry',
+      'adminPages',
       'componentsEntry',
       'entrypoint',
       'format',
       'id',
-      'sandbox',
       'version',
     ])
-    expect(sandbox.default).toEqual(root.descriptor)
-    expect(sandbox.default).not.toBe(root.descriptor)
+    expect(sandbox.default).toEqual(descriptor.default)
+    expect(sandbox.default).not.toBe(descriptor.default)
 
     expect(admin).toMatchObject({
       pages: {

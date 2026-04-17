@@ -3,6 +3,7 @@ import { defineConfig } from 'tsup'
 export default defineConfig({
   entry: {
     index: 'src/plugin/index.ts',
+    descriptor: 'src/plugin/descriptor.ts',
     'sandbox-entry': 'src/plugin/sandbox-entry.ts',
     admin: 'src/plugin/admin-entry.ts',
     astro: 'src/plugin/astro-entry.ts',

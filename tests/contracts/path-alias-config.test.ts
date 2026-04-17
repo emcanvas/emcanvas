@@ -120,7 +120,18 @@ describe('path alias config', () => {
 
     expect(rootModule.default).toMatchObject({
       createPlugin: expect.any(Function),
-      descriptor: expect.objectContaining({
+    })
+  })
+
+  it('keeps the public descriptor package import executable without mirrored host aliases', async () => {
+    const descriptorModule = await withGeneratedImportModule(
+      'emcanvas/descriptor',
+      (modulePath) =>
+        withAliasServer({}, (server) => server.ssrLoadModule(modulePath)),
+    )
+
+    expect(descriptorModule.default).toMatchObject({
+      default: expect.objectContaining({
         entrypoint: 'emcanvas',
       }),
     })
@@ -135,6 +146,21 @@ describe('path alias config', () => {
 
     expect(astroModule.default).toMatchObject({
       blockComponents: {},
+    })
+  })
+
+  it('keeps the public admin import executable without mirrored host aliases', async () => {
+    const adminModule = await withGeneratedImportModule(
+      'emcanvas/admin',
+      (modulePath) =>
+        withAliasServer({}, (server) => server.ssrLoadModule(modulePath)),
+    )
+
+    expect(adminModule.default).toMatchObject({
+      pages: {
+        dashboard: expect.any(Function),
+        editor: expect.any(Function),
+      },
     })
   })
 

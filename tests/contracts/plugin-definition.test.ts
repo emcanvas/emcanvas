@@ -3,7 +3,7 @@ import plugin, { manifest } from '../../src/plugin'
 import { createRuntimePluginDefinition } from '../../src/plugin/runtime/create-runtime-plugin-definition'
 
 describe('plugin definition', () => {
-  it('exposes a native runtime plugin shape without admin pages', () => {
+  it('exposes a native runtime plugin shape with admin metadata aligned to EmDash', () => {
     const hooks = plugin.hooks as Record<string, unknown>
 
     expect(plugin.id).toBe('emcanvas')
@@ -42,7 +42,23 @@ describe('plugin definition', () => {
     expect(plugin.routes['save-canvas-data']).toEqual({
       handler: expect.any(Function),
     })
-    expect(plugin).not.toHaveProperty('adminPages')
+    expect(plugin.storage).toEqual({})
+    expect(plugin.admin).toEqual({
+      entry: 'emcanvas/admin',
+      pages: [
+        {
+          path: '/dashboard',
+          label: 'Dashboard',
+          icon: 'layout-dashboard',
+        },
+        {
+          path: '/editor',
+          label: 'Editor',
+          icon: 'pen-square',
+        },
+      ],
+      widgets: [],
+    })
   })
 
   it('keeps the raw runtime definition available for internal adapters', () => {
@@ -56,6 +72,23 @@ describe('plugin definition', () => {
         'preview-link': expect.any(Function),
         'canvas-data': expect.any(Function),
         'save-canvas-data': expect.any(Function),
+      },
+      storage: {},
+      admin: {
+        entry: 'emcanvas/admin',
+        pages: [
+          {
+            path: '/dashboard',
+            label: 'Dashboard',
+            icon: 'layout-dashboard',
+          },
+          {
+            path: '/editor',
+            label: 'Editor',
+            icon: 'pen-square',
+          },
+        ],
+        widgets: [],
       },
     })
   })

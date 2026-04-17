@@ -1,12 +1,12 @@
 import { useEffect, useState, useSyncExternalStore } from 'react'
 
-import { createDefaultCanvasDocument } from '@emcanvas/foundation/model/document-factory'
-import type { CanvasDocument } from '@emcanvas/foundation/types/canvas'
-import { CanvasViewport } from '@emcanvas/editor/canvas/canvas-viewport'
-import { createEditorStore, type EditorStore } from '@emcanvas/editor/state/editor-store'
-import { EditorSidebar } from '@emcanvas/editor/shell/editor-sidebar'
-import { EditorStatusbar } from '@emcanvas/editor/shell/editor-statusbar'
-import { EditorToolbar } from '@emcanvas/editor/shell/editor-toolbar'
+import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
+import type { CanvasDocument } from '../../foundation/types/canvas'
+import { CanvasViewport } from '../canvas/canvas-viewport'
+import { createEditorStore, type EditorStore } from '../state/editor-store'
+import { EditorSidebar } from './editor-sidebar'
+import { EditorStatusbar } from './editor-statusbar'
+import { EditorToolbar } from './editor-toolbar'
 
 export interface EditorShellInstance {
   document: CanvasDocument
@@ -34,7 +34,10 @@ export function EditorShell({
   })
   const [document, setDocument] = useState(editorState.document)
   const editorStore = editorState.store
-  const state = useSyncExternalStore(editorStore.subscribe, editorStore.getState)
+  const state = useSyncExternalStore(
+    editorStore.subscribe,
+    editorStore.getState,
+  )
 
   useEffect(() => {
     if (initialDocument) {
@@ -43,7 +46,10 @@ export function EditorShell({
     }
   }, [editorStore, initialDocument])
 
-  function applyDocument(nextDocument: CanvasDocument, options?: { pushHistory?: boolean; markDirty?: boolean }) {
+  function applyDocument(
+    nextDocument: CanvasDocument,
+    options?: { pushHistory?: boolean; markDirty?: boolean },
+  ) {
     setDocument(nextDocument)
     onDocumentChange?.(nextDocument)
 
@@ -86,14 +92,21 @@ export function EditorShell({
 
   return (
     <div>
-      <EditorToolbar canUndo={state.canUndo} canRedo={state.canRedo} onUndo={handleUndo} onRedo={handleRedo} />
+      <EditorToolbar
+        canUndo={state.canUndo}
+        canRedo={state.canRedo}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+      />
       <div>
         <CanvasViewport document={document} />
         <EditorSidebar
           document={document}
           getDocument={() => document}
           state={state}
-          onBreakpointChange={(breakpoint) => editorStore.setBreakpoint(breakpoint)}
+          onBreakpointChange={(breakpoint) =>
+            editorStore.setBreakpoint(breakpoint)
+          }
           onDocumentChange={handleDocumentChange}
           onCommand={(command) => command.execute()}
         />

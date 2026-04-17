@@ -15,9 +15,20 @@ describe('plugin descriptor', () => {
       version: packageJson.version,
       entrypoint: packageJson.name,
       format: 'module',
-      sandbox: `${packageJson.name}/sandbox`,
       adminEntry: `${packageJson.name}/admin`,
       componentsEntry: `${packageJson.name}/astro`,
+      adminPages: [
+        {
+          path: '/dashboard',
+          label: 'Dashboard',
+          icon: 'layout-dashboard',
+        },
+        {
+          path: '/editor',
+          label: 'Editor',
+          icon: 'pen-square',
+        },
+      ],
     })
   })
 })
