@@ -4,13 +4,32 @@ import { CanvasSurface } from './canvas-surface'
 
 export interface CanvasViewportProps {
   document: CanvasDocument
+  selectedNodeId?: string | null
+  onSelectNode?: (nodeId: string) => void
+  onCreateFirstBlock?: (
+    nodeType: 'heading' | 'text' | 'button' | 'columns',
+  ) => void
 }
 
-export function CanvasViewport({ document }: CanvasViewportProps) {
+export function CanvasViewport({
+  document,
+  selectedNodeId = null,
+  onSelectNode,
+  onCreateFirstBlock,
+}: CanvasViewportProps) {
   return (
-    <section aria-label="Canvas viewport">
-      <BreadcrumbBar rootNode={document.root} />
-      <CanvasSurface document={document} />
+    <section aria-label="Canvas viewport" className="emc-canvas-viewport">
+      <BreadcrumbBar
+        rootNode={document.root}
+        selectedNodeId={selectedNodeId}
+        onSelectNode={onSelectNode}
+      />
+      <CanvasSurface
+        document={document}
+        selectedNodeId={selectedNodeId}
+        onSelectNode={onSelectNode}
+        onCreateFirstBlock={onCreateFirstBlock}
+      />
     </section>
   )
 }

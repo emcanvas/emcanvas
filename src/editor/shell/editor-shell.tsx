@@ -1,8 +1,19 @@
+import '../../styles/editor.css'
 import { useEffect, useState, useSyncExternalStore } from 'react'
 
 import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
-import type { CanvasDocument } from '../../foundation/types/canvas'
+import type { CanvasDocument, CanvasNode } from '../../foundation/types/canvas'
 import { CanvasViewport } from '../canvas/canvas-viewport'
+import { createNodeFromWidgetType } from '../dnd/dnd-operations'
+import {
+  insertChildNode,
+  deleteNode,
+  insertNodeBelow,
+  resolveSelectionAfterDelete,
+} from '../model/document-mutations'
+import { canWidgetAcceptChildType } from '../model/document-validation'
+import { widgetRegistry } from '../registry/widget-registry'
+import { findNodePathById, getNodeAtPath } from '../shared/tree-path'
 import { createEditorStore, type EditorStore } from '../state/editor-store'
 import { EditorSidebar } from './editor-sidebar'
 import { EditorStatusbar } from './editor-statusbar'
@@ -28,7 +39,7 @@ export function EditorShell({
     const document = initialDocument ?? createDefaultCanvasDocument()
     const store = createEditorStore<CanvasDocument>()
 
-    store.pushHistory(document)
+    store.resetHistory(document)
 
     return { document, store }
   })
@@ -39,6 +50,25 @@ export function EditorShell({
     editorStore.getState,
   )
 
+  function syncSelection(
+    nextDocument: CanvasDocument,
+    nextSelectedNodeId?: string | null,
+  ) {
+    const selection = nextSelectedNodeId ?? state.selectedNodeId
+
+    if (!selection) {
+      editorStore.clearSelection()
+      return
+    }
+
+    if (findNodePathById(nextDocument.root, selection)) {
+      editorStore.selectNode(selection)
+      return
+    }
+
+    editorStore.clearSelection()
+  }
+
   useEffect(() => {
     if (initialDocument) {
       setDocument(initialDocument)
@@ -48,17 +78,25 @@ export function EditorShell({
 
   function applyDocument(
     nextDocument: CanvasDocument,
-    options?: { pushHistory?: boolean; markDirty?: boolean },
+    options?: {
+      pushHistory?: boolean
+      markDirty?: boolean
+      selectedNodeId?: string | null
+    },
   ) {
     setDocument(nextDocument)
     onDocumentChange?.(nextDocument)
+    syncSelection(nextDocument, options?.selectedNodeId)
 
     if (options?.markDirty ?? true) {
       editorStore.markDirty()
     }
 
     if (options?.pushHistory ?? true) {
-      editorStore.pushHistory(nextDocument)
+      editorStore.pushHistory(
+        nextDocument,
+        options?.selectedNodeId ?? state.selectedNodeId,
+      )
     }
   }
 
@@ -66,24 +104,75 @@ export function EditorShell({
     applyDocument(nextDocument)
   }
 
-  function handleUndo() {
-    const nextDocument = editorStore.undoHistory()
+  function handleCreateFirstBlock(
+    nodeType: 'heading' | 'text' | 'button' | 'columns' = 'heading',
+  ) {
+    const nextNode = createNodeFromWidgetType(nodeType)
+    const nextDocument = insertChildNode(
+      document,
+      document.root.id,
+      nextNode,
+      widgetRegistry,
+    )
 
-    if (!nextDocument) {
+    applyDocument(nextDocument, {
+      selectedNodeId: getInsertedNodeSelection(nextNode),
+    })
+  }
+
+  function handleAddNode(
+    nodeType: 'heading' | 'text' | 'button' | 'container' | 'columns',
+  ) {
+    const nextNode = createNodeFromWidgetType(nodeType)
+    const anchorId = state.selectedNodeId ?? document.root.id
+    const anchorPath = findNodePathById(document.root, anchorId)
+    const anchorNode = anchorPath
+      ? getNodeAtPath(document.root, anchorPath)
+      : null
+    const nextDocument =
+      anchorNode &&
+      canWidgetAcceptChildType(anchorNode.type, nextNode.type, widgetRegistry)
+        ? insertChildNode(document, anchorNode.id, nextNode, widgetRegistry)
+        : insertNodeBelow(document, anchorId, nextNode, widgetRegistry)
+
+    applyDocument(nextDocument, {
+      selectedNodeId: getInsertedNodeSelection(nextNode),
+    })
+  }
+
+  function handleDeleteNode(nodeId: string) {
+    const nextSelectedNodeId = resolveSelectionAfterDelete(document, nodeId)
+    const nextDocument = deleteNode(document, nodeId)
+
+    applyDocument(nextDocument, { selectedNodeId: nextSelectedNodeId })
+  }
+
+  function handleUndo() {
+    const nextHistory = editorStore.undoHistory()
+
+    if (!nextHistory) {
       return
     }
 
-    applyDocument(nextDocument, { pushHistory: false })
+    applyDocument(nextHistory.snapshot, {
+      markDirty: false,
+      pushHistory: false,
+      selectedNodeId: nextHistory.selectedNodeId,
+    })
   }
 
   function handleRedo() {
-    const nextDocument = editorStore.redoHistory()
+    const nextHistory = editorStore.redoHistory()
 
-    if (!nextDocument) {
+    if (!nextHistory) {
       return
     }
 
-    applyDocument(nextDocument, { pushHistory: false })
+    applyDocument(nextHistory.snapshot, {
+      markDirty: false,
+      pushHistory: false,
+      selectedNodeId: nextHistory.selectedNodeId,
+    })
   }
 
   useEffect(() => {
@@ -91,15 +180,20 @@ export function EditorShell({
   }, [document, editorStore, onEditorReady])
 
   return (
-    <div>
+    <div className="emc-editor-shell">
       <EditorToolbar
         canUndo={state.canUndo}
         canRedo={state.canRedo}
         onUndo={handleUndo}
         onRedo={handleRedo}
       />
-      <div>
-        <CanvasViewport document={document} />
+      <div className="emc-editor-shell__workspace">
+        <CanvasViewport
+          document={document}
+          selectedNodeId={state.selectedNodeId}
+          onSelectNode={(nodeId) => editorStore.selectNode(nodeId)}
+          onCreateFirstBlock={handleCreateFirstBlock}
+        />
         <EditorSidebar
           document={document}
           getDocument={() => document}
@@ -107,6 +201,8 @@ export function EditorShell({
           onBreakpointChange={(breakpoint) =>
             editorStore.setBreakpoint(breakpoint)
           }
+          onAddNode={handleAddNode}
+          onDeleteNode={handleDeleteNode}
           onDocumentChange={handleDocumentChange}
           onCommand={(command) => command.execute()}
         />
@@ -114,4 +210,7 @@ export function EditorShell({
       <EditorStatusbar breakpoint={state.breakpoint} dirty={state.dirty} />
     </div>
   )
+}
+function getInsertedNodeSelection(node: CanvasNode): string {
+  return node.type === 'columns' ? (node.children?.[0]?.id ?? node.id) : node.id
 }

@@ -11,6 +11,11 @@ export interface EditorState {
   canRedo: boolean
 }
 
+export interface EditorHistorySnapshot<T> {
+  snapshot: T
+  selectedNodeId: string | null
+}
+
 type Listener = () => void
 
 export interface EditorStore<T extends NonNullable<unknown>> {
@@ -19,20 +24,29 @@ export interface EditorStore<T extends NonNullable<unknown>> {
   markDirty(): void
   markClean(): void
   setBreakpoint(nextBreakpoint: EditorBreakpoint): void
-  resetHistory(snapshot: T): void
-  pushHistory(snapshot: T): void
-  undoHistory(): T | null
-  redoHistory(): T | null
+  resetHistory(snapshot: T, selectedNodeId?: string | null): void
+  pushHistory(snapshot: T, selectedNodeId?: string | null): void
+  undoHistory(): EditorHistorySnapshot<T> | null
+  redoHistory(): EditorHistorySnapshot<T> | null
   getState(): EditorState
   subscribe(listener: Listener): () => void
 }
 
-export function createEditorStore<T extends NonNullable<unknown>>(): EditorStore<T> {
+export function createEditorStore<
+  T extends NonNullable<unknown>,
+>(): EditorStore<T> {
   const selectionStore = createSelectionStore()
-  const historyStore = createSnapshotHistoryStore<T>()
+  const historyStore = createSnapshotHistoryStore<EditorHistorySnapshot<T>>()
   let dirty = false
+  let cleanSnapshot: T | null = null
   let breakpoint: EditorBreakpoint = 'desktop'
   const listeners = new Set<Listener>()
+
+  function syncDirtyWithHistory() {
+    const present = historyStore.getState().present?.snapshot ?? null
+
+    dirty = present !== cleanSnapshot
+  }
 
   function createStateSnapshot(): EditorState {
     const selection = selectionStore.getState()
@@ -72,6 +86,7 @@ export function createEditorStore<T extends NonNullable<unknown>>(): EditorStore
       notify()
     },
     markClean() {
+      cleanSnapshot = historyStore.getState().present?.snapshot ?? null
       dirty = false
       notify()
     },
@@ -79,22 +94,27 @@ export function createEditorStore<T extends NonNullable<unknown>>(): EditorStore
       breakpoint = nextBreakpoint
       notify()
     },
-    resetHistory(snapshot: T) {
-      historyStore.reset(snapshot)
+    resetHistory(snapshot: T, selectedNodeId: string | null = null) {
+      historyStore.reset({ snapshot, selectedNodeId })
+      cleanSnapshot = snapshot
+      dirty = false
       notify()
     },
-    pushHistory(snapshot: T) {
-      historyStore.push(snapshot)
+    pushHistory(snapshot: T, selectedNodeId: string | null = null) {
+      historyStore.push({ snapshot, selectedNodeId })
+      syncDirtyWithHistory()
       notify()
     },
     undoHistory() {
       const snapshot = historyStore.undo()
+      syncDirtyWithHistory()
       notify()
 
       return snapshot
     },
     redoHistory() {
       const snapshot = historyStore.redo()
+      syncDirtyWithHistory()
       notify()
 
       return snapshot

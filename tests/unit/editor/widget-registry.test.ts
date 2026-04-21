@@ -1,7 +1,10 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
 
 import { WIDGET_CATEGORIES } from '../../../src/editor/registry/categories'
-import type { WidgetDefinition, WidgetPropSchemaItem } from '../../../src/editor/registry/widget-definition'
+import type {
+  WidgetDefinition,
+  WidgetPropSchemaItem,
+} from '../../../src/editor/registry/widget-definition'
 import { widgetRegistry } from '../../../src/editor/registry/widget-registry'
 
 describe('widgetRegistry', () => {
@@ -39,6 +42,7 @@ describe('widgetRegistry', () => {
 
   it('enforces a minimal contract for prop schema items', () => {
     const heading = widgetRegistry.get('heading')
+    const button = widgetRegistry.get('button')
 
     expect(heading?.propSchema).toEqual([
       {
@@ -53,6 +57,23 @@ describe('widgetRegistry', () => {
       },
     ])
 
+    expect(button).toMatchObject({
+      defaultProps: {
+        label: 'Click me',
+        href: '#',
+      },
+      propSchema: [
+        {
+          key: 'label',
+          type: 'string',
+        },
+        {
+          key: 'href',
+          type: 'string',
+        },
+      ],
+    })
+
     expectTypeOf<WidgetPropSchemaItem>().toMatchTypeOf<{
       key: string
       type: string
@@ -61,7 +82,9 @@ describe('widgetRegistry', () => {
       max?: number
     }>()
 
-    expectTypeOf<WidgetDefinition['propSchema'][number]>().toEqualTypeOf<WidgetPropSchemaItem>()
+    expectTypeOf<
+      WidgetDefinition['propSchema'][number]
+    >().toEqualTypeOf<WidgetPropSchemaItem>()
   })
 
   it('makes base wrapper participation explicit for every widget', () => {
@@ -73,27 +96,28 @@ describe('widgetRegistry', () => {
 
   it('throws when two widgets share the same type', async () => {
     await expect(
-      import('../../../src/editor/registry/widget-registry').then(({ createWidgetRegistry }) =>
-        createWidgetRegistry([
-          {
-            type: 'duplicate',
-            label: 'First',
-            category: WIDGET_CATEGORIES.content,
-            defaultProps: {},
-            propSchema: [],
-            allowedChildren: 'none',
-            disableBaseWrapper: false,
-          },
-          {
-            type: 'duplicate',
-            label: 'Second',
-            category: WIDGET_CATEGORIES.content,
-            defaultProps: {},
-            propSchema: [],
-            allowedChildren: 'none',
-            disableBaseWrapper: false,
-          },
-        ]),
+      import('../../../src/editor/registry/widget-registry').then(
+        ({ createWidgetRegistry }) =>
+          createWidgetRegistry([
+            {
+              type: 'duplicate',
+              label: 'First',
+              category: WIDGET_CATEGORIES.content,
+              defaultProps: {},
+              propSchema: [],
+              allowedChildren: 'none',
+              disableBaseWrapper: false,
+            },
+            {
+              type: 'duplicate',
+              label: 'Second',
+              category: WIDGET_CATEGORIES.content,
+              defaultProps: {},
+              propSchema: [],
+              allowedChildren: 'none',
+              disableBaseWrapper: false,
+            },
+          ]),
       ),
     ).rejects.toThrow("Duplicate widget type: 'duplicate'")
   })

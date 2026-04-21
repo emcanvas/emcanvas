@@ -1,6 +1,8 @@
 ---
+import { normalizeButtonHref } from '../../../foundation/shared/button-href'
+
 const { href: rawHref, label: rawLabel, text: rawText, ...attributes } = Astro.props
-const href = typeof rawHref === 'string' ? rawHref : '#'
+const href = normalizeButtonHref(rawHref)
 const label = typeof rawLabel === 'string'
   ? rawLabel
   : typeof rawText === 'string'

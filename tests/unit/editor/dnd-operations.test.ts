@@ -1,10 +1,21 @@
 import { describe, expect, it } from 'vitest'
 
-import type { CanvasDocument, CanvasNode } from '../../../src/foundation/types/canvas'
-import { createNode, createNodeFromWidgetType, deleteNode, moveNode } from '../../../src/editor/dnd/dnd-operations'
+import type {
+  CanvasDocument,
+  CanvasNode,
+} from '../../../src/foundation/types/canvas'
+import {
+  createNode,
+  createNodeFromWidgetType,
+  deleteNode,
+  moveNode,
+} from '../../../src/editor/dnd/dnd-operations'
 import { validateInsertChildNode } from '../../../src/editor/model/document-validation'
 import { validateInsertChildNodeWithWidgetRegistry } from '../../../src/editor/model/document-validation-registry'
-import { createWidgetRegistry, widgetRegistry } from '../../../src/editor/registry/widget-registry'
+import {
+  createWidgetRegistry,
+  widgetRegistry,
+} from '../../../src/editor/registry/widget-registry'
 import type { WidgetDefinition } from '../../../src/editor/registry/widget-definition'
 
 function createNodeFixture(overrides: Partial<CanvasNode> = {}): CanvasNode {
@@ -38,7 +49,12 @@ function createFixtureDocument(): CanvasDocument {
               type: 'container',
               props: {},
               styles: { desktop: {} },
-              children: [createNodeFixture({ id: 'heading-1', props: { text: 'Title', level: 2 } })],
+              children: [
+                createNodeFixture({
+                  id: 'heading-1',
+                  props: { text: 'Title', level: 2 },
+                }),
+              ],
             },
           ],
         },
@@ -47,7 +63,12 @@ function createFixtureDocument(): CanvasDocument {
           type: 'container',
           props: {},
           styles: { desktop: {} },
-          children: [createNodeFixture({ id: 'heading-2', props: { text: 'Subtitle', level: 3 } })],
+          children: [
+            createNodeFixture({
+              id: 'heading-2',
+              props: { text: 'Subtitle', level: 3 },
+            }),
+          ],
         },
       ],
     },
@@ -68,8 +89,39 @@ describe('createNodeFromWidgetType', () => {
     expect(result.id).toMatch(/^heading-/)
   })
 
+  it('builds columns with a minimal container subtree by default', () => {
+    const result = createNodeFromWidgetType('columns')
+
+    expect(result).toMatchObject({
+      type: 'columns',
+      props: { columns: 2 },
+      styles: { desktop: {} },
+      children: [
+        {
+          type: 'container',
+          props: {},
+          styles: { desktop: {} },
+          children: [],
+        },
+        {
+          type: 'container',
+          props: {},
+          styles: { desktop: {} },
+          children: [],
+        },
+      ],
+    })
+    expect(result.id).toMatch(/^columns-/)
+    expect(result.children).toHaveLength(2)
+    expect(result.children?.[0]?.id).toMatch(/^container-/)
+    expect(result.children?.[1]?.id).toMatch(/^container-/)
+    expect(result.children?.[0]?.id).not.toBe(result.children?.[1]?.id)
+  })
+
   it('throws when the widget type is unknown', () => {
-    expect(() => createNodeFromWidgetType('missing-widget')).toThrow("Unknown widget type: 'missing-widget'")
+    expect(() => createNodeFromWidgetType('missing-widget')).toThrow(
+      "Unknown widget type: 'missing-widget'",
+    )
   })
 })
 
@@ -103,7 +155,9 @@ describe('deleteNode', () => {
   it('throws when deleting the root node', () => {
     const document = createFixtureDocument()
 
-    expect(() => deleteNode(document, 'root')).toThrow('Cannot remove the root node')
+    expect(() => deleteNode(document, 'root')).toThrow(
+      'Cannot remove the root node',
+    )
   })
 })
 
@@ -128,7 +182,10 @@ describe('moveNode', () => {
 
     const result = moveNode(document, 'container-1', 'container-2')
 
-    expect(result.root.children?.map((node) => node.id)).toEqual(['columns-1', 'container-2'])
+    expect(result.root.children?.map((node) => node.id)).toEqual([
+      'columns-1',
+      'container-2',
+    ])
     expect(result.root.children?.[0]?.children).toEqual([])
     expect(result.root.children?.[1]?.children).toEqual([
       expect.objectContaining({ id: 'heading-2' }),
@@ -205,16 +262,29 @@ describe('document validation registry dependency', () => {
       ],
     ])
 
-    expect(() => validateInsertChildNode(parent, child, createFixtureDocument().root, registry)).not.toThrow()
+    expect(() =>
+      validateInsertChildNode(
+        parent,
+        child,
+        createFixtureDocument().root,
+        registry,
+      ),
+    ).not.toThrow()
   })
 
   it('keeps the default widget registry in a transitional adapter outside the core validator', () => {
     const document = createFixtureDocument()
     const parent = document.root.children?.[1]
-    const child = createNodeFixture({ id: 'text-1', type: 'text', props: { text: 'Body' } })
+    const child = createNodeFixture({
+      id: 'text-1',
+      type: 'text',
+      props: { text: 'Body' },
+    })
 
     expect(parent).toBeDefined()
-    expect(() => validateInsertChildNodeWithWidgetRegistry(parent!, child, document.root)).not.toThrow()
+    expect(() =>
+      validateInsertChildNodeWithWidgetRegistry(parent!, child, document.root),
+    ).not.toThrow()
   })
 })
 
@@ -234,9 +304,21 @@ describe('alternative registry validation', () => {
       },
     ])
 
-    expect(() => validateInsertChildNode(parent, child, createFixtureDocument().root, widgetRegistry)).toThrow(
-      "Node 'heading-parent' of type 'heading' cannot accept children",
-    )
-    expect(() => validateInsertChildNode(parent, child, createFixtureDocument().root, customRegistry)).not.toThrow()
+    expect(() =>
+      validateInsertChildNode(
+        parent,
+        child,
+        createFixtureDocument().root,
+        widgetRegistry,
+      ),
+    ).toThrow("Node 'heading-parent' of type 'heading' cannot accept children")
+    expect(() =>
+      validateInsertChildNode(
+        parent,
+        child,
+        createFixtureDocument().root,
+        customRegistry,
+      ),
+    ).not.toThrow()
   })
 })

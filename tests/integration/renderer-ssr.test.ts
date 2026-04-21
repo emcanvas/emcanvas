@@ -152,6 +152,60 @@ describe('EmCanvasRenderer', () => {
     expect(html).not.toContain('<style')
   })
 
+  it('keeps useful button hrefs and sanitizes unsafe ones in SSR output', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(EmCanvasRenderer, {
+      props: {
+        document: {
+          version: 1,
+          settings: {},
+          root: {
+            id: 'root',
+            type: 'section',
+            props: {},
+            styles: {
+              desktop: {},
+            },
+            children: [
+              {
+                id: 'valid-button',
+                type: 'button',
+                props: {
+                  label: 'Docs',
+                  href: 'https://example.test/docs',
+                },
+                styles: {
+                  desktop: {},
+                },
+                children: [],
+              },
+              {
+                id: 'invalid-button',
+                type: 'button',
+                props: {
+                  label: 'Unsafe',
+                  href: 'javascript:alert(1)',
+                },
+                styles: {
+                  desktop: {},
+                },
+                children: [],
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(html).toMatch(
+      /<a(?=[^>]*data-emcanvas-node="valid-button")(?=[^>]*href="https:\/\/example\.test\/docs")[^>]*>Docs<\/a>/,
+    )
+    expect(html).toMatch(
+      /<a(?=[^>]*data-emcanvas-node="invalid-button")(?=[^>]*href="#")[^>]*>Unsafe<\/a>/,
+    )
+    expect(html).not.toContain('href="javascript:alert(1)"')
+  })
+
   it('keeps node selector hooks without renderer-local stylesheet output', async () => {
     const container = await AstroContainer.create()
     const html = await container.renderToString(EmCanvasRenderer, {

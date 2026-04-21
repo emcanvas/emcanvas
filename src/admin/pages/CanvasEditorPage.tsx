@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
 import type { CanvasDocument } from '../../foundation/types/canvas'
 import type { CanvasEntry } from '../../shared/types/canvas-entry'
@@ -7,7 +7,10 @@ import { SaveStatus, type SaveState } from '../components/SaveStatus'
 import { TakeoverBanner } from '../components/TakeoverBanner'
 import { mapPluginApiError } from '../lib/error-mapping'
 import { pluginApi, type PluginApi } from '../lib/plugin-api'
-import { EditorShell, type EditorShellInstance } from '../../editor/shell/editor-shell'
+import {
+  EditorShell,
+  type EditorShellInstance,
+} from '../../editor/shell/editor-shell'
 
 export interface CanvasEditorPageProps {
   entry: CanvasEntry
@@ -22,13 +25,22 @@ export function CanvasEditorPage({
   previewOrigin,
   onEditorReady,
 }: CanvasEditorPageProps) {
-  const [canvasLayout, setCanvasLayout] = useState<CanvasDocument>(() => createDefaultCanvasDocument())
+  const editorInstanceRef = useRef<EditorShellInstance | null>(null)
+  const [initialDocument, setInitialDocument] = useState<CanvasDocument>(() =>
+    createDefaultCanvasDocument(),
+  )
+  const [canvasLayout, setCanvasLayout] = useState<CanvasDocument>(() =>
+    createDefaultCanvasDocument(),
+  )
+  const [hasLoadedDocument, setHasLoadedDocument] = useState(false)
   const [takeoverEnabled, setTakeoverEnabled] = useState(false)
   const [saveState, setSaveState] = useState<SaveState>('idle')
   const [message, setMessage] = useState<string | null>(null)
 
   useEffect(() => {
     let active = true
+
+    setHasLoadedDocument(false)
 
     void api
       .loadDocument(entry)
@@ -37,8 +49,10 @@ export function CanvasEditorPage({
           return
         }
 
-        setCanvasLayout(result.canvasLayout as CanvasDocument)
+        setInitialDocument(result.canvasLayout)
+        setCanvasLayout(result.canvasLayout)
         setTakeoverEnabled(result._emcanvas.enabled)
+        setHasLoadedDocument(true)
       })
       .catch((error: unknown) => {
         if (!active) {
@@ -60,6 +74,9 @@ export function CanvasEditorPage({
 
     try {
       await api.saveDocument({ entry, canvasLayout })
+      setInitialDocument(canvasLayout)
+      editorInstanceRef.current?.store.resetHistory(canvasLayout)
+      editorInstanceRef.current?.store.markClean()
       setTakeoverEnabled(true)
       setSaveState('saved')
     } catch (error) {
@@ -77,11 +94,18 @@ export function CanvasEditorPage({
       <SaveStatus state={saveState} message={message} />
       <PreviewActions previewUrl={previewUrl} onPublish={handlePublish} />
       <section aria-label="Canvas editor workspace">
-        <EditorShell
-          initialDocument={canvasLayout}
-          onDocumentChange={setCanvasLayout}
-          onEditorReady={onEditorReady}
-        />
+        {hasLoadedDocument ? (
+          <EditorShell
+            initialDocument={initialDocument}
+            onDocumentChange={setCanvasLayout}
+            onEditorReady={(instance) => {
+              editorInstanceRef.current = instance
+              onEditorReady?.(instance)
+            }}
+          />
+        ) : (
+          <p>Loading canvas…</p>
+        )}
       </section>
     </main>
   )

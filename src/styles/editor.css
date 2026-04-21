@@ -1,5 +1,118 @@
-.emcanvas-editor-shell {
+.emc-editor-shell {
   display: grid;
   gap: 1rem;
   padding: 1.5rem;
+}
+
+.emc-editor-shell__workspace {
+  display: grid;
+  gap: 1rem;
+  align-items: start;
+}
+
+.emc-canvas-viewport {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.emc-canvas-breadcrumbs__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.emc-canvas-breadcrumbs__button,
+.emc-canvas-empty-state__actions button,
+.emc-canvas-node__button {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  border-radius: 0.75rem;
+}
+
+.emc-canvas-breadcrumbs__button {
+  padding: 0.35rem 0.65rem;
+}
+
+.emc-canvas-surface {
+  position: relative;
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #dbe4f0;
+  border-radius: 1rem;
+  background: #f8fafc;
+}
+
+.emc-canvas-surface__status {
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.875rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.emc-canvas-empty-state {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px dashed #93c5fd;
+  border-radius: 1rem;
+  background: #fff;
+}
+
+.emc-canvas-empty-state__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.emc-canvas-empty-state__actions button,
+.emc-canvas-node__button {
+  padding: 0.75rem 0.875rem;
+}
+
+.emc-canvas-node {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.emc-canvas-node__button {
+  width: 100%;
+  text-align: left;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    background-color 120ms ease;
+}
+
+.emc-canvas-node__button:hover,
+.emc-canvas-node__button:focus-visible {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  outline: none;
+}
+
+.emc-canvas-node[data-selected='true'] > .emc-canvas-node__button {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
+}
+
+.emc-canvas-node__children {
+  display: grid;
+  gap: 0.5rem;
+  margin-left: 1rem;
+  padding-left: 0.75rem;
+  border-left: 1px solid #dbe4f0;
+}
+
+.emc-selection-outline {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+  border: 2px solid #2563eb;
+  border-radius: 0.875rem;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85);
 }

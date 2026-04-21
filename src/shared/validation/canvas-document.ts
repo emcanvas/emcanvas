@@ -1,4 +1,4 @@
-import { isCanvasDocument } from '../../foundation/model/guards'
+import { parseCanvasDocument } from '../../foundation/model/canvas-document-schema'
 import type { CanvasDocument } from '../../foundation/types/canvas'
 
 export interface CanvasDocumentValidationResult {
@@ -7,18 +7,22 @@ export interface CanvasDocumentValidationResult {
   document: CanvasDocument | null
 }
 
-export function validateCanvasDocument(value: unknown): CanvasDocumentValidationResult {
-  if (isCanvasDocument(value)) {
+export function validateCanvasDocument(
+  value: unknown,
+): CanvasDocumentValidationResult {
+  const result = parseCanvasDocument(value)
+
+  if (result.success) {
     return {
       valid: true,
       errors: [],
-      document: value,
+      document: result.data,
     }
   }
 
   return {
     valid: false,
-    errors: ['Canvas document must include version 1, a valid root node, and settings.'],
+    errors: result.errors,
     document: null,
   }
 }

@@ -6,12 +6,12 @@ export const buttonWidget: WidgetDefinition = {
   label: 'Button',
   category: WIDGET_CATEGORIES.content,
   defaultProps: {
-    text: 'Click me',
+    label: 'Click me',
     href: '#',
   },
   propSchema: [
     {
-      key: 'text',
+      key: 'label',
       type: 'string',
     },
     {

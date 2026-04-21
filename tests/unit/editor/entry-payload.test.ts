@@ -46,7 +46,11 @@ describe('buildEntryPayload', () => {
   it('overwrites stale emcanvas keys without mutating the original entry data', () => {
     const entryData = {
       slug: 'home',
-      [EMCANVAS_ENTRY_META_KEY]: { enabled: false, version: 0, editorVersion: 'legacy' },
+      [EMCANVAS_ENTRY_META_KEY]: {
+        enabled: false,
+        version: 0,
+        editorVersion: 'legacy',
+      },
       [EMCANVAS_LAYOUT_KEY]: { legacy: true },
     }
     const canvasLayout = createDocument()
@@ -58,12 +62,31 @@ describe('buildEntryPayload', () => {
       version: CANVAS_DOCUMENT_VERSION,
       editorVersion: EMCANVAS_EDITOR_VERSION,
     })
-    expect(result[EMCANVAS_LAYOUT_KEY]).toBe(canvasLayout)
+    expect(result[EMCANVAS_LAYOUT_KEY]).toEqual(canvasLayout)
+    expect(result[EMCANVAS_LAYOUT_KEY]).not.toBe(canvasLayout)
     expect(entryData[EMCANVAS_ENTRY_META_KEY]).toEqual({
       enabled: false,
       version: 0,
       editorVersion: 'legacy',
     })
     expect(entryData[EMCANVAS_LAYOUT_KEY]).toEqual({ legacy: true })
+  })
+
+  it('rejects structurally invalid canvas documents before persisting them', () => {
+    expect(() =>
+      buildEntryPayload({}, {
+        version: CANVAS_DOCUMENT_VERSION,
+        settings: {},
+        root: {
+          id: 'root',
+          type: 'section',
+          props: {
+            onClick: () => 'boom',
+          },
+          styles: { desktop: {} },
+          children: [],
+        },
+      } as unknown as CanvasDocument),
+    ).toThrow('Invalid canvas payload')
   })
 })

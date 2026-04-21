@@ -5,6 +5,7 @@ import {
   EMCANVAS_ENTRY_META_KEY,
   EMCANVAS_LAYOUT_KEY,
 } from '../../../src/foundation/shared/constants'
+import { getCanvasData } from '../../../src/plugin/routes/get-canvas-data'
 import { saveCanvasData } from '../../../src/plugin/routes/save-canvas-data'
 
 describe('saveCanvasData', () => {
@@ -52,6 +53,34 @@ describe('saveCanvasData', () => {
         entry: { data: {} },
         payload: {
           canvasLayout: { version: 999 },
+          _emcanvas: {
+            enabled: true,
+            version: CANVAS_DOCUMENT_VERSION,
+            editorVersion: EMCANVAS_EDITOR_VERSION,
+          },
+        },
+      }),
+    ).rejects.toThrow('Invalid canvas payload')
+  })
+
+  it('rejects canvas payloads with non-json values', async () => {
+    await expect(
+      saveCanvasData({
+        entry: { data: {} },
+        payload: {
+          canvasLayout: {
+            version: CANVAS_DOCUMENT_VERSION,
+            root: {
+              id: 'root',
+              type: 'section',
+              props: {
+                onClick: () => 'boom',
+              },
+              styles: { desktop: {} },
+              children: [],
+            },
+            settings: {},
+          },
           _emcanvas: {
             enabled: true,
             version: CANVAS_DOCUMENT_VERSION,
@@ -114,5 +143,43 @@ describe('saveCanvasData', () => {
         },
       }),
     ).rejects.toThrow('Invalid canvas payload')
+  })
+
+  it('roundtrips a saved canvas document through entry.data', async () => {
+    const entry = {
+      data: {
+        slug: 'home',
+      },
+    }
+    const canvasLayout = {
+      version: CANVAS_DOCUMENT_VERSION,
+      root: {
+        id: 'root',
+        type: 'section',
+        props: {
+          title: 'Hero',
+        },
+        styles: { desktop: { gap: '1rem' } },
+        children: [],
+      },
+      settings: {
+        theme: 'dark',
+      },
+    }
+    const _emcanvas = {
+      enabled: true,
+      version: CANVAS_DOCUMENT_VERSION,
+      editorVersion: EMCANVAS_EDITOR_VERSION,
+    }
+
+    await saveCanvasData({
+      entry,
+      payload: { canvasLayout, _emcanvas },
+    })
+
+    await expect(getCanvasData({ entry })).resolves.toEqual({
+      canvasLayout,
+      _emcanvas,
+    })
   })
 })

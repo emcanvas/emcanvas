@@ -1,5 +1,7 @@
 type AstroComponent = (...args: never[]) => unknown
 
+import { normalizeButtonHref } from '../../foundation/shared/button-href'
+
 type ComponentProps = Record<string, unknown>
 
 type AstroComponentModule = {
@@ -10,7 +12,9 @@ type ImportMetaWithGlob = ImportMeta & {
   glob: <T>(pattern: string, options: { eager: true }) => Record<string, T>
 }
 
-const componentModules = (import.meta as ImportMetaWithGlob).glob<AstroComponentModule>('./astro/*.astro', {
+const componentModules = (
+  import.meta as ImportMetaWithGlob
+).glob<AstroComponentModule>('./astro/*.astro', {
   eager: true,
 })
 
@@ -27,24 +31,33 @@ const components: Record<string, AstroComponent | undefined> = {
   divider: componentModules['./astro/Divider.astro']?.default,
 }
 
-const componentPropsMappers: Record<string, ((props: ComponentProps) => ComponentProps) | undefined> = {
+const componentPropsMappers: Record<
+  string,
+  ((props: ComponentProps) => ComponentProps) | undefined
+> = {
   heading: (props) => ({
     text: typeof props.text === 'string' ? props.text : '',
-    level: props.level === 1 || props.level === 2 || props.level === 3 || props.level === 4
-      || props.level === 5 || props.level === 6
-      ? props.level
-      : 2,
+    level:
+      props.level === 1 ||
+      props.level === 2 ||
+      props.level === 3 ||
+      props.level === 4 ||
+      props.level === 5 ||
+      props.level === 6
+        ? props.level
+        : 2,
   }),
   text: (props) => ({
     text: typeof props.text === 'string' ? props.text : '',
   }),
   button: (props) => ({
-    href: typeof props.href === 'string' ? props.href : '#',
-    label: typeof props.label === 'string'
-      ? props.label
-      : typeof props.text === 'string'
-        ? props.text
-        : '',
+    href: normalizeButtonHref(props.href),
+    label:
+      typeof props.label === 'string'
+        ? props.label
+        : typeof props.text === 'string'
+          ? props.text
+          : '',
   }),
   image: (props) => ({
     src: typeof props.src === 'string' ? props.src : '',
@@ -65,6 +78,9 @@ export function getAstroComponent(type: string): AstroComponent {
   return component
 }
 
-export function getAstroComponentProps(type: string, props: ComponentProps): ComponentProps {
+export function getAstroComponentProps(
+  type: string,
+  props: ComponentProps,
+): ComponentProps {
   return componentPropsMappers[type]?.(props) ?? {}
 }

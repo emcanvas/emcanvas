@@ -2,7 +2,10 @@ import { isCanvasNode } from '../../foundation/model/guards'
 import type { CanvasNode } from '../../foundation/types/canvas'
 import type { WidgetDefinition } from '../registry/widget-definition'
 
-export type WidgetDefinitionRegistry = Pick<Map<string, WidgetDefinition>, 'get'>
+export type WidgetDefinitionRegistry = Pick<
+  Map<string, WidgetDefinition>,
+  'get'
+>
 
 function getWidgetDefinition(type: string, registry: WidgetDefinitionRegistry) {
   const definition = registry.get(type)
@@ -22,7 +25,10 @@ function hasNodeId(node: CanvasNode, nodeId: string): boolean {
   return (node.children ?? []).some((child) => hasNodeId(child, nodeId))
 }
 
-function collectNodeIds(node: CanvasNode, ids: Set<string> = new Set<string>()): Set<string> {
+function collectNodeIds(
+  node: CanvasNode,
+  ids: Set<string> = new Set<string>(),
+): Set<string> {
   if (ids.has(node.id)) {
     throw new Error(`Node id '${node.id}' is duplicated in inserted subtree`)
   }
@@ -55,8 +61,13 @@ export function validateInsertChildNode(
   const parentDefinition = getWidgetDefinition(parent.type, registry)
   getWidgetDefinition(child.type, registry)
 
-  if (parentDefinition.allowedChildren === 'none' || parentDefinition.allowedChildren === undefined) {
-    throw new Error(`Node '${parent.id}' of type '${parent.type}' cannot accept children`)
+  if (
+    parentDefinition.allowedChildren === 'none' ||
+    parentDefinition.allowedChildren === undefined
+  ) {
+    throw new Error(
+      `Node '${parent.id}' of type '${parent.type}' cannot accept children`,
+    )
   }
 
   if (
@@ -67,4 +78,26 @@ export function validateInsertChildNode(
       `Node '${parent.id}' of type '${parent.type}' only accepts children of type: ${parentDefinition.allowedChildren.join(', ')}`,
     )
   }
+}
+
+export function canWidgetAcceptChildType(
+  parentType: string,
+  childType: string,
+  registry: WidgetDefinitionRegistry,
+): boolean {
+  const parentDefinition = getWidgetDefinition(parentType, registry)
+  getWidgetDefinition(childType, registry)
+
+  if (
+    parentDefinition.allowedChildren === 'none' ||
+    parentDefinition.allowedChildren === undefined
+  ) {
+    return false
+  }
+
+  if (parentDefinition.allowedChildren === 'any') {
+    return true
+  }
+
+  return parentDefinition.allowedChildren.includes(childType)
 }

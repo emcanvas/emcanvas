@@ -20,6 +20,20 @@ describe('getCanvasData', () => {
     })
   })
 
+  it('returns a default document when canvasLayout is empty', async () => {
+    const result = await getCanvasData({
+      entry: {
+        data: {
+          [EMCANVAS_LAYOUT_KEY]: '',
+        },
+      },
+    })
+
+    expect(isCanvasDocument(result.canvasLayout)).toBe(true)
+    expect(result.canvasLayout.version).toBe(CANVAS_DOCUMENT_VERSION)
+    expect(result.canvasLayout.root.props).toEqual({})
+  })
+
   it('returns persisted canvas data when present', async () => {
     const canvasLayout = {
       version: CANVAS_DOCUMENT_VERSION,
@@ -92,5 +106,31 @@ describe('getCanvasData', () => {
     expect(isCanvasDocument(result.canvasLayout)).toBe(true)
     expect(result.canvasLayout.version).toBe(CANVAS_DOCUMENT_VERSION)
     expect(result.canvasLayout.root.children).toEqual([])
+  })
+
+  it('falls back to a default document when persisted canvasLayout contains non-json values', async () => {
+    const result = await getCanvasData({
+      entry: {
+        data: {
+          [EMCANVAS_LAYOUT_KEY]: {
+            version: CANVAS_DOCUMENT_VERSION,
+            root: {
+              id: 'root',
+              type: 'section',
+              props: {
+                onClick: () => 'boom',
+              },
+              styles: { desktop: {} },
+              children: [],
+            },
+            settings: {},
+          },
+        },
+      },
+    })
+
+    expect(isCanvasDocument(result.canvasLayout)).toBe(true)
+    expect(result.canvasLayout.root.id).not.toBe('root')
+    expect(result.canvasLayout.root.props).toEqual({})
   })
 })

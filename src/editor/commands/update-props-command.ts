@@ -1,4 +1,6 @@
+import { createNodeId } from '../../foundation/shared/ids'
 import type { CanvasDocument } from '../../foundation/types/canvas'
+import type { CanvasNode } from '../../foundation/types/canvas'
 import { findNodePathById, replaceNodeAtPath } from '../shared/tree-path'
 import type { Command } from './command'
 
@@ -23,13 +25,89 @@ export function updateNodeProps(
   return {
     ...document,
     root: replaceNodeAtPath(document.root, path, (node) => ({
-      ...node,
-      props: {
-        ...node.props,
-        ...nextProps,
-      },
+      ...updateNodeWithProps(node, nextProps),
     })),
   }
+}
+
+function updateNodeWithProps(
+  node: CanvasNode,
+  nextProps: Record<string, unknown>,
+): CanvasNode {
+  const mergedProps = {
+    ...node.props,
+    ...nextProps,
+  }
+
+  if (node.type !== 'columns') {
+    return {
+      ...node,
+      props: mergedProps,
+    }
+  }
+
+  return syncColumnsNode(node, mergedProps)
+}
+
+function syncColumnsNode(
+  node: CanvasNode,
+  nextProps: Record<string, unknown>,
+): CanvasNode {
+  const existingChildren = [...(node.children ?? [])]
+  const requestedColumns = normalizeColumnsCount(
+    nextProps.columns,
+    Math.max(
+      existingChildren.length,
+      normalizeColumnsCount(node.props.columns, 2),
+    ),
+  )
+
+  if (existingChildren.length < requestedColumns) {
+    existingChildren.push(
+      ...Array.from(
+        { length: requestedColumns - existingChildren.length },
+        () => createEmptyContainerNode(),
+      ),
+    )
+  }
+
+  const removableChildren = existingChildren.slice(requestedColumns)
+  const nextColumns =
+    removableChildren.length > 0 && removableChildren.some(hasNestedContent)
+      ? existingChildren.length
+      : requestedColumns
+
+  return {
+    ...node,
+    props: {
+      ...nextProps,
+      columns: nextColumns,
+    },
+    children: existingChildren.slice(0, nextColumns),
+  }
+}
+
+function normalizeColumnsCount(value: unknown, fallback: number): number {
+  return typeof value === 'number' &&
+    Number.isInteger(value) &&
+    value >= 2 &&
+    value <= 4
+    ? value
+    : fallback
+}
+
+function createEmptyContainerNode(): CanvasNode {
+  return {
+    id: createNodeId('container'),
+    type: 'container',
+    props: {},
+    styles: { desktop: {} },
+    children: [],
+  }
+}
+
+function hasNestedContent(node: CanvasNode): boolean {
+  return (node.children?.length ?? 0) > 0
 }
 
 export class UpdateNodePropsCommand implements Command {
@@ -40,7 +118,13 @@ export class UpdateNodePropsCommand implements Command {
   execute(): void {
     const currentDocument = this.options.getDocument()
     this.previousDocument = currentDocument
-    this.options.setDocument(updateNodeProps(currentDocument, this.options.nodeId, this.options.nextProps))
+    this.options.setDocument(
+      updateNodeProps(
+        currentDocument,
+        this.options.nodeId,
+        this.options.nextProps,
+      ),
+    )
   }
 
   undo(): void {

@@ -2,7 +2,11 @@ import { createNodeId } from '../../foundation/shared/ids'
 import type { CanvasDocument, CanvasNode } from '../../foundation/types/canvas'
 import { validateInsertChildNode } from '../model/document-validation'
 import { widgetRegistry } from '../registry/widget-registry'
-import { findNodePathById, getNodeAtPath, replaceNodeAtPath } from '../shared/tree-path'
+import {
+  findNodePathById,
+  getNodeAtPath,
+  replaceNodeAtPath,
+} from '../shared/tree-path'
 import { insertChildNode } from '../model/document-mutations'
 
 function removeNodeAtPath(root: CanvasNode, path: number[]): CanvasNode {
@@ -15,19 +19,36 @@ function removeNodeAtPath(root: CanvasNode, path: number[]): CanvasNode {
 
   return replaceNodeAtPath(root, parentPath, (parentNode) => ({
     ...parentNode,
-    children: (parentNode.children ?? []).filter((_, index) => index !== nodeIndex),
+    children: (parentNode.children ?? []).filter(
+      (_, index) => index !== nodeIndex,
+    ),
   }))
 }
 
 function isAncestorPath(ancestor: number[], descendant: number[]) {
-  return ancestor.length < descendant.length && ancestor.every((segment, index) => segment === descendant[index])
+  return (
+    ancestor.length < descendant.length &&
+    ancestor.every((segment, index) => segment === descendant[index])
+  )
 }
 
 function arePathsEqual(left: number[], right: number[]) {
-  return left.length === right.length && left.every((segment, index) => segment === right[index])
+  return (
+    left.length === right.length &&
+    left.every((segment, index) => segment === right[index])
+  )
 }
 
-export function createNodeFromWidgetType(nodeType: string): CanvasNode {
+function normalizeColumnsCount(value: unknown): number {
+  return typeof value === 'number' &&
+    Number.isInteger(value) &&
+    value >= 2 &&
+    value <= 4
+    ? value
+    : 2
+}
+
+function createBaseNodeFromWidgetType(nodeType: string): CanvasNode {
   const definition = widgetRegistry.get(nodeType)
 
   if (!definition) {
@@ -43,11 +64,43 @@ export function createNodeFromWidgetType(nodeType: string): CanvasNode {
   }
 }
 
-export function createNode(document: CanvasDocument, parentId: string, nodeType: string): CanvasDocument {
-  return insertChildNode(document, parentId, createNodeFromWidgetType(nodeType), widgetRegistry)
+export function createNodeFromWidgetType(nodeType: string): CanvasNode {
+  const node = createBaseNodeFromWidgetType(nodeType)
+
+  if (node.type !== 'columns') {
+    return node
+  }
+
+  return {
+    ...node,
+    props: {
+      ...node.props,
+      columns: normalizeColumnsCount(node.props.columns),
+    },
+    children: Array.from(
+      { length: normalizeColumnsCount(node.props.columns) },
+      () => createBaseNodeFromWidgetType('container'),
+    ),
+  }
 }
 
-export function deleteNode(document: CanvasDocument, nodeId: string): CanvasDocument {
+export function createNode(
+  document: CanvasDocument,
+  parentId: string,
+  nodeType: string,
+): CanvasDocument {
+  return insertChildNode(
+    document,
+    parentId,
+    createNodeFromWidgetType(nodeType),
+    widgetRegistry,
+  )
+}
+
+export function deleteNode(
+  document: CanvasDocument,
+  nodeId: string,
+): CanvasDocument {
   const nodePath = findNodePathById(document.root, nodeId)
 
   if (!nodePath) {
@@ -60,7 +113,11 @@ export function deleteNode(document: CanvasDocument, nodeId: string): CanvasDocu
   }
 }
 
-export function moveNode(document: CanvasDocument, nodeId: string, targetParentId: string): CanvasDocument {
+export function moveNode(
+  document: CanvasDocument,
+  nodeId: string,
+  targetParentId: string,
+): CanvasDocument {
   const nodePath = findNodePathById(document.root, nodeId)
   const targetParentPath = findNodePathById(document.root, targetParentId)
 
@@ -96,19 +153,35 @@ export function moveNode(document: CanvasDocument, nodeId: string, targetParentI
     root: removeNodeAtPath(document.root, nodePath),
   }
 
-  const nextTargetParentPath = findNodePathById(documentWithoutNode.root, targetParentId)
+  const nextTargetParentPath = findNodePathById(
+    documentWithoutNode.root,
+    targetParentId,
+  )
 
   if (!nextTargetParentPath) {
     throw new Error(`Cannot find node '${targetParentId}'`)
   }
 
-  const nextTargetParent = getNodeAtPath(documentWithoutNode.root, nextTargetParentPath)
+  const nextTargetParent = getNodeAtPath(
+    documentWithoutNode.root,
+    nextTargetParentPath,
+  )
 
   if (!nextTargetParent) {
     throw new Error(`Cannot find node '${targetParentId}'`)
   }
 
-  validateInsertChildNode(nextTargetParent, node, documentWithoutNode.root, widgetRegistry)
+  validateInsertChildNode(
+    nextTargetParent,
+    node,
+    documentWithoutNode.root,
+    widgetRegistry,
+  )
 
-  return insertChildNode(documentWithoutNode, targetParentId, node, widgetRegistry)
+  return insertChildNode(
+    documentWithoutNode,
+    targetParentId,
+    node,
+    widgetRegistry,
+  )
 }

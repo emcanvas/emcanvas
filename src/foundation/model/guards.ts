@@ -1,6 +1,11 @@
 import { CANVAS_DOCUMENT_VERSION } from '../shared/constants'
-import type { CanvasDocument, CanvasNode, ResponsiveStyles } from '../types/canvas'
+import type {
+  CanvasDocument,
+  CanvasNode,
+  ResponsiveStyles,
+} from '../types/canvas'
 import type { EmCanvasEntryMeta } from '../types/entry-data'
+import { parseCanvasDocument } from './canvas-document-schema'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -11,11 +16,19 @@ function isResponsiveStyles(value: unknown): value is ResponsiveStyles {
     return false
   }
 
-  if ('tablet' in value && value.tablet !== undefined && !isRecord(value.tablet)) {
+  if (
+    'tablet' in value &&
+    value.tablet !== undefined &&
+    !isRecord(value.tablet)
+  ) {
     return false
   }
 
-  if ('mobile' in value && value.mobile !== undefined && !isRecord(value.mobile)) {
+  if (
+    'mobile' in value &&
+    value.mobile !== undefined &&
+    !isRecord(value.mobile)
+  ) {
     return false
   }
 
@@ -60,18 +73,12 @@ function isCanvasNodeInternal(
 }
 
 export function isCanvasDocument(value: unknown): value is CanvasDocument {
-  if (!isRecord(value)) {
-    return false
-  }
-
-  return (
-    value.version === CANVAS_DOCUMENT_VERSION &&
-    isCanvasNode(value.root) &&
-    isRecord(value.settings)
-  )
+  return parseCanvasDocument(value).success
 }
 
-export function isEmCanvasEntryMeta(value: unknown): value is EmCanvasEntryMeta {
+export function isEmCanvasEntryMeta(
+  value: unknown,
+): value is EmCanvasEntryMeta {
   if (!isRecord(value)) {
     return false
   }

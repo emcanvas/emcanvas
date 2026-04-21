@@ -173,6 +173,31 @@ describe('editor store', () => {
     })
   })
 
+  it('restores the history snapshot selection across undo and redo', () => {
+    const store = createEditorStore<string>()
+
+    store.pushHistory('doc-1', 'heading-1')
+    store.pushHistory('doc-2', 'button-1')
+
+    expect(store.undoHistory()).toEqual({
+      snapshot: 'doc-1',
+      selectedNodeId: 'heading-1',
+    })
+    expect(store.getState()).toMatchObject({
+      canUndo: false,
+      canRedo: true,
+    })
+
+    expect(store.redoHistory()).toEqual({
+      snapshot: 'doc-2',
+      selectedNodeId: 'button-1',
+    })
+    expect(store.getState()).toMatchObject({
+      canUndo: true,
+      canRedo: false,
+    })
+  })
+
   it('tracks selected node, dirty state, breakpoint, and history flags', () => {
     const store = createEditorStore<string>()
 
@@ -198,7 +223,10 @@ describe('editor store', () => {
       canRedo: false,
     })
 
-    expect(store.undoHistory()).toBe('doc-1')
+    expect(store.undoHistory()).toEqual({
+      snapshot: 'doc-1',
+      selectedNodeId: null,
+    })
     expect(store.getState()).toMatchObject({
       canUndo: false,
       canRedo: true,
@@ -211,5 +239,51 @@ describe('editor store', () => {
       selectedNodeId: null,
       dirty: false,
     })
+  })
+
+  it('returns to clean when history reaches the persisted snapshot again', () => {
+    const store = createEditorStore<string>()
+
+    store.resetHistory('doc-1')
+
+    expect(store.getState().dirty).toBe(false)
+
+    store.pushHistory('doc-2')
+    expect(store.getState()).toMatchObject({
+      dirty: true,
+      canUndo: true,
+      canRedo: false,
+    })
+
+    expect(store.undoHistory()).toEqual({
+      snapshot: 'doc-1',
+      selectedNodeId: null,
+    })
+    expect(store.getState()).toMatchObject({
+      dirty: false,
+      canUndo: false,
+      canRedo: true,
+    })
+
+    expect(store.redoHistory()).toEqual({
+      snapshot: 'doc-2',
+      selectedNodeId: null,
+    })
+    expect(store.getState().dirty).toBe(true)
+
+    store.markClean()
+    expect(store.getState().dirty).toBe(false)
+
+    expect(store.undoHistory()).toEqual({
+      snapshot: 'doc-1',
+      selectedNodeId: null,
+    })
+    expect(store.getState().dirty).toBe(true)
+
+    expect(store.redoHistory()).toEqual({
+      snapshot: 'doc-2',
+      selectedNodeId: null,
+    })
+    expect(store.getState().dirty).toBe(false)
   })
 })
