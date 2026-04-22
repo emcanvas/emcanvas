@@ -49,6 +49,9 @@ export function createNativeResolvedPlugin() {
       'page:metadata': createNativeResolvedHook(
         runtimeDefinition.hooks['page:metadata'],
       ),
+      'entry:editor:actions': createNativeResolvedHook(
+        runtimeDefinition.hooks['entry:editor:actions'],
+      ),
     },
     routes: {
       'preview-link': {

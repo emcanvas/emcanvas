@@ -27,6 +27,12 @@ function resolveEntryFromLocation(): CanvasEntry {
   const search = new URLSearchParams(window.location.search)
   const data: CanvasEntry['data'] = {}
 
+  const id = search.get('id')
+
+  if (id) {
+    data.id = id
+  }
+
   const slug = search.get('slug')
 
   if (slug) {

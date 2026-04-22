@@ -10,6 +10,7 @@ import pkg from '../../package.json'
 import plugin, { createPlugin, manifest } from '../../src/plugin'
 import { EMCANVAS_VITE_ALIASES } from '../../vite.config'
 import descriptor from '../../src/plugin/descriptor'
+import { getEntryEditorActions as entryEditorActions } from '../../src/plugin/hooks/entry-editor-actions'
 import { pageFragments } from '../../src/plugin/hooks/page-fragments'
 import { getPageMetadata } from '../../src/plugin/hooks/page-metadata'
 import { routeAdapters } from '../../src/plugin/runtime/route-adapters'
@@ -254,7 +255,11 @@ describe('emdash runtime contract', () => {
       getPageMetadata,
       packageJson.name,
     )
-    expect(plugin.hooks).not.toHaveProperty('entry:editor:actions')
+    expectResolvedHook(
+      plugin.hooks['entry:editor:actions'],
+      entryEditorActions,
+      packageJson.name,
+    )
 
     expect(plugin.routes['canvas-data']).toEqual({
       handler: routeAdapters.loadDocument,

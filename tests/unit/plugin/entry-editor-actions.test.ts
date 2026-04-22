@@ -5,7 +5,32 @@ import { describe, expect, it } from 'vitest'
 import { getEntryEditorActions } from '../../../src/plugin/hooks/entry-editor-actions'
 
 describe('entry editor actions', () => {
-  it('builds an EmDash admin deep-link with entry context', () => {
+  it('builds an EmDash admin deep-link with entry id as the primary identifier', () => {
+    const actions = getEntryEditorActions({
+      entry: {
+        data: {
+          id: 'entry-123',
+          slug: 'home',
+          title: 'Homepage',
+        },
+      },
+    })
+
+    expect(actions).toEqual([
+      {
+        id: 'enable-emcanvas',
+        label: 'Enable EmCanvas for this entry',
+        run: expect.any(Function),
+      },
+      {
+        id: 'open-emcanvas-editor',
+        label: 'Edit with EmCanvas',
+        href: '/_emdash/admin/plugins/emcanvas/editor?id=entry-123&slug=home&title=Homepage',
+      },
+    ])
+  })
+
+  it('falls back to slug and title when the entry id is unavailable', () => {
     const actions = getEntryEditorActions({
       entry: {
         data: {
@@ -33,6 +58,7 @@ describe('entry editor actions', () => {
     const actions = getEntryEditorActions({
       entry: {
         data: {
+          id: 'entry-123',
           slug: 'home',
           _emcanvas: {
             enabled: true,
@@ -58,7 +84,7 @@ describe('entry editor actions', () => {
       {
         id: 'open-emcanvas-editor',
         label: 'Edit with EmCanvas',
-        href: '/_emdash/admin/plugins/emcanvas/editor?slug=home',
+        href: '/_emdash/admin/plugins/emcanvas/editor?id=entry-123&slug=home',
       },
     ])
   })

@@ -18,6 +18,10 @@ export interface EntryEditorAction {
 function getEditorHref(data: Record<string, unknown>) {
   const search = new URLSearchParams()
 
+  if (typeof data.id === 'string' && data.id.length > 0) {
+    search.set('id', data.id)
+  }
+
   if (typeof data.slug === 'string' && data.slug.length > 0) {
     search.set('slug', data.slug)
   }

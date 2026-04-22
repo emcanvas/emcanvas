@@ -32,7 +32,15 @@ describe('plugin definition', () => {
       handler: expect.any(Function),
       pluginId: 'emcanvas',
     })
-    expect(hooks['entry:editor:actions']).toBeUndefined()
+    expect(hooks['entry:editor:actions']).toEqual({
+      priority: 0,
+      timeout: 0,
+      dependencies: [],
+      errorPolicy: 'continue',
+      exclusive: false,
+      handler: expect.any(Function),
+      pluginId: 'emcanvas',
+    })
     expect(plugin.routes['preview-link']).toEqual({
       handler: expect.any(Function),
     })
