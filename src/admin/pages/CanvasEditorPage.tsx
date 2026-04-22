@@ -1,3 +1,4 @@
+import '../../styles/editor.css'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
 import type { CanvasDocument } from '../../foundation/types/canvas'
@@ -122,14 +123,44 @@ export function CanvasEditorPage({
     entry: resolvedEntry,
     origin: previewOrigin,
   })
+  const entryLabel =
+    typeof resolvedEntry.data.title === 'string' &&
+    resolvedEntry.data.title.length > 0
+      ? resolvedEntry.data.title
+      : typeof resolvedEntry.data.slug === 'string' &&
+          resolvedEntry.data.slug.length > 0
+        ? resolvedEntry.data.slug
+        : 'Untitled entry'
 
   return (
-    <main aria-labelledby="emcanvas-editor-title">
-      <h1 id="emcanvas-editor-title">EmCanvas editor</h1>
-      <TakeoverBanner enabled={takeoverEnabled} />
-      <SaveStatus state={saveState} message={message} />
-      <PreviewActions previewUrl={previewUrl} onPublish={handlePublish} />
-      <section aria-label="Canvas editor workspace">
+    <main
+      aria-labelledby="emcanvas-editor-title"
+      className="emc-admin-editor-page"
+    >
+      <header
+        aria-label="Canvas editor header"
+        className="emc-admin-editor-page__topbar"
+      >
+        <div className="emc-admin-editor-page__title-block">
+          <h1 id="emcanvas-editor-title">EmCanvas editor</h1>
+          <p className="emc-admin-editor-page__entry-label">
+            Editing {entryLabel}
+          </p>
+        </div>
+        <div
+          role="group"
+          aria-label="Canvas editor context"
+          className="emc-admin-editor-page__meta"
+        >
+          <TakeoverBanner enabled={takeoverEnabled} />
+          <SaveStatus state={saveState} message={message} />
+          <PreviewActions previewUrl={previewUrl} onPublish={handlePublish} />
+        </div>
+      </header>
+      <section
+        aria-label="Canvas editor workspace"
+        className="emc-admin-editor-page__workspace"
+      >
         {hasLoadedDocument ? (
           <EditorShell
             initialDocument={initialDocument}
@@ -140,7 +171,14 @@ export function CanvasEditorPage({
             }}
           />
         ) : (
-          <p>Loading canvas…</p>
+          <div
+            className="emc-admin-editor-page__loading"
+            role="status"
+            aria-live="polite"
+          >
+            <strong>Loading canvas…</strong>
+            <p>Preparing the dedicated editing workspace.</p>
+          </div>
         )}
       </section>
     </main>

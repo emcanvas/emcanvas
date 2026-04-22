@@ -31,13 +31,60 @@ afterEach(() => {
 })
 
 describe('editor shell flow', () => {
-  it('renders toolbar, canvas, sidebar, and statusbar', () => {
+  it('renders a compact canvas shell with toolbar, canvas, sidebar, and statusbar', () => {
     const view = render(<EditorShell />)
 
-    expect(view.getByLabelText('Editor toolbar')).toBeInTheDocument()
+    expect(view.getByLabelText('Editor toolbar')).toHaveClass(
+      'emc-editor-toolbar',
+    )
+    expect(view.getByLabelText('Canvas viewport')).toHaveClass(
+      'emc-canvas-viewport',
+    )
     expect(view.getByLabelText('Canvas viewport')).toBeInTheDocument()
     expect(view.getByLabelText('Property inspector')).toBeInTheDocument()
     expect(view.getByLabelText('Editor statusbar')).toBeInTheDocument()
+  })
+
+  it('starts from a valid empty layout and shows curated canvas quick actions', () => {
+    const view = render(
+      <EditorShell initialDocument={createDefaultCanvasDocument()} />,
+    )
+
+    expect(
+      view.getByText(
+        'Empty canvas. Start with a section or a ready-made block.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      view.getByRole('heading', { name: 'Start from scratch' }),
+    ).toBeInTheDocument()
+    expect(
+      view.getByText(
+        'The layout is valid and intentionally blank. Add your first block when you are ready.',
+      ),
+    ).toBeInTheDocument()
+    expect(
+      view.getByRole('button', { name: 'Add section' }),
+    ).toBeInTheDocument()
+    expect(view.getByRole('button', { name: 'Add hero' })).toBeInTheDocument()
+    expect(
+      view.getByRole('button', { name: 'Add columns' }),
+    ).toBeInTheDocument()
+    expect(
+      view.getByRole('button', { name: 'Add heading' }),
+    ).toBeInTheDocument()
+    expect(
+      view.queryByRole('button', { name: 'Add first text' }),
+    ).not.toBeInTheDocument()
+    expect(
+      view.queryByRole('button', { name: 'Add first button' }),
+    ).not.toBeInTheDocument()
+    expect(
+      view.queryByRole('button', { name: 'Add first image' }),
+    ).not.toBeInTheDocument()
+    expect(
+      view.queryByRole('button', { name: 'Add first features/cards' }),
+    ).not.toBeInTheDocument()
   })
 
   it('shows an empty-state affordance and selects the created first heading', () => {
@@ -45,16 +92,7 @@ describe('editor shell flow', () => {
       <EditorShell initialDocument={createDefaultCanvasDocument()} />,
     )
 
-    expect(
-      view.getByText('Canvas is empty. Choose a first block to get started.'),
-    ).toBeInTheDocument()
-    expect(
-      view.getByText(
-        'This canvas is empty. Add your first block to get started.',
-      ),
-    ).toBeInTheDocument()
-
-    fireEvent.click(view.getByRole('button', { name: 'Add first heading' }))
+    fireEvent.click(view.getByRole('button', { name: 'Add heading' }))
 
     expect(
       view.getByRole('button', { name: 'Heading: Heading' }),
@@ -63,32 +101,20 @@ describe('editor shell flow', () => {
     expect(view.getByText('Unsaved changes')).toBeInTheDocument()
   })
 
-  it('lets the empty-state create and select the first text block', () => {
+  it('lets the empty-state create and select the first section block', () => {
     const view = render(
       <EditorShell initialDocument={createDefaultCanvasDocument()} />,
     )
 
-    fireEvent.click(view.getByRole('button', { name: 'Add first text' }))
+    fireEvent.click(view.getByRole('button', { name: 'Add section' }))
 
     expect(
-      view.getByRole('button', { name: 'Text: Lorem ipsum' }),
-    ).toBeInTheDocument()
-    expect(view.getByLabelText('Text')).toHaveValue('Lorem ipsum')
-    expect(view.getByText('Unsaved changes')).toBeInTheDocument()
-  })
-
-  it('lets the empty-state create and select the first button block', () => {
-    const view = render(
-      <EditorShell initialDocument={createDefaultCanvasDocument()} />,
-    )
-
-    fireEvent.click(view.getByRole('button', { name: 'Add first button' }))
-
+      view.container.querySelectorAll('[data-node-type="section"]'),
+    ).toHaveLength(2)
+    expect(view.getByRole('heading', { name: 'Section' })).toBeInTheDocument()
     expect(
-      view.getByRole('button', { name: 'Button: Click me' }),
+      view.getByRole('button', { name: 'Add heading inside' }),
     ).toBeInTheDocument()
-    expect(view.getByLabelText('Label')).toHaveValue('Click me')
-    expect(view.getByLabelText('Href')).toHaveValue('#')
     expect(view.getByText('Unsaved changes')).toBeInTheDocument()
   })
 
@@ -97,7 +123,7 @@ describe('editor shell flow', () => {
       <EditorShell initialDocument={createDefaultCanvasDocument()} />,
     )
 
-    fireEvent.click(view.getByRole('button', { name: 'Add first hero' }))
+    fireEvent.click(view.getByRole('button', { name: 'Add hero' }))
 
     expect(
       view.getByRole('button', { name: 'Hero: Build your next landing page' }),
@@ -109,39 +135,12 @@ describe('editor shell flow', () => {
     expect(view.getByText('Unsaved changes')).toBeInTheDocument()
   })
 
-  it('lets the empty-state create and edit the first features cards block', () => {
-    const view = render(
-      <EditorShell initialDocument={createDefaultCanvasDocument()} />,
-    )
-
-    fireEvent.click(
-      view.getByRole('button', { name: 'Add first features/cards' }),
-    )
-
-    expect(
-      view.getByRole('button', {
-        name: 'Features / Cards: Everything your team needs to ship faster',
-      }),
-    ).toBeInTheDocument()
-    expect(view.getByLabelText('Title')).toHaveValue(
-      'Everything your team needs to ship faster',
-    )
-    expect(view.getByLabelText('Card 1 title')).toHaveValue('Visual editing')
-
-    fireEvent.change(view.getByLabelText('Card 2 title'), {
-      target: { value: 'Reusable sections' },
-    })
-
-    expect(view.getByLabelText('Card 2 title')).toHaveValue('Reusable sections')
-    expect(view.getByText('Unsaved changes')).toBeInTheDocument()
-  })
-
   it('lets the empty-state create columns with default containers and immediately edit inside the first one', () => {
     const view = render(
       <EditorShell initialDocument={createDefaultCanvasDocument()} />,
     )
 
-    fireEvent.click(view.getByRole('button', { name: 'Add first columns' }))
+    fireEvent.click(view.getByRole('button', { name: 'Add columns' }))
 
     expect(
       view.container.querySelector('[data-node-type="columns"]'),
@@ -418,11 +417,11 @@ describe('editor shell flow', () => {
 
     expect(
       view.getByText(
-        'This canvas is empty. Add your first block to get started.',
+        'The layout is valid and intentionally blank. Add your first block when you are ready.',
       ),
     ).toBeInTheDocument()
     expect(
-      view.getByText('Select a node to edit its content and styles.'),
+      view.getByText('Use the canvas quick actions to place your first block.'),
     ).toBeInTheDocument()
   })
 

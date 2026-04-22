@@ -70,7 +70,7 @@ export function EditorSidebar({
   }
 
   return (
-    <aside aria-label="Property inspector">
+    <aside aria-label="Property inspector" className="emc-editor-sidebar">
       <PropertyInspector
         node={node}
         hasDocumentContent={(document.root.children?.length ?? 0) > 0}

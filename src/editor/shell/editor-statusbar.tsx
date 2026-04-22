@@ -7,7 +7,7 @@ export interface EditorStatusbarProps {
 
 export function EditorStatusbar({ breakpoint, dirty }: EditorStatusbarProps) {
   return (
-    <footer aria-label="Editor statusbar">
+    <footer aria-label="Editor statusbar" className="emc-editor-statusbar">
       <span>Breakpoint: {breakpoint}</span>
       <span>{dirty ? 'Unsaved changes' : 'All changes saved'}</span>
     </footer>

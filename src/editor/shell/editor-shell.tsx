@@ -106,6 +106,7 @@ export function EditorShell({
 
   function handleCreateFirstBlock(
     nodeType:
+      | 'section'
       | 'heading'
       | 'text'
       | 'button'
@@ -129,6 +130,7 @@ export function EditorShell({
 
   function handleAddNode(
     nodeType:
+      | 'section'
       | 'heading'
       | 'text'
       | 'button'

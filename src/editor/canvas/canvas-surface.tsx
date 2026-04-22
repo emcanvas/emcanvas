@@ -12,6 +12,7 @@ export interface CanvasSurfaceProps {
   onSelectNode?: (nodeId: string) => void
   onCreateFirstBlock?: (
     nodeType:
+      | 'section'
       | 'heading'
       | 'text'
       | 'button'
@@ -39,7 +40,7 @@ export function CanvasSurface({
     : null
   const stylesheet = buildRendererStylesheet(document.root)
   const surfaceStatus = isEmpty
-    ? 'Canvas is empty. Choose a first block to get started.'
+    ? 'Empty canvas. Start with a section or a ready-made block.'
     : selectedNode
       ? `Selected block: ${getCanvasNodeDisplayName(selectedNode)}`
       : 'Select a block on the canvas to inspect and edit it.'
@@ -61,41 +62,32 @@ export function CanvasSurface({
           aria-label="Empty canvas state"
           className="emc-canvas-empty-state"
         >
-          <h2>Start your page</h2>
-          <p>This canvas is empty. Add your first block to get started.</p>
+          <h2>Start from scratch</h2>
+          <p>
+            The layout is valid and intentionally blank. Add your first block
+            when you are ready.
+          </p>
           <div className="emc-canvas-empty-state__actions">
             <button
               type="button"
-              onClick={() => onCreateFirstBlock?.('heading')}
+              onClick={() => onCreateFirstBlock?.('section')}
             >
-              Add first heading
-            </button>
-            <button type="button" onClick={() => onCreateFirstBlock?.('text')}>
-              Add first text
-            </button>
-            <button
-              type="button"
-              onClick={() => onCreateFirstBlock?.('button')}
-            >
-              Add first button
-            </button>
-            <button type="button" onClick={() => onCreateFirstBlock?.('image')}>
-              Add first image
+              Add section
             </button>
             <button type="button" onClick={() => onCreateFirstBlock?.('hero')}>
-              Add first hero
-            </button>
-            <button
-              type="button"
-              onClick={() => onCreateFirstBlock?.('features/cards')}
-            >
-              Add first features/cards
+              Add hero
             </button>
             <button
               type="button"
               onClick={() => onCreateFirstBlock?.('columns')}
             >
-              Add first columns
+              Add columns
+            </button>
+            <button
+              type="button"
+              onClick={() => onCreateFirstBlock?.('heading')}
+            >
+              Add heading
             </button>
           </div>
         </section>

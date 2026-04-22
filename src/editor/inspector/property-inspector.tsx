@@ -59,11 +59,21 @@ export function PropertyInspector({
 
   if (!node || !definition) {
     return (
-      <form aria-label="Property inspector form">
+      <form
+        aria-label="Property inspector form"
+        className="emc-property-inspector"
+      >
         <h2>Inspector</h2>
-        <p>Select a node to edit its content and styles.</p>
+        <p>
+          {hasDocumentContent
+            ? 'Select a node to edit its content and styles.'
+            : 'Use the canvas quick actions to place your first block.'}
+        </p>
         {hasDocumentContent ? (
-          <section aria-label="Quick add actions">
+          <section
+            aria-label="Quick add actions"
+            className="emc-property-inspector__section emc-property-inspector__section--actions"
+          >
             <button type="button" onClick={onAddColumns}>
               Add columns to page
             </button>
@@ -92,9 +102,15 @@ export function PropertyInspector({
   }
 
   return (
-    <form aria-label="Property inspector form">
+    <form
+      aria-label="Property inspector form"
+      className="emc-property-inspector"
+    >
       <h2>Inspector</h2>
-      <section aria-label="Quick add actions">
+      <section
+        aria-label="Quick add actions"
+        className="emc-property-inspector__section emc-property-inspector__section--actions"
+      >
         {showAddContainerAction ? (
           <button type="button" onClick={onAddContainer}>
             Add container {containerAddActionSuffix}
@@ -127,7 +143,10 @@ export function PropertyInspector({
           </button>
         ) : null}
       </section>
-      <section aria-label="Property fields">
+      <section
+        aria-label="Property fields"
+        className="emc-property-inspector__section"
+      >
         <h3>{definition.label}</h3>
         {definition.propSchema.map((field) => (
           <PropFieldRenderer

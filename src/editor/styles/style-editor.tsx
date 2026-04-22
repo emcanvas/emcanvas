@@ -14,13 +14,21 @@ export interface StyleEditorProps {
   onChange: (patch: Record<string, unknown>) => void
 }
 
-export function StyleEditor({ styles, breakpoint, onBreakpointChange, onChange }: StyleEditorProps) {
+export function StyleEditor({
+  styles,
+  breakpoint,
+  onBreakpointChange,
+  onChange,
+}: StyleEditorProps) {
   const currentStyles = getBreakpointStyles(styles, breakpoint)
 
   return (
-    <section aria-label="Style editor">
+    <section aria-label="Style editor" className="emc-style-editor">
       <h3>Styles</h3>
-      <BreakpointSwitcher breakpoint={breakpoint} onChange={onBreakpointChange} />
+      <BreakpointSwitcher
+        breakpoint={breakpoint}
+        onChange={onBreakpointChange}
+      />
       <SpacingField styles={currentStyles} onChange={onChange} />
       <SizeField styles={currentStyles} onChange={onChange} />
       <ColorField styles={currentStyles} onChange={onChange} />

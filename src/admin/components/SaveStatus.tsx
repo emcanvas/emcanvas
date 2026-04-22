@@ -12,11 +12,16 @@ export function SaveStatus({ state, message }: SaveStatusProps) {
       : state === 'saved'
         ? 'Changes published'
         : state === 'error'
-          ? message ?? 'Unable to publish changes'
+          ? (message ?? 'Unable to publish changes')
           : 'Ready to publish'
 
   return (
-    <p role="status" aria-label="Publish status" aria-live="polite">
+    <p
+      role="status"
+      aria-label="Publish status"
+      aria-live="polite"
+      className={`emc-save-status emc-save-status--${state}`}
+    >
       {label}
     </p>
   )

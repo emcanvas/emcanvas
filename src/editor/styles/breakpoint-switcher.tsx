@@ -7,9 +7,12 @@ export interface BreakpointSwitcherProps {
   onChange: (breakpoint: EditorBreakpoint) => void
 }
 
-export function BreakpointSwitcher({ breakpoint, onChange }: BreakpointSwitcherProps) {
+export function BreakpointSwitcher({
+  breakpoint,
+  onChange,
+}: BreakpointSwitcherProps) {
   return (
-    <div aria-label="Breakpoint switcher">
+    <div aria-label="Breakpoint switcher" className="emc-breakpoint-switcher">
       {BREAKPOINTS.map((option) => {
         const label = option.charAt(0).toUpperCase() + option.slice(1)
 
