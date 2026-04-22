@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import type { CanvasDocument } from '../../foundation/types/canvas'
+import { buildRendererStylesheet } from '../../renderer/styles/build-renderer-stylesheet'
 import { getNodeAtPath, findNodePathById } from '../shared/tree-path'
 import { getCanvasNodeDisplayName } from './node-presentation'
 import { CanvasNodeRenderer } from './canvas-node-renderer'
@@ -10,7 +11,14 @@ export interface CanvasSurfaceProps {
   selectedNodeId?: string | null
   onSelectNode?: (nodeId: string) => void
   onCreateFirstBlock?: (
-    nodeType: 'heading' | 'text' | 'button' | 'columns',
+    nodeType:
+      | 'heading'
+      | 'text'
+      | 'button'
+      | 'image'
+      | 'hero'
+      | 'features/cards'
+      | 'columns',
   ) => void
 }
 
@@ -29,6 +37,7 @@ export function CanvasSurface({
   const selectedNode = selectedNodePath
     ? getNodeAtPath(document.root, selectedNodePath)
     : null
+  const stylesheet = buildRendererStylesheet(document.root)
   const surfaceStatus = isEmpty
     ? 'Canvas is empty. Choose a first block to get started.'
     : selectedNode
@@ -44,6 +53,9 @@ export function CanvasSurface({
       <div className="emc-canvas-surface__status" aria-live="polite">
         <strong>{surfaceStatus}</strong>
       </div>
+      {stylesheet ? (
+        <style data-emcanvas-editor-styles>{stylesheet}</style>
+      ) : null}
       {isEmpty ? (
         <section
           aria-label="Empty canvas state"
@@ -67,6 +79,18 @@ export function CanvasSurface({
             >
               Add first button
             </button>
+            <button type="button" onClick={() => onCreateFirstBlock?.('image')}>
+              Add first image
+            </button>
+            <button type="button" onClick={() => onCreateFirstBlock?.('hero')}>
+              Add first hero
+            </button>
+            <button
+              type="button"
+              onClick={() => onCreateFirstBlock?.('features/cards')}
+            >
+              Add first features/cards
+            </button>
             <button
               type="button"
               onClick={() => onCreateFirstBlock?.('columns')}
@@ -76,11 +100,13 @@ export function CanvasSurface({
           </div>
         </section>
       ) : null}
-      <CanvasNodeRenderer
-        node={document.root}
-        selectedNodeId={selectedNodeId}
-        onSelectNode={onSelectNode}
-      />
+      <div data-emcanvas-root>
+        <CanvasNodeRenderer
+          node={document.root}
+          selectedNodeId={selectedNodeId}
+          onSelectNode={onSelectNode}
+        />
+      </div>
       <SelectionOutlineLayer
         surfaceRef={surfaceRef}
         selectedNodeId={selectedNodeId}

@@ -105,7 +105,14 @@ export function EditorShell({
   }
 
   function handleCreateFirstBlock(
-    nodeType: 'heading' | 'text' | 'button' | 'columns' = 'heading',
+    nodeType:
+      | 'heading'
+      | 'text'
+      | 'button'
+      | 'image'
+      | 'hero'
+      | 'features/cards'
+      | 'columns' = 'heading',
   ) {
     const nextNode = createNodeFromWidgetType(nodeType)
     const nextDocument = insertChildNode(
@@ -121,7 +128,15 @@ export function EditorShell({
   }
 
   function handleAddNode(
-    nodeType: 'heading' | 'text' | 'button' | 'container' | 'columns',
+    nodeType:
+      | 'heading'
+      | 'text'
+      | 'button'
+      | 'image'
+      | 'hero'
+      | 'features/cards'
+      | 'container'
+      | 'columns',
   ) {
     const nextNode = createNodeFromWidgetType(nodeType)
     const anchorId = state.selectedNodeId ?? document.root.id

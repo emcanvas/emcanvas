@@ -8,16 +8,20 @@ import type {
 import { widgetRegistry } from '../../../src/editor/registry/widget-registry'
 
 describe('widgetRegistry', () => {
-  it('contains the 10 MVP widgets', () => {
-    expect(widgetRegistry.size).toBe(10)
+  it('contains the 12 MVP widgets', () => {
+    expect(widgetRegistry.size).toBe(12)
     expect(widgetRegistry.has('section')).toBe(true)
     expect(widgetRegistry.has('video')).toBe(true)
+    expect(widgetRegistry.has('hero')).toBe(true)
+    expect(widgetRegistry.has('features/cards')).toBe(true)
   })
 
   it('keeps widget definitions declarative', () => {
     const section = widgetRegistry.get('section')
     const heading = widgetRegistry.get('heading')
     const image = widgetRegistry.get('image')
+    const hero = widgetRegistry.get('hero')
+    const featuresCards = widgetRegistry.get('features/cards')
 
     expect(section).toMatchObject({
       type: 'section',
@@ -36,6 +40,18 @@ describe('widgetRegistry', () => {
     expect(image).toMatchObject({
       type: 'image',
       category: WIDGET_CATEGORIES.media,
+      allowedChildren: 'none',
+    })
+
+    expect(hero).toMatchObject({
+      type: 'hero',
+      category: WIDGET_CATEGORIES.content,
+      allowedChildren: 'none',
+    })
+
+    expect(featuresCards).toMatchObject({
+      type: 'features/cards',
+      category: WIDGET_CATEGORIES.content,
       allowedChildren: 'none',
     })
   })

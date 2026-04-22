@@ -7,6 +7,7 @@ import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import { ASTRO_TEST_SRC_DIR } from '../../vite.config'
 import { widgetRegistry } from '../../src/editor/registry/widget-registry'
 import EmCanvasRenderer from '../../src/renderer/astro/EmCanvasRenderer.astro'
+import { createFixtureLandingPageDocument } from '../fixtures/document-factory'
 
 const rendererBranchingPatterns = [
   /getComponentRenderer\(node\.type\)/,
@@ -125,6 +126,20 @@ describe('EmCanvasRenderer', () => {
                         },
                         children: [],
                       },
+                      {
+                        id: 'hero-image',
+                        type: 'image',
+                        props: {
+                          src: 'https://cdn.example.test/hero.jpg',
+                          alt: 'Hero banner',
+                        },
+                        styles: {
+                          desktop: {
+                            maxWidth: '100%',
+                          },
+                        },
+                        children: [],
+                      },
                     ],
                   },
                 ],
@@ -148,8 +163,140 @@ describe('EmCanvasRenderer', () => {
     expect(html).toMatch(
       /<a(?=[^>]*data-emcanvas-node="hero-button")(?=[^>]*href="\/read-more")[^>]*>Read more<\/a>/,
     )
+    expect(html).toMatch(
+      /<img(?=[^>]*data-emcanvas-node="hero-image")(?=[^>]*src="https:\/\/cdn\.example\.test\/hero\.jpg")(?=[^>]*alt="Hero banner")[^>]*>/,
+    )
     expect(html).not.toContain('style="')
     expect(html).not.toContain('<style')
+  })
+
+  it('renders a simple hero block with CTA and media in SSR output', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(EmCanvasRenderer, {
+      props: {
+        document: {
+          version: 1,
+          settings: {},
+          root: {
+            id: 'root',
+            type: 'section',
+            props: {},
+            styles: {
+              desktop: {},
+            },
+            children: [
+              {
+                id: 'hero-1',
+                type: 'hero',
+                props: {
+                  title: 'Launch faster with EmCanvas',
+                  body: 'Compose a simple landing hero with headline, copy, CTA, and media.',
+                  ctaLabel: 'Start building',
+                  ctaHref: '/start-building',
+                  imageSrc: 'https://cdn.example.test/hero-card.jpg',
+                  imageAlt: 'Website builder preview',
+                },
+                styles: {
+                  desktop: {
+                    padding: '32px',
+                  },
+                },
+                children: [],
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(html).toContain('data-emcanvas-node="hero-1"')
+    expect(html).toMatch(/<section[^>]*class="emc-hero"[^>]*>/)
+    expect(html).toContain('Launch faster with EmCanvas')
+    expect(html).toContain(
+      'Compose a simple landing hero with headline, copy, CTA, and media.',
+    )
+    expect(html).toMatch(
+      /<a(?=[^>]*href="\/start-building")[^>]*>\s*Start building\s*<\/a>/,
+    )
+    expect(html).toMatch(
+      /<img(?=[^>]*src="https:\/\/cdn\.example\.test\/hero-card\.jpg")(?=[^>]*alt="Website builder preview")[^>]*>/,
+    )
+    expect(html).not.toContain('style="')
+  })
+
+  it('renders a simple features cards block in SSR output', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(EmCanvasRenderer, {
+      props: {
+        document: {
+          version: 1,
+          settings: {},
+          root: {
+            id: 'root',
+            type: 'section',
+            props: {},
+            styles: {
+              desktop: {},
+            },
+            children: [
+              {
+                id: 'features-cards-1',
+                type: 'features/cards',
+                props: {
+                  title: 'Why teams choose EmCanvas',
+                  intro:
+                    'Use a compact benefit grid right below the hero to reinforce the value proposition.',
+                  card1Title: 'Fast setup',
+                  card1Body:
+                    'Start from reusable sections instead of rebuilding landing layouts every time.',
+                  card2Title: 'Safe editing',
+                  card2Body:
+                    'Keep edits inside the same entry workflow your team already uses.',
+                  card3Title: 'SSR by default',
+                  card3Body:
+                    'Render a simple section on the frontend without inline styles or client bootstrapping.',
+                },
+                styles: {
+                  desktop: {
+                    padding: '32px',
+                  },
+                },
+                children: [],
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(html).toContain('data-emcanvas-node="features-cards-1"')
+    expect(html).toMatch(/<section[^>]*class="emc-features-cards"[^>]*>/)
+    expect(html).toContain('Why teams choose EmCanvas')
+    expect(html).toContain('Fast setup')
+    expect(html).toContain('Safe editing')
+    expect(html).toContain('SSR by default')
+    expect(html).toContain(
+      'Render a simple section on the frontend without inline styles or client bootstrapping.',
+    )
+    expect(html).not.toContain('style="')
+  })
+
+  it('renders a published landing page document with hero and features/cards', async () => {
+    const container = await AstroContainer.create()
+    const html = await container.renderToString(EmCanvasRenderer, {
+      props: {
+        document: createFixtureLandingPageDocument(),
+      },
+    })
+
+    expect(html).toContain('Launch your next campaign faster')
+    expect(html).toContain('Start building')
+    expect(html).toContain('Landing page hero preview')
+    expect(html).toContain('Why teams can ship with the MVP')
+    expect(html).toContain('Hero section')
+    expect(html).toContain('Benefits grid')
+    expect(html).toContain('SSR output')
+    expect(html).not.toContain('style="')
   })
 
   it('keeps useful button hrefs and sanitizes unsafe ones in SSR output', async () => {

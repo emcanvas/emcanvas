@@ -118,6 +118,50 @@ describe('createNodeFromWidgetType', () => {
     expect(result.children?.[0]?.id).not.toBe(result.children?.[1]?.id)
   })
 
+  it('builds a simple hero block from registry defaults', () => {
+    const result = createNodeFromWidgetType('hero')
+
+    expect(result).toMatchObject({
+      type: 'hero',
+      props: {
+        title: 'Build your next landing page',
+        body: 'Launch a clear headline, short supporting copy, and one primary call to action.',
+        ctaLabel: 'Get started',
+        ctaHref: '#',
+        imageSrc: '',
+        imageAlt: '',
+      },
+      styles: { desktop: {} },
+      children: [],
+    })
+    expect(result.id).toMatch(/^hero-/)
+  })
+
+  it('builds a simple features cards block from registry defaults', () => {
+    const result = createNodeFromWidgetType('features/cards')
+
+    expect(result).toMatchObject({
+      type: 'features/cards',
+      props: {
+        title: 'Everything your team needs to ship faster',
+        intro:
+          'Pair a compact feature grid with your hero to explain the value proposition in seconds.',
+        card1Title: 'Visual editing',
+        card1Body:
+          'Create landing sections directly on the canvas without switching contexts.',
+        card2Title: 'Safe publishing',
+        card2Body:
+          'Keep layout JSON versioned inside entry.data for previews, drafts, and rollback.',
+        card3Title: 'SSR output',
+        card3Body:
+          'Render a lightweight feature section on the frontend without custom host changes.',
+      },
+      styles: { desktop: {} },
+      children: [],
+    })
+    expect(result.id).toMatch(/^features-cards-/)
+  })
+
   it('throws when the widget type is unknown', () => {
     expect(() => createNodeFromWidgetType('missing-widget')).toThrow(
       "Unknown widget type: 'missing-widget'",

@@ -549,6 +549,245 @@ describe('admin editor publish flow', () => {
     expect(screen.getByLabelText('Href')).toHaveValue('/read-more')
   })
 
+  it('creates, edits, publishes, and reloads the first image block from an empty document', async () => {
+    let persistedEntryData = {
+      slug: 'empty-image-home',
+      title: 'Empty image homepage',
+    }
+
+    const api = {
+      loadDocument: vi
+        .fn()
+        .mockImplementation(async () =>
+          loadCanvasDocumentState(persistedEntryData),
+        ),
+      saveDocument: vi
+        .fn()
+        .mockImplementation(
+          async ({ canvasLayout }: { canvasLayout: CanvasDocument }) => {
+            persistedEntryData = serializeCanvasDocumentToEntryData({
+              entryData: persistedEntryData,
+              canvasLayout,
+            })
+
+            return persistedEntryData
+          },
+        ),
+      getPreviewLink: vi
+        .fn()
+        .mockReturnValue(
+          'https://example.test/preview?slug=empty-image-home&source=emcanvas',
+        ),
+    }
+
+    const firstRender = render(
+      <EditorPage
+        entry={{ data: persistedEntryData }}
+        api={api}
+        previewOrigin="https://example.test"
+      />,
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'This canvas is empty. Add your first block to get started.',
+        ),
+      ).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add first image' }))
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Src')).toHaveValue('')
+    })
+
+    fireEvent.change(screen.getByLabelText('Src'), {
+      target: { value: 'https://cdn.example.test/hero.jpg' },
+    })
+    fireEvent.change(screen.getByLabelText('Alt'), {
+      target: { value: 'Homepage hero' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Publish' }))
+
+    await waitFor(() => {
+      expect(api.saveDocument).toHaveBeenCalledOnce()
+    })
+
+    const publishedDocument = api.saveDocument.mock.calls[0]?.[0]
+      ?.canvasLayout as CanvasDocument
+    expect(publishedDocument.root.children).toHaveLength(1)
+    expect(publishedDocument.root.children?.[0]?.type).toBe('image')
+    expect(publishedDocument.root.children?.[0]?.props.src).toBe(
+      'https://cdn.example.test/hero.jpg',
+    )
+    expect(publishedDocument.root.children?.[0]?.props.alt).toBe(
+      'Homepage hero',
+    )
+
+    firstRender.unmount()
+
+    render(
+      <EditorPage
+        entry={{ data: persistedEntryData }}
+        api={api}
+        previewOrigin="https://example.test"
+      />,
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Image: Homepage hero' }),
+      ).toBeInTheDocument()
+    })
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Image: Homepage hero' }),
+    )
+
+    expect(screen.getByLabelText('Src')).toHaveValue(
+      'https://cdn.example.test/hero.jpg',
+    )
+    expect(screen.getByLabelText('Alt')).toHaveValue('Homepage hero')
+  })
+
+  it('creates, edits, publishes, and reloads the first hero block from an empty document', async () => {
+    let persistedEntryData = {
+      slug: 'empty-hero-home',
+      title: 'Empty hero homepage',
+    }
+
+    const api = {
+      loadDocument: vi
+        .fn()
+        .mockImplementation(async () =>
+          loadCanvasDocumentState(persistedEntryData),
+        ),
+      saveDocument: vi
+        .fn()
+        .mockImplementation(
+          async ({ canvasLayout }: { canvasLayout: CanvasDocument }) => {
+            persistedEntryData = serializeCanvasDocumentToEntryData({
+              entryData: persistedEntryData,
+              canvasLayout,
+            })
+
+            return persistedEntryData
+          },
+        ),
+      getPreviewLink: vi
+        .fn()
+        .mockReturnValue(
+          'https://example.test/preview?slug=empty-hero-home&source=emcanvas',
+        ),
+    }
+
+    const firstRender = render(
+      <EditorPage
+        entry={{ data: persistedEntryData }}
+        api={api}
+        previewOrigin="https://example.test"
+      />,
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'This canvas is empty. Add your first block to get started.',
+        ),
+      ).toBeInTheDocument()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add first hero' }))
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Title')).toHaveValue(
+        'Build your next landing page',
+      )
+    })
+
+    fireEvent.change(screen.getByLabelText('Title'), {
+      target: { value: 'Launch faster with EmCanvas' },
+    })
+    fireEvent.change(screen.getByLabelText('Body'), {
+      target: {
+        value:
+          'Compose a simple landing hero with headline, copy, CTA, and media.',
+      },
+    })
+    fireEvent.change(screen.getByLabelText('CTA label'), {
+      target: { value: 'Start building' },
+    })
+    fireEvent.change(screen.getByLabelText('CTA href'), {
+      target: { value: '/start-building' },
+    })
+    fireEvent.change(screen.getByLabelText('Image src'), {
+      target: { value: 'https://cdn.example.test/hero-card.jpg' },
+    })
+    fireEvent.change(screen.getByLabelText('Image alt'), {
+      target: { value: 'Website builder preview' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Publish' }))
+
+    await waitFor(() => {
+      expect(api.saveDocument).toHaveBeenCalledOnce()
+    })
+
+    const publishedDocument = api.saveDocument.mock.calls[0]?.[0]
+      ?.canvasLayout as CanvasDocument
+    expect(publishedDocument.root.children).toHaveLength(1)
+    expect(publishedDocument.root.children?.[0]).toMatchObject({
+      type: 'hero',
+      props: {
+        title: 'Launch faster with EmCanvas',
+        body: 'Compose a simple landing hero with headline, copy, CTA, and media.',
+        ctaLabel: 'Start building',
+        ctaHref: '/start-building',
+        imageSrc: 'https://cdn.example.test/hero-card.jpg',
+        imageAlt: 'Website builder preview',
+      },
+    })
+
+    firstRender.unmount()
+
+    render(
+      <EditorPage
+        entry={{ data: persistedEntryData }}
+        api={api}
+        previewOrigin="https://example.test"
+      />,
+    )
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', {
+          name: 'Hero: Launch faster with EmCanvas',
+        }),
+      ).toBeInTheDocument()
+    })
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Hero: Launch faster with EmCanvas',
+      }),
+    )
+
+    expect(screen.getByLabelText('Title')).toHaveValue(
+      'Launch faster with EmCanvas',
+    )
+    expect(screen.getByLabelText('Body')).toHaveValue(
+      'Compose a simple landing hero with headline, copy, CTA, and media.',
+    )
+    expect(screen.getByLabelText('CTA label')).toHaveValue('Start building')
+    expect(screen.getByLabelText('CTA href')).toHaveValue('/start-building')
+    expect(screen.getByLabelText('Image src')).toHaveValue(
+      'https://cdn.example.test/hero-card.jpg',
+    )
+    expect(screen.getByLabelText('Image alt')).toHaveValue(
+      'Website builder preview',
+    )
+  })
+
   it('creates, edits, publishes, and reloads the first columns layout from an empty document', async () => {
     let persistedEntryData = {
       slug: 'empty-columns-home',

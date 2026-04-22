@@ -10,6 +10,11 @@ export function SpacingField({ styles, onChange }: SpacingFieldProps) {
     <fieldset>
       <legend>Spacing</legend>
       <TextField
+        label="Gap"
+        value={typeof styles.gap === 'string' ? styles.gap : ''}
+        onChange={(value) => onChange({ gap: value })}
+      />
+      <TextField
         label="Padding"
         value={typeof styles.padding === 'string' ? styles.padding : ''}
         onChange={(value) => onChange({ padding: value })}

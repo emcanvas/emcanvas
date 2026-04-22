@@ -19,6 +19,7 @@ export function CanvasNodeRenderer({
   return (
     <article
       className="emc-canvas-node"
+      data-emcanvas-node={node.id}
       data-node-id={node.id}
       data-node-type={node.type}
       data-node-depth={depth}

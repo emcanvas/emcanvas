@@ -131,4 +131,46 @@ describe('CanvasSurface selection outline', () => {
 
     expect(outline).toHaveAttribute('hidden')
   })
+
+  it('renders one scoped authoring stylesheet for styled nodes', () => {
+    const document = createDocument()
+
+    document.root.styles.desktop = {
+      padding: '24px',
+      backgroundColor: '#f8fafc',
+    }
+    document.root.children = [
+      {
+        ...createFixtureHeadingNode('Welcome'),
+        styles: {
+          desktop: {
+            margin: '0',
+            textAlign: 'center',
+          },
+        },
+      },
+    ]
+
+    const view = render(
+      <CanvasSurface document={document} selectedNodeId="heading-1" />,
+    )
+
+    expect(view.container.querySelector('[data-emcanvas-root]')).not.toBeNull()
+    expect(
+      view.container.querySelector('[data-emcanvas-node="root"]'),
+    ).not.toBeNull()
+    expect(
+      view.container.querySelector('[data-emcanvas-node="heading-1"]'),
+    ).not.toBeNull()
+    expect(
+      view.container.querySelector('style[data-emcanvas-editor-styles]')
+        ?.textContent,
+    ).toContain(
+      '[data-emcanvas-node="root"]{padding:24px;background-color:#f8fafc;}',
+    )
+    expect(
+      view.container.querySelector('style[data-emcanvas-editor-styles]')
+        ?.textContent,
+    ).toContain('[data-emcanvas-node="heading-1"]{margin:0;text-align:center;}')
+  })
 })

@@ -92,6 +92,50 @@ describe('editor shell flow', () => {
     expect(view.getByText('Unsaved changes')).toBeInTheDocument()
   })
 
+  it('lets the empty-state create and select the first hero block', () => {
+    const view = render(
+      <EditorShell initialDocument={createDefaultCanvasDocument()} />,
+    )
+
+    fireEvent.click(view.getByRole('button', { name: 'Add first hero' }))
+
+    expect(
+      view.getByRole('button', { name: 'Hero: Build your next landing page' }),
+    ).toBeInTheDocument()
+    expect(view.getByLabelText('Title')).toHaveValue(
+      'Build your next landing page',
+    )
+    expect(view.getByLabelText('CTA label')).toHaveValue('Get started')
+    expect(view.getByText('Unsaved changes')).toBeInTheDocument()
+  })
+
+  it('lets the empty-state create and edit the first features cards block', () => {
+    const view = render(
+      <EditorShell initialDocument={createDefaultCanvasDocument()} />,
+    )
+
+    fireEvent.click(
+      view.getByRole('button', { name: 'Add first features/cards' }),
+    )
+
+    expect(
+      view.getByRole('button', {
+        name: 'Features / Cards: Everything your team needs to ship faster',
+      }),
+    ).toBeInTheDocument()
+    expect(view.getByLabelText('Title')).toHaveValue(
+      'Everything your team needs to ship faster',
+    )
+    expect(view.getByLabelText('Card 1 title')).toHaveValue('Visual editing')
+
+    fireEvent.change(view.getByLabelText('Card 2 title'), {
+      target: { value: 'Reusable sections' },
+    })
+
+    expect(view.getByLabelText('Card 2 title')).toHaveValue('Reusable sections')
+    expect(view.getByText('Unsaved changes')).toBeInTheDocument()
+  })
+
   it('lets the empty-state create columns with default containers and immediately edit inside the first one', () => {
     const view = render(
       <EditorShell initialDocument={createDefaultCanvasDocument()} />,
@@ -303,6 +347,35 @@ describe('editor shell flow', () => {
       view.getByRole('button', { name: 'Button: Read more' }),
     ).toBeInTheDocument()
     expect(view.getByLabelText('Href')).toHaveValue('/read-more')
+  })
+
+  it('adds an image below the selected node and updates its basic props', () => {
+    const view = render(
+      <EditorShell
+        initialDocument={createFixtureDocumentWithHeading('Welcome')}
+      />,
+    )
+
+    fireEvent.click(view.getByRole('button', { name: 'Heading: Welcome' }))
+    fireEvent.click(view.getByRole('button', { name: 'Add image below' }))
+
+    expect(view.getByRole('heading', { name: 'Image' })).toBeInTheDocument()
+    expect(view.getByLabelText('Src')).toHaveValue('')
+    expect(view.getByLabelText('Alt')).toHaveValue('')
+
+    fireEvent.change(view.getByLabelText('Src'), {
+      target: { value: 'https://cdn.example.test/hero.jpg' },
+    })
+    fireEvent.change(view.getByLabelText('Alt'), {
+      target: { value: 'Hero banner' },
+    })
+
+    expect(
+      view.getByRole('button', { name: 'Image: Hero banner' }),
+    ).toBeInTheDocument()
+    expect(view.getByLabelText('Src')).toHaveValue(
+      'https://cdn.example.test/hero.jpg',
+    )
   })
 
   it('deletes the selected block and moves selection to a sibling', () => {
@@ -554,17 +627,30 @@ describe('editor shell flow', () => {
     fireEvent.change(view.getByLabelText('Text'), {
       target: { value: 'Updated heading' },
     })
+    fireEvent.change(view.getByLabelText('Padding'), {
+      target: { value: '24px' },
+    })
     fireEvent.change(view.getByLabelText('Color'), {
       target: { value: '#ff0000' },
     })
 
     expect(view.getByLabelText('Text')).toHaveValue('Updated heading')
+    expect(view.getByLabelText('Padding')).toHaveValue('24px')
     expect(view.getByLabelText('Color')).toHaveValue('#ff0000')
+    expect(
+      view.container.querySelector('style[data-emcanvas-editor-styles]')
+        ?.textContent,
+    ).toContain('[data-emcanvas-node="heading-1"]{padding:24px;color:#ff0000;}')
 
     fireEvent.click(view.getByRole('button', { name: 'Undo' }))
 
     expect(view.getByLabelText('Text')).toHaveValue('Updated heading')
+    expect(view.getByLabelText('Padding')).toHaveValue('24px')
     expect(view.getByLabelText('Color')).toHaveValue('')
+
+    fireEvent.click(view.getByRole('button', { name: 'Undo' }))
+
+    expect(view.getByLabelText('Padding')).toHaveValue('')
 
     fireEvent.click(view.getByRole('button', { name: 'Undo' }))
 
@@ -572,8 +658,10 @@ describe('editor shell flow', () => {
 
     fireEvent.click(view.getByRole('button', { name: 'Redo' }))
     fireEvent.click(view.getByRole('button', { name: 'Redo' }))
+    fireEvent.click(view.getByRole('button', { name: 'Redo' }))
 
     expect(view.getByLabelText('Text')).toHaveValue('Updated heading')
+    expect(view.getByLabelText('Padding')).toHaveValue('24px')
     expect(view.getByLabelText('Color')).toHaveValue('#ff0000')
   })
 

@@ -7,7 +7,14 @@ export interface CanvasViewportProps {
   selectedNodeId?: string | null
   onSelectNode?: (nodeId: string) => void
   onCreateFirstBlock?: (
-    nodeType: 'heading' | 'text' | 'button' | 'columns',
+    nodeType:
+      | 'heading'
+      | 'text'
+      | 'button'
+      | 'image'
+      | 'hero'
+      | 'features/cards'
+      | 'columns',
   ) => void
 }
 

@@ -1,0 +1,49 @@
+---
+const {
+  title: rawTitle,
+  intro: rawIntro,
+  card1Title: rawCard1Title,
+  card1Body: rawCard1Body,
+  card2Title: rawCard2Title,
+  card2Body: rawCard2Body,
+  card3Title: rawCard3Title,
+  card3Body: rawCard3Body,
+  ...attributes
+} = Astro.props
+
+const title = typeof rawTitle === 'string' ? rawTitle : ''
+const intro = typeof rawIntro === 'string' ? rawIntro : ''
+const cards = [
+  {
+    title: typeof rawCard1Title === 'string' ? rawCard1Title : '',
+    body: typeof rawCard1Body === 'string' ? rawCard1Body : '',
+  },
+  {
+    title: typeof rawCard2Title === 'string' ? rawCard2Title : '',
+    body: typeof rawCard2Body === 'string' ? rawCard2Body : '',
+  },
+  {
+    title: typeof rawCard3Title === 'string' ? rawCard3Title : '',
+    body: typeof rawCard3Body === 'string' ? rawCard3Body : '',
+  },
+].filter((card) => card.title || card.body)
+---
+
+<section {...attributes} class="emc-features-cards">
+  {title || intro ? (
+    <div class="emc-features-cards__header">
+      {title ? <h2 class="emc-features-cards__title">{title}</h2> : null}
+      {intro ? <p class="emc-features-cards__intro">{intro}</p> : null}
+    </div>
+  ) : null}
+  {cards.length > 0 ? (
+    <div class="emc-features-cards__grid">
+      {cards.map((card) => (
+        <article class="emc-features-cards__card">
+          {card.title ? <h3 class="emc-features-cards__card-title">{card.title}</h3> : null}
+          {card.body ? <p class="emc-features-cards__card-body">{card.body}</p> : null}
+        </article>
+      ))}
+    </div>
+  ) : null}
+</section>

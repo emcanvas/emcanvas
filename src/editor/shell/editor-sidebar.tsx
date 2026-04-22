@@ -15,7 +15,15 @@ export interface EditorSidebarProps {
   state: EditorState
   onBreakpointChange: (breakpoint: EditorState['breakpoint']) => void
   onAddNode?: (
-    nodeType: 'heading' | 'text' | 'button' | 'container' | 'columns',
+    nodeType:
+      | 'heading'
+      | 'text'
+      | 'button'
+      | 'image'
+      | 'hero'
+      | 'features/cards'
+      | 'container'
+      | 'columns',
   ) => void
   onDeleteNode?: (nodeId: string) => void
   onDocumentChange: (document: CanvasDocument) => void
@@ -41,7 +49,10 @@ export function EditorSidebar({
     node !== null &&
     (canWidgetAcceptChildType(node.type, 'heading', widgetRegistry) ||
       canWidgetAcceptChildType(node.type, 'text', widgetRegistry) ||
-      canWidgetAcceptChildType(node.type, 'button', widgetRegistry))
+      canWidgetAcceptChildType(node.type, 'button', widgetRegistry) ||
+      canWidgetAcceptChildType(node.type, 'image', widgetRegistry) ||
+      canWidgetAcceptChildType(node.type, 'hero', widgetRegistry) ||
+      canWidgetAcceptChildType(node.type, 'features/cards', widgetRegistry))
   const canInsertContainerInside =
     node !== null &&
     canWidgetAcceptChildType(node.type, 'container', widgetRegistry)
@@ -77,6 +88,9 @@ export function EditorSidebar({
         onAddHeading={() => onAddNode?.('heading')}
         onAddText={() => onAddNode?.('text')}
         onAddButton={() => onAddNode?.('button')}
+        onAddImage={() => onAddNode?.('image')}
+        onAddHero={() => onAddNode?.('hero')}
+        onAddFeaturesCards={() => onAddNode?.('features/cards')}
         onDeleteNode={() => {
           if (!node) {
             return

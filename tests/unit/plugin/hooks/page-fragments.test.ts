@@ -24,16 +24,27 @@ describe('pageFragments', () => {
                 type: 'section',
                 props: {},
                 styles: {
-                  desktop: { padding: '24px' },
+                  desktop: {
+                    padding: '24px',
+                    backgroundColor: '#f8fafc',
+                  },
                   mobile: { padding: '12px' },
                 },
                 children: [
                   {
-                    id: 'hero-title',
-                    type: 'heading',
-                    props: { text: 'Hello', level: 2 },
-                    styles: { desktop: { color: '#111111' } },
-                    children: [],
+                    id: 'hero-columns',
+                    type: 'columns',
+                    props: {},
+                    styles: { desktop: { gap: '16px' } },
+                    children: [
+                      {
+                        id: 'hero-title',
+                        type: 'heading',
+                        props: { text: 'Hello', level: 2 },
+                        styles: { desktop: { color: '#111111' } },
+                        children: [],
+                      },
+                    ],
                   },
                 ],
               },
@@ -45,7 +56,7 @@ describe('pageFragments', () => {
     ).toEqual([
       {
         slot: 'head',
-        html: '<style data-emcanvas-page-fragments>[data-emcanvas-root]{width:100%;}[data-emcanvas-node="root"]{padding:24px;}[data-emcanvas-node="hero-title"]{color:#111111;}@media (max-width: 767px){[data-emcanvas-node="root"]{padding:12px;}}</style>',
+        html: '<style data-emcanvas-page-fragments>[data-emcanvas-root]{width:100%;}[data-emcanvas-node="root"]{padding:24px;background-color:#f8fafc;}[data-emcanvas-node="hero-columns"]{gap:16px;}[data-emcanvas-node="hero-title"]{color:#111111;}@media (max-width: 767px){[data-emcanvas-node="root"]{padding:12px;}}</style>',
       },
     ])
 

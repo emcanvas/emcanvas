@@ -30,6 +30,28 @@ function createDocument(): CanvasDocument {
 describe('canvas-document-entry helpers', () => {
   it('loads persisted canvas state from entry data', () => {
     const canvasLayout = createDocument()
+    canvasLayout.root.styles = {
+      desktop: {
+        padding: '24px',
+        backgroundColor: '#f8fafc',
+      },
+      tablet: {
+        padding: '16px',
+      },
+    }
+    canvasLayout.root.children = [
+      {
+        id: 'hero-columns',
+        type: 'columns',
+        props: {},
+        styles: {
+          desktop: {
+            gap: '16px',
+          },
+        },
+        children: [],
+      },
+    ]
     const _emcanvas = {
       enabled: true,
       version: CANVAS_DOCUMENT_VERSION,
@@ -114,6 +136,53 @@ describe('canvas-document-entry helpers', () => {
       },
       [EMCANVAS_LAYOUT_KEY]: canvasLayout,
     })
+  })
+
+  it('round-trips a features cards block through entry serialization and loading', () => {
+    const canvasLayout = createDocument()
+
+    canvasLayout.root.children = [
+      {
+        id: 'features-cards-1',
+        type: 'features/cards',
+        props: {
+          title: 'Why teams pick EmCanvas',
+          intro: 'A compact value section for product landing pages.',
+          card1Title: 'Hero to proof',
+          card1Body: 'Move from headline to supporting benefits in one scroll.',
+          card2Title: 'Editor friendly',
+          card2Body: 'Marketers can tweak copy without touching code.',
+          card3Title: 'SSR safe',
+          card3Body:
+            'The renderer tolerates persisted JSON and keeps output predictable.',
+        },
+        styles: {
+          desktop: {
+            padding: '32px',
+          },
+        },
+        children: [],
+      },
+    ]
+
+    const entryData = serializeCanvasDocumentToEntryData({
+      entryData: { slug: 'home' },
+      canvasLayout,
+    })
+    const loadedState = loadCanvasDocumentState(entryData)
+
+    expect(loadedState.canvasLayout.root.children).toEqual([
+      expect.objectContaining({
+        id: 'features-cards-1',
+        type: 'features/cards',
+        props: expect.objectContaining({
+          title: 'Why teams pick EmCanvas',
+          card2Title: 'Editor friendly',
+          card3Body:
+            'The renderer tolerates persisted JSON and keeps output predictable.',
+        }),
+      }),
+    ])
   })
 
   it('supports a validated metadata override during serialization', () => {

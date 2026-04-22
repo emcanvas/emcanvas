@@ -19,6 +19,9 @@ export interface PropertyInspectorProps {
   onAddHeading?: () => void
   onAddText?: () => void
   onAddButton?: () => void
+  onAddImage?: () => void
+  onAddHero?: () => void
+  onAddFeaturesCards?: () => void
   onDeleteNode?: () => void
   onUpdateProps?: (patch: Record<string, unknown>) => void
   onUpdateStyles?: (patch: Record<string, unknown>) => void
@@ -39,6 +42,9 @@ export function PropertyInspector({
   onAddHeading = () => undefined,
   onAddText = () => undefined,
   onAddButton = () => undefined,
+  onAddImage = () => undefined,
+  onAddHero = () => undefined,
+  onAddFeaturesCards = () => undefined,
   onDeleteNode = () => undefined,
   onUpdateProps = () => undefined,
   onUpdateStyles = () => undefined,
@@ -70,6 +76,15 @@ export function PropertyInspector({
             <button type="button" onClick={onAddButton}>
               Add button to page
             </button>
+            <button type="button" onClick={onAddImage}>
+              Add image to page
+            </button>
+            <button type="button" onClick={onAddHero}>
+              Add hero to page
+            </button>
+            <button type="button" onClick={onAddFeaturesCards}>
+              Add features/cards to page
+            </button>
           </section>
         ) : null}
       </form>
@@ -96,6 +111,15 @@ export function PropertyInspector({
         </button>
         <button type="button" onClick={onAddButton}>
           Add button {basicAddActionSuffix}
+        </button>
+        <button type="button" onClick={onAddImage}>
+          Add image {basicAddActionSuffix}
+        </button>
+        <button type="button" onClick={onAddHero}>
+          Add hero {basicAddActionSuffix}
+        </button>
+        <button type="button" onClick={onAddFeaturesCards}>
+          Add features/cards {basicAddActionSuffix}
         </button>
         {canDeleteNode ? (
           <button type="button" onClick={onDeleteNode}>

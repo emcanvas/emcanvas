@@ -3,7 +3,9 @@ import { buttonWidget } from './widgets/button'
 import { columnsWidget } from './widgets/columns'
 import { containerWidget } from './widgets/container'
 import { dividerWidget } from './widgets/divider'
+import { featuresCardsWidget } from './widgets/features-cards'
 import { headingWidget } from './widgets/heading'
+import { heroWidget } from './widgets/hero'
 import { imageWidget } from './widgets/image'
 import { sectionWidget } from './widgets/section'
 import { spacerWidget } from './widgets/spacer'
@@ -15,6 +17,8 @@ const widgetDefinitions: WidgetDefinition[] = [
   columnsWidget,
   containerWidget,
   headingWidget,
+  heroWidget,
+  featuresCardsWidget,
   textWidget,
   buttonWidget,
   spacerWidget,

@@ -56,7 +56,9 @@ function createBaseNodeFromWidgetType(nodeType: string): CanvasNode {
   }
 
   return {
-    id: createNodeId(nodeType),
+    id: createNodeId(
+      nodeType === 'features/cards' ? 'features-cards' : nodeType,
+    ),
     type: definition.type,
     props: { ...definition.defaultProps },
     styles: { desktop: {} },

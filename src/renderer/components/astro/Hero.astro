@@ -1,0 +1,37 @@
+---
+import { normalizeButtonHref } from '../../../foundation/shared/button-href'
+
+const {
+  title: rawTitle,
+  body: rawBody,
+  ctaLabel: rawCtaLabel,
+  ctaHref: rawCtaHref,
+  imageSrc: rawImageSrc,
+  imageAlt: rawImageAlt,
+  ...attributes
+} = Astro.props
+
+const title = typeof rawTitle === 'string' ? rawTitle : ''
+const body = typeof rawBody === 'string' ? rawBody : ''
+const ctaLabel = typeof rawCtaLabel === 'string' ? rawCtaLabel : ''
+const ctaHref = normalizeButtonHref(rawCtaHref)
+const imageSrc = typeof rawImageSrc === 'string' ? rawImageSrc : ''
+const imageAlt = typeof rawImageAlt === 'string' ? rawImageAlt : ''
+---
+
+<section {...attributes} class="emc-hero">
+  <div class="emc-hero__content">
+    {title ? <h1 class="emc-hero__title">{title}</h1> : null}
+    {body ? <p class="emc-hero__body">{body}</p> : null}
+    {ctaLabel ? (
+      <a class="emc-hero__cta" href={ctaHref}>
+        {ctaLabel}
+      </a>
+    ) : null}
+  </div>
+  {imageSrc ? (
+    <div class="emc-hero__media">
+      <img class="emc-hero__image" src={imageSrc} alt={imageAlt} />
+    </div>
+  ) : null}
+</section>

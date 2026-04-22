@@ -36,6 +36,16 @@ export function getCanvasNodePath(
 }
 
 function getCanvasNodePreview(node: CanvasNode): string | null {
+  const title = node.props.title
+
+  if (typeof title === 'string') {
+    const trimmedTitle = title.trim()
+
+    if (trimmedTitle.length > 0) {
+      return trimmedTitle
+    }
+  }
+
   const label = node.props.label
 
   if (typeof label === 'string') {
@@ -60,6 +70,18 @@ function getCanvasNodePreview(node: CanvasNode): string | null {
 
   if (typeof href === 'string' && href.trim().length > 0) {
     return href.trim()
+  }
+
+  const alt = node.props.alt
+
+  if (typeof alt === 'string' && alt.trim().length > 0) {
+    return alt.trim()
+  }
+
+  const src = node.props.src
+
+  if (typeof src === 'string' && src.trim().length > 0) {
+    return src.trim()
   }
 
   return null

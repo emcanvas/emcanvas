@@ -136,6 +136,60 @@ function ButtonPropertyInspectorHarness() {
   )
 }
 
+function createImageFixtureDocument(): CanvasDocument {
+  return {
+    version: 1,
+    root: {
+      id: 'root',
+      type: 'section',
+      props: {},
+      styles: { desktop: {} },
+      children: [
+        {
+          id: 'image-1',
+          type: 'image',
+          props: {
+            src: 'https://cdn.example.test/hero.jpg',
+            alt: 'Hero image',
+          },
+          styles: { desktop: {} },
+          children: [],
+        },
+      ],
+    },
+    settings: {},
+  }
+}
+
+function ImagePropertyInspectorHarness() {
+  const [document, setDocument] = useState(() => createImageFixtureDocument())
+  const documentRef = useRef(document)
+  const [history] = useState(() => createHistoryStore())
+
+  useEffect(() => {
+    documentRef.current = document
+  }, [document])
+
+  const state: EditorState = {
+    selectedNodeId: 'image-1',
+    dirty: false,
+    breakpoint: 'desktop',
+    canUndo: history.canUndo(),
+    canRedo: history.canRedo(),
+  }
+
+  return (
+    <EditorSidebar
+      document={document}
+      getDocument={() => documentRef.current}
+      state={state}
+      onBreakpointChange={() => undefined}
+      onDocumentChange={setDocument}
+      onCommand={(command) => history.execute(command)}
+    />
+  )
+}
+
 describe('PropertyInspector', () => {
   it('renders generated controls from widget schema and keeps styles scoped per breakpoint', () => {
     render(<PropertyInspectorHarness />)
@@ -194,5 +248,26 @@ describe('PropertyInspector', () => {
 
     expect(screen.getByLabelText('Label')).toHaveValue('Buy now')
     expect(screen.getByLabelText('Href')).toHaveValue('/buy-now')
+  })
+
+  it('renders image src and alt fields from the widget schema', () => {
+    render(<ImagePropertyInspectorHarness />)
+
+    expect(screen.getByLabelText('Src')).toHaveValue(
+      'https://cdn.example.test/hero.jpg',
+    )
+    expect(screen.getByLabelText('Alt')).toHaveValue('Hero image')
+
+    fireEvent.change(screen.getByLabelText('Src'), {
+      target: { value: 'https://cdn.example.test/feature.jpg' },
+    })
+    fireEvent.change(screen.getByLabelText('Alt'), {
+      target: { value: 'Feature image' },
+    })
+
+    expect(screen.getByLabelText('Src')).toHaveValue(
+      'https://cdn.example.test/feature.jpg',
+    )
+    expect(screen.getByLabelText('Alt')).toHaveValue('Feature image')
   })
 })
