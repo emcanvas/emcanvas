@@ -13,14 +13,37 @@ import {
 } from '../../editor/shell/editor-shell'
 
 export interface CanvasEditorPageProps {
-  entry: CanvasEntry
+  entry?: CanvasEntry
   api?: PluginApi
   previewOrigin?: string
   onEditorReady?: (instance: EditorShellInstance) => void
 }
 
+function resolveEntryFromLocation(): CanvasEntry {
+  if (typeof window === 'undefined') {
+    return { data: {} }
+  }
+
+  const search = new URLSearchParams(window.location.search)
+  const data: CanvasEntry['data'] = {}
+
+  const slug = search.get('slug')
+
+  if (slug) {
+    data.slug = slug
+  }
+
+  const title = search.get('title')
+
+  if (title) {
+    data.title = title
+  }
+
+  return { data }
+}
+
 export function CanvasEditorPage({
-  entry,
+  entry = resolveEntryFromLocation(),
   api = pluginApi,
   previewOrigin,
   onEditorReady,

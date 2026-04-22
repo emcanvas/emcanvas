@@ -23,7 +23,7 @@ Use this playbook for one bounded real-host smoke pass inside a local EmDash hos
 ## Operator flow
 
 1. Open the seeded `Homepage` entry with slug `home` in the local EmDash host.
-2. Enable EmCanvas takeover or open the EmCanvas editor for the seeded entry.
+2. Use the clear entry action: `Edit with EmCanvas`, or enable EmCanvas for the entry if takeover has not been activated yet.
 3. Confirm the real editor mounts and the entry starts from the documented `Welcome` heading state.
 4. Select the heading node. Edit the heading text from `Welcome` to `Published heading`.
 5. Publish the entry and confirm the editor reports a saved or published state for the current canvas document.

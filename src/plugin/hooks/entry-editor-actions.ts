@@ -1,5 +1,10 @@
 import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
 import { saveCanvasData } from '../routes/save-canvas-data'
+import manifest from '../manifest'
+import {
+  EMDASH_ADMIN_BASE_PATH,
+  EMCANVAS_EDITOR_PAGE_PATH,
+} from '../runtime/plugin-admin-contract'
 import { validateCanvasDocument } from '../../shared/validation/canvas-document'
 import { validateTakeoverState } from '../../shared/validation/takeover-state'
 
@@ -11,10 +16,19 @@ export interface EntryEditorAction {
 }
 
 function getEditorHref(data: Record<string, unknown>) {
-  const slug = typeof data.slug === 'string' ? data.slug : ''
-  const query = slug.length > 0 ? `?slug=${encodeURIComponent(slug)}` : ''
+  const search = new URLSearchParams()
 
-  return `/admin/plugins/emcanvas/editor${query}`
+  if (typeof data.slug === 'string' && data.slug.length > 0) {
+    search.set('slug', data.slug)
+  }
+
+  if (typeof data.title === 'string' && data.title.length > 0) {
+    search.set('title', data.title)
+  }
+
+  const query = search.toString()
+
+  return `${EMDASH_ADMIN_BASE_PATH}/plugins/${manifest.id}${EMCANVAS_EDITOR_PAGE_PATH}${query.length > 0 ? `?${query}` : ''}`
 }
 
 export function getEntryEditorActions(ctx: {
@@ -24,7 +38,7 @@ export function getEntryEditorActions(ctx: {
   const actions: EntryEditorAction[] = [
     {
       id: 'open-emcanvas-editor',
-      label: 'Open EmCanvas editor',
+      label: 'Edit with EmCanvas',
       href: getEditorHref(ctx.entry.data),
     },
   ]
@@ -32,7 +46,7 @@ export function getEntryEditorActions(ctx: {
   if (!takeoverState.enabled) {
     actions.unshift({
       id: 'enable-emcanvas',
-      label: 'Enable EmCanvas takeover',
+      label: 'Enable EmCanvas for this entry',
       run: () =>
         saveCanvasData({
           entry: ctx.entry,

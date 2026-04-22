@@ -20,7 +20,7 @@ describe('manual smoke harness docs', () => {
     )
     expect(playbookContent).toContain('It does not deploy the final site')
     expect(playbookContent).toContain(
-      'Enable EmCanvas takeover or open the EmCanvas editor for the seeded entry.',
+      'Use the clear entry action: `Edit with EmCanvas`, or enable EmCanvas for the entry if takeover has not been activated yet.',
     )
     expect(playbookContent).toContain(
       'Edit the heading text from `Welcome` to `Published heading`.',
