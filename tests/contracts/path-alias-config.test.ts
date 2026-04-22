@@ -158,8 +158,8 @@ describe('path alias config', () => {
 
     expect(adminModule.default).toMatchObject({
       pages: {
-        dashboard: expect.any(Function),
-        editor: expect.any(Function),
+        '/dashboard': expect.any(Function),
+        '/editor': expect.any(Function),
       },
     })
   })

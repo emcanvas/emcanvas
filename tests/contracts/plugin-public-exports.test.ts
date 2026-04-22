@@ -70,12 +70,12 @@ describe('plugin public exports', () => {
 
     expect(admin).toMatchObject({
       pages: {
-        dashboard: expect.any(Function),
-        editor: expect.any(Function),
+        '/dashboard': expect.any(Function),
+        '/editor': expect.any(Function),
       },
     })
     expect(Object.keys(admin)).toEqual(['pages'])
-    expect(Object.keys(admin.pages).sort()).toEqual(['dashboard', 'editor'])
+    expect(Object.keys(admin.pages).sort()).toEqual(['/dashboard', '/editor'])
 
     expect(astro).toMatchObject({
       blockComponents: expect.any(Object),

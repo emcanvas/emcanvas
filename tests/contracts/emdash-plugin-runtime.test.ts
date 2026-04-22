@@ -387,8 +387,8 @@ describe('emdash runtime contract', () => {
       })
       expect(adminModule.default).toMatchObject({
         pages: {
-          dashboard: expect.any(Function),
-          editor: expect.any(Function),
+          '/dashboard': expect.any(Function),
+          '/editor': expect.any(Function),
         },
       })
       expect(astroModule.default).toMatchObject({

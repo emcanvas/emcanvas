@@ -27,8 +27,8 @@ describe('plugin admin entry import boundary', () => {
     const admin = await import('../../src/plugin/admin-entry')
 
     expect(admin.pages).toMatchObject({
-      dashboard: expect.any(Function),
-      editor: expect.any(Function),
+      '/dashboard': expect.any(Function),
+      '/editor': expect.any(Function),
     })
     expect(dashboardModuleLoaded).toBe(false)
     expect(editorModuleLoaded).toBe(false)
@@ -42,7 +42,7 @@ describe('plugin admin entry import boundary', () => {
     vi.resetModules()
 
     const admin = await import('../../src/plugin/admin-entry')
-    const EditorPage = admin.pages.editor
+    const EditorPage = admin.pages['/editor']
 
     render(<EditorPage entry={{ data: {} }} />)
 
@@ -50,5 +50,14 @@ describe('plugin admin entry import boundary', () => {
       await screen.findByRole('heading', { name: 'EmCanvas editor' }),
     ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Publish' })).toBeInTheDocument()
+  })
+
+  it('exposes slash-prefixed page keys for EmDash route lookup', async () => {
+    const admin = await import('../../src/plugin/admin-entry')
+
+    expect(admin.pages['/editor']).toBeTypeOf('function')
+    expect(admin.pages['/dashboard']).toBeTypeOf('function')
+    expect(admin.pages['editor']).toBeUndefined()
+    expect(admin.pages['dashboard']).toBeUndefined()
   })
 })

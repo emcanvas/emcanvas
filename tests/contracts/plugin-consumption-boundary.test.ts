@@ -26,8 +26,8 @@ describe('plugin consumption boundary', () => {
 
     expect(Object.keys(admin)).toEqual(['pages'])
     expect(admin.pages).toMatchObject({
-      dashboard: expect.any(Function),
-      editor: expect.any(Function),
+      '/dashboard': expect.any(Function),
+      '/editor': expect.any(Function),
     })
   })
 

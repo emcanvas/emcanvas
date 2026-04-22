@@ -19,8 +19,8 @@ function createLazyPage<Props extends object>(
 }
 
 const pages = {
-  dashboard: createLazyPage(() => import('./pages/dashboard-page.js')),
-  editor: createLazyPage(() => import('./pages/editor-page.js')),
+  '/dashboard': createLazyPage(() => import('./pages/dashboard-page.js')),
+  '/editor': createLazyPage(() => import('./pages/editor-page.js')),
 }
 
 export { pages }
