@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createDefaultCanvasDocument } from '../../foundation/model/document-factory'
 import type { CanvasDocument } from '../../foundation/types/canvas'
 import type { CanvasEntry } from '../../shared/types/canvas-entry'
@@ -49,11 +49,15 @@ function resolveEntryFromLocation(): CanvasEntry {
 }
 
 export function CanvasEditorPage({
-  entry = resolveEntryFromLocation(),
+  entry,
   api = pluginApi,
   previewOrigin,
   onEditorReady,
 }: CanvasEditorPageProps) {
+  const resolvedEntry = useMemo(
+    () => entry ?? resolveEntryFromLocation(),
+    [entry],
+  )
   const editorInstanceRef = useRef<EditorShellInstance | null>(null)
   const [initialDocument, setInitialDocument] = useState<CanvasDocument>(() =>
     createDefaultCanvasDocument(),
@@ -72,7 +76,7 @@ export function CanvasEditorPage({
     setHasLoadedDocument(false)
 
     void api
-      .loadDocument(entry)
+      .loadDocument(resolvedEntry)
       .then((result) => {
         if (!active) {
           return
@@ -95,14 +99,14 @@ export function CanvasEditorPage({
     return () => {
       active = false
     }
-  }, [api, entry])
+  }, [api, resolvedEntry])
 
   async function handlePublish() {
     setSaveState('saving')
     setMessage(null)
 
     try {
-      await api.saveDocument({ entry, canvasLayout })
+      await api.saveDocument({ entry: resolvedEntry, canvasLayout })
       setInitialDocument(canvasLayout)
       editorInstanceRef.current?.store.resetHistory(canvasLayout)
       editorInstanceRef.current?.store.markClean()
@@ -114,7 +118,10 @@ export function CanvasEditorPage({
     }
   }
 
-  const previewUrl = api.getPreviewLink({ entry, origin: previewOrigin })
+  const previewUrl = api.getPreviewLink({
+    entry: resolvedEntry,
+    origin: previewOrigin,
+  })
 
   return (
     <main aria-labelledby="emcanvas-editor-title">
