@@ -14,7 +14,7 @@ describe('plugin descriptor', () => {
       id: packageJson.name,
       version: packageJson.version,
       entrypoint: packageJson.name,
-      format: 'module',
+      format: 'native',
       adminEntry: `${packageJson.name}/admin`,
       componentsEntry: `${packageJson.name}/astro`,
       adminPages: [

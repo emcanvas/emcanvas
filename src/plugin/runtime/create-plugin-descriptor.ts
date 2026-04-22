@@ -9,7 +9,7 @@ export function createPluginDescriptor() {
     id: manifest.id,
     version: manifest.version,
     entrypoint: packageName,
-    format: 'module',
+    format: 'native',
     adminEntry: `${packageName}/admin`,
     componentsEntry: `${packageName}/astro`,
     adminPages: createDescriptorAdminPages(),
