@@ -25,6 +25,17 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+function expectEmDashHeaders(
+  headers: HeadersInit | undefined,
+  expected: Record<string, string>,
+) {
+  const nextHeaders = new Headers(headers)
+
+  for (const [key, value] of Object.entries(expected)) {
+    expect(nextHeaders.get(key)).toBe(value)
+  }
+}
+
 describe('emdashContentApi', () => {
   it('detects when the browser entry can use the real EmDash content API', () => {
     window.history.replaceState(
@@ -72,13 +83,17 @@ describe('emdashContentApi', () => {
       },
     })
 
-    expect(fetchMock).toHaveBeenCalledWith(
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock.mock.calls[0]?.[0]).toBe(
       '/_emdash/api/content/pages/page-1',
-      {
-        credentials: 'same-origin',
-        headers: { Accept: 'application/json' },
-      },
     )
+    expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({
+      credentials: 'same-origin',
+    })
+    expectEmDashHeaders(fetchMock.mock.calls[0]?.[1]?.headers, {
+      Accept: 'application/json',
+      'X-EmDash-Request': '1',
+    })
   })
 
   it('updates and publishes the real EmDash page entry through the content API', async () => {
@@ -139,48 +154,55 @@ describe('emdashContentApi', () => {
       },
     })
 
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      1,
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(fetchMock.mock.calls[0]?.[0]).toBe(
       '/_emdash/api/content/pages/page-1',
-      {
-        credentials: 'same-origin',
-        headers: { Accept: 'application/json' },
-      },
     )
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
+    expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({
+      credentials: 'same-origin',
+    })
+    expectEmDashHeaders(fetchMock.mock.calls[0]?.[1]?.headers, {
+      Accept: 'application/json',
+      'X-EmDash-Request': '1',
+    })
+
+    expect(fetchMock.mock.calls[1]?.[0]).toBe(
       '/_emdash/api/content/pages/page-1',
-      {
-        method: 'PUT',
-        credentials: 'same-origin',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          data: {
-            slug: 'home',
-            title: 'Homepage',
-            content: [{ _type: 'block', children: [] }],
-            canvasLayout: persistedCanvasLayout,
-            _emcanvas: {
-              enabled: true,
-              version: CANVAS_DOCUMENT_VERSION,
-              editorVersion: EMCANVAS_EDITOR_VERSION,
-            },
+    )
+    expect(fetchMock.mock.calls[1]?.[1]).toMatchObject({
+      method: 'PUT',
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        data: {
+          slug: 'home',
+          title: 'Homepage',
+          content: [{ _type: 'block', children: [] }],
+          canvasLayout: persistedCanvasLayout,
+          _emcanvas: {
+            enabled: true,
+            version: CANVAS_DOCUMENT_VERSION,
+            editorVersion: EMCANVAS_EDITOR_VERSION,
           },
-          _rev: 'rev-1',
-        }),
-      },
-    )
-    expect(fetchMock).toHaveBeenNthCalledWith(
-      3,
+        },
+        _rev: 'rev-1',
+      }),
+    })
+    expectEmDashHeaders(fetchMock.mock.calls[1]?.[1]?.headers, {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      'X-EmDash-Request': '1',
+    })
+
+    expect(fetchMock.mock.calls[2]?.[0]).toBe(
       '/_emdash/api/content/pages/page-1/publish',
-      {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { Accept: 'application/json' },
-      },
     )
+    expect(fetchMock.mock.calls[2]?.[1]).toMatchObject({
+      method: 'POST',
+      credentials: 'same-origin',
+    })
+    expectEmDashHeaders(fetchMock.mock.calls[2]?.[1]?.headers, {
+      Accept: 'application/json',
+      'X-EmDash-Request': '1',
+    })
   })
 })

@@ -2,14 +2,39 @@
 
 EmCanvas is a visual page builder for EmDash CMS.
 
-It lives as an external plugin, stores layout data inside `entry.data`, and renders pages server-side without requiring mandatory frontend runtime JavaScript.
+It lives as an external plugin, stores layout data inside EmDash content entries, and renders pages server-side without requiring mandatory frontend runtime JavaScript.
 
 ## Status
 
-- MVP implemented and tested
-- package/runtime surfaces aligned for source-first EmDash consumption
+- source-first EmDash integration working
+- dedicated admin editor/canvas working
+- website-builder MVP working for basic landing pages
+- publish wired to the real EmDash content API for `pages`
 - renderer hardening completed
-- quick smoke, manual smoke, and Docker-backed local-host smoke flows available
+- quick smoke, manual smoke, and local-host validation flows available
+
+## What works today
+
+EmCanvas can currently:
+
+- open as a dedicated admin editor from EmDash
+- start from an empty valid layout
+- create/edit/delete blocks
+- build basic pages with:
+  - `hero`
+  - `features/cards`
+  - `heading`
+  - `text`
+  - `button`
+  - `image`
+  - `section`
+  - `container`
+  - `columns`
+- persist edits through EmDash's real content API
+- publish and reload edited pages
+- render the saved layout server-side
+
+This is a **website-builder MVP**, not a full Elementor-class editor yet.
 
 ## Repository scope
 
@@ -29,10 +54,29 @@ The package exposes these public entrypoints:
 
 The root package stays runtime-only, while `emcanvas/descriptor` exposes the build-time descriptor contract.
 
+### Import rules
+
+Use the package surfaces like this:
+
+- `emcanvas/descriptor` in `astro.config.mjs`
+- `emcanvas` as the runtime plugin entrypoint
+- `emcanvas/admin` for trusted admin React pages
+- `emcanvas/astro` for site-side rendering components
+
+Example host registration:
+
+```js
+import emcanvasPlugin from 'emcanvas/descriptor'
+
+plugins: [auditLogPlugin(), emcanvasPlugin]
+```
+
+Do **not** import the descriptor from `emcanvas` root.
+
 ## Core architecture
 
-- The visual editor is a dedicated admin app, not a TipTap extension.
-- Layout data is persisted in `entry.data` so EmDash revisions and preview flows stay reusable.
+- The visual editor is a dedicated admin canvas, not a TipTap extension.
+- Layout data is persisted through EmDash's content pipeline so revisions, publish, and preview flows stay reusable.
 - Frontend rendering is SSR-first.
 - Renderer-managed CSS is emitted through scoped page fragments, not inline `style="..."` attributes.
 - Host/runtime adapters stay separate from editor/renderer core.
@@ -70,72 +114,81 @@ This is a bounded preflight that checks the smoke docs and points to the canonic
 
 To test EmCanvas from source as a real EmDash plugin:
 
-1. Add EmCanvas as a local dependency in your EmDash host. For the `emdash/demos/simple` demo this means adding:
+1. Add EmCanvas as a local dependency in your EmDash host:
 
 ```json
-"emcanvas": "file:../../../emcanvas"
+"emcanvas": "file:../emcanvas"
 ```
 
-to `dependencies` in `demos/simple/package.json`.
+adjusting the relative path to your host repo.
 
-2. Register the plugin in `demos/simple/astro.config.mjs`:
+2. Register the plugin in your host `astro.config.mjs`:
 
 ```js
-import emcanvasPlugin, { createPlugin } from 'emcanvas'
-import descriptor from 'emcanvas/descriptor'
+import emcanvasPlugin from 'emcanvas/descriptor'
 ```
 
-EmDash's native plugin loader consumes `descriptor.entrypoint` and imports the named `createPlugin()` factory from that root package surface. For the current local demo integration, you can still include the default runtime plugin in the EmDash integration config:
+Then use it in the EmDash integration config:
 
 ```js
 plugins: [auditLogPlugin(), emcanvasPlugin]
 ```
 
-3. Refresh dependencies in EmDash:
+3. Refresh dependencies in the host:
 
 ```bash
-cd /Users/lopezlean/development/js/emdash
 pnpm install
 ```
 
-4. Bootstrap and run the demo host:
+4. Start the host:
 
 ```bash
-cd /Users/lopezlean/development/js/emdash/demos/simple
-pnpm bootstrap
 pnpm dev
 ```
 
-5. After EmCanvas changes, repeat the local loop:
+5. If Vite/Astro caches stale plugin code, clear the host caches and restart:
 
 ```bash
-cd /Users/lopezlean/development/js/emdash/demos/simple
+rm -rf .astro node_modules/.vite
 pnpm dev
 ```
 
-Restart or reload the host if it cached the previous module graph. Build only when you explicitly need packaging artifacts.
+6. Open the editor directly for a page entry if needed:
 
-6. Run the bounded smoke preflight:
-
-```bash
-pnpm smoke
+```text
+/_emdash/admin/plugins/emcanvas/editor?id=<entry-id>
 ```
 
-7. If your local EmDash host exposes the seed endpoint, create the canonical smoke entry:
-
-```bash
-node ./scripts/smoke-seed-local-host.mjs
-```
-
-8. Complete the real host pass with:
+7. Complete the local validation / smoke flow with:
 
 - `docs/integration/emdash-local-validation.md`
 - `docs/integration/manual-smoke-harness-playbook.md`
 - `docs/integration/manual-smoke-harness-seeded-scenario.md`
 - `docs/integration/manual-smoke-harness-checklist.md`
 
-Import EmCanvas from the repo package path and let the public package specifiers resolve directly to source entry modules during local development.
-Keep the package exports map aligned with the `src/plugin/*` runtime entry modules.
+Build only when you explicitly need packaging artifacts.
+
+### What Publish does
+
+Publish now uses the real EmDash content pipeline for `pages`:
+
+- `GET /_emdash/api/content/pages/:id`
+- `PUT /_emdash/api/content/pages/:id`
+- `POST /_emdash/api/content/pages/:id/publish`
+
+That means EmCanvas no longer just mutates local in-memory entry data when publishing from the trusted admin editor.
+
+### Quick smoke preflight
+
+```bash
+pnpm smoke
+```
+
+If your local EmDash host exposes the seed endpoint, create the canonical smoke entry:
+
+```bash
+node ./scripts/smoke-seed-local-host.mjs
+```
 
 See `docs/integration/emdash-dev-source-consumption.md` for the bounded local package setup and guardrails.
 

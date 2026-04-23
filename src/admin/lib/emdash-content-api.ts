@@ -22,6 +22,12 @@ interface EmDashContentResponse {
 const EMDASH_CONTENT_API_BASE_PATH = '/_emdash/api/content'
 const DEFAULT_EMDASH_CONTENT_COLLECTION = 'pages'
 
+function withEmDashRequestHeaders(headers?: HeadersInit) {
+  const nextHeaders = new Headers(headers)
+  nextHeaders.set('X-EmDash-Request', '1')
+  return nextHeaders
+}
+
 function hasEntryId(entry: CanvasEntry) {
   return typeof entry.data.id === 'string' && entry.data.id.length > 0
 }
@@ -88,7 +94,7 @@ async function fetchEntry(entry: CanvasEntry) {
 
   const response = await fetch(buildContentUrl(entry), {
     credentials: 'same-origin',
-    headers: { Accept: 'application/json' },
+    headers: withEmDashRequestHeaders({ Accept: 'application/json' }),
   })
 
   return parseResponse(response)
@@ -120,10 +126,10 @@ export const emdashContentApi: PersistencePort = {
       await fetch(buildContentUrl(entry), {
         method: 'PUT',
         credentials: 'same-origin',
-        headers: {
+        headers: withEmDashRequestHeaders({
           Accept: 'application/json',
           'Content-Type': 'application/json',
-        },
+        }),
         body: JSON.stringify({
           data: nextData,
           ...(_rev ? { _rev } : {}),
@@ -136,7 +142,7 @@ export const emdashContentApi: PersistencePort = {
       await fetch(`${buildContentUrl(entry)}/publish`, {
         method: 'POST',
         credentials: 'same-origin',
-        headers: { Accept: 'application/json' },
+        headers: withEmDashRequestHeaders({ Accept: 'application/json' }),
       }),
       { requireItemData: false },
     )
